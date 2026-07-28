@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>큰손 수급 · 코인 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--amber-bg:rgba(192,127,36,.12);
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.mono{font-variant-numeric:tabular-nums}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:12px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  .mkbadge{font-size:11px;font-weight:800;color:#fff;background:var(--brand);padding:3px 9px;border-radius:7px}
+  nav.menu{display:flex;gap:2px;margin-left:4px;flex-wrap:wrap}
+  nav.menu a{color:var(--txt-2);font-size:13.5px;font-weight:500;padding:8px 11px;border-radius:9px;white-space:nowrap}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:160px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .statusbar{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--up);background:var(--up-bg);padding:4px 11px;border-radius:20px;margin-top:10px}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--up);animation:pulse 1.6s infinite;display:inline-block}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .subtabs{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
+  .subtabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .subtabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .panel{display:none;padding-bottom:10px}.panel.on{display:block}
+  .panel-intro{font-size:13.5px;color:var(--txt-2);margin:18px 0;line-height:1.6;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow-sm)}
+  .panel-intro b{color:var(--txt)}
+  .band{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:16px;margin:20px 0}
+  .statcards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+  .statcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+  .statcard .k{font-size:12px;color:var(--txt-2);font-weight:600;margin-bottom:6px}
+  .statcard .v{font-size:23px;font-weight:800;letter-spacing:-.02em}.statcard .s{font-size:11px;font-weight:700;margin-top:3px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+  .flowbar{height:12px;border-radius:6px;overflow:hidden;display:flex;margin:8px 0 8px}
+  .flowbar .in{background:var(--up)}.flowbar .out{background:var(--down)}
+  .flow-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--txt-2);font-weight:600}
+  .flow-note{font-size:12.5px;color:var(--txt-2);margin-top:12px;line-height:1.55}.flow-note b{color:var(--txt)}
+  .kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .kv:last-child{border:none}.kv .k{color:var(--txt-2);font-weight:600}.kv .v{font-weight:800}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .srow{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:11px;cursor:pointer}
+  .srow:hover{background:var(--card-2)}
+  .srow .rk{width:20px;font-weight:800;color:var(--txt-3);font-size:13px}
+  .srow .logo-sq{width:34px;height:34px;border-radius:10px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .srow .info{flex:1;min-width:0}.srow .info .n{font-size:14px;font-weight:700}.srow .info .s{font-size:11px;color:var(--txt-3);margin-top:1px}
+  .srow .r{text-align:right}.srow .r .pct{font-weight:800;font-size:14px}.srow .r .cnt{font-size:11px;color:var(--txt-3);font-weight:600}
+  .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+  .b-buy{color:var(--up);background:var(--up-bg)}.b-sell{color:var(--down);background:var(--down-bg)}.b-new{color:var(--brand);background:var(--card-2)}
+  .ai-note{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2)}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl th{text-align:left;font-size:11px;color:var(--txt-3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+  .tbl th.r,.tbl td.r{text-align:right}
+  .tbl td{padding:11px 10px;border-bottom:1px solid var(--line)}.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:var(--card-2)}
+  .tbl .nm{font-weight:700}.tbl .sub{font-size:11px;color:var(--txt-3)}
+  .addr{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--txt-3)}
+  /* whale alert feed */
+  .alert{display:flex;align-items:center;gap:12px;padding:12px 8px;border-bottom:1px solid var(--line);cursor:pointer}
+  .alert:last-child{border:none}.alert:hover{background:var(--card-2)}
+  .alert .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .alert .ic.out{background:var(--up-bg)}.alert .ic.in{background:var(--down-bg)}
+  .alert .amt{font-weight:800;font-size:14px;width:120px}
+  .alert .desc{flex:1;font-size:12.5px;color:var(--txt-2)}
+  .alert .desc b{color:var(--txt)}
+  .alert .tm{font-size:11px;color:var(--txt-3);font-weight:600}
+  /* exchange flow bars */
+  .exrow{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:13px}
+  .exrow .en{width:92px;font-weight:700}
+  .exbar{flex:1;height:22px;border-radius:6px;background:var(--card-2);position:relative;overflow:hidden}
+  .exbar i{position:absolute;top:0;height:100%}
+  .exmid{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--line-2)}
+  .exval{width:96px;text-align:right;font-weight:800;font-size:12.5px}
+  /* liquidation map */
+  .liqmap{display:flex;flex-direction:column;gap:3px;margin-top:8px}
+  .liqrow{display:flex;align-items:center;gap:10px;font-size:12px}
+  .liqrow .px{width:74px;font-weight:700;color:var(--txt-2);text-align:right}
+  .liqrow .bar{flex:1;height:18px;border-radius:4px;position:relative;background:var(--card-2);overflow:hidden}
+  .liqrow .bar i{display:block;height:100%}
+  .liqrow .amt{width:64px;font-weight:700;font-size:11.5px;color:var(--txt-2)}
+  .liqrow.now{background:var(--card-2);border-radius:6px;padding:3px 0}
+  .liqrow.now .px{color:var(--brand);font-weight:800}
+  /* directory */
+  .inst-cats{display:flex;gap:8px;margin:6px 0 12px;flex-wrap:wrap}
+  .inst-cats button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:9px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .inst-cats button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .inst-cats button .c{font-size:11px;font-weight:800;opacity:.85}
+  .inst-search{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 15px;font-family:inherit;font-size:13px;color:var(--txt);outline:none;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+  .inst-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+  .inst{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;box-shadow:var(--shadow-sm);transition:.12s}
+  .inst:hover{border-color:var(--line-2);transform:translateY(-1px)}
+  .inst .av{width:34px;height:34px;border-radius:10px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .inst .nm{flex:1;min-width:0}.inst .nm .n{font-size:12.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inst .nm .p{font-size:10.5px;color:var(--txt-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inst .c{font-size:12.5px;font-weight:800;color:var(--brand-2);flex-shrink:0}
+  .inst-more{text-align:center;margin-top:12px}
+  .inst-more button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:11px 22px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(20,24,30,.5);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--card);border:1px solid var(--line-2);border-radius:20px;max-width:540px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.32);padding:24px}
+  .modal .mh{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+  .modal .mh .av{width:48px;height:48px;border-radius:13px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .modal .mh .t h4{font-size:17px;font-weight:800}.modal .mh .t .s{font-size:12px;color:var(--txt-3);font-weight:600;margin-top:2px}
+  .modal .close{margin-left:auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card-2);cursor:pointer;font-size:15px;color:var(--txt-2)}
+  .modal .mstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+  .modal .mstat div{background:var(--card-2);border-radius:11px;padding:11px;text-align:center}
+  .modal .mstat .k{font-size:11px;color:var(--txt-3);font-weight:600}.modal .mstat .v{font-size:15px;font-weight:800;margin-top:3px}
+  .modal h5{font-size:12px;font-weight:800;color:var(--txt-2);margin:14px 0 8px}
+  .mhold{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .mhold:last-child{border:none}.mhold .hn{flex:1;font-weight:700}.mhold .hp{font-weight:800}
+  .mhold .hbar{width:70px;height:6px;border-radius:3px;background:var(--card-2);overflow:hidden}.mhold .hbar i{display:block;height:100%;background:var(--brand)}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  .warn{background:var(--amber-bg);border:1px solid rgba(192,127,36,.25);border-radius:12px;padding:12px 15px;font-size:12px;color:var(--txt-2);margin:16px 0;line-height:1.55}
+  .warn b{color:var(--amber)}
+  @media(max-width:900px){.band,.cols,.statcards{grid-template-columns:1fr}nav.menu,.search{display:none}.statcards{grid-template-columns:1fr 1fr}.tbl .hide{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <span class="mkbadge">₿ 코인</span>
+  <nav class="menu">
+    <a href="coin-terminal.html">관제</a><a href="whale-coin.html" class="on">온체인</a><a href="idea.html">커넥션</a><a href="forecast.html">확률 통계</a>
+    <a href="research.html">리서치</a><a href="theme.html">테마·흐름</a><a href="calendar.html">캘린더</a>
+  </nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="코인·지갑 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>⛓️ 온체인 <span class="mkbadge" style="font-size:14px">₿ 코인</span></h1>
+    <p>블록체인에 <b style="color:var(--txt)">모든 거래가 공개</b>돼 있어요. 고래 지갑·거래소 흐름·스테이블코인으로 큰손을 추적합니다.</p>
+    <div class="statusbar"><span class="live-dot"></span>24시간 거래 · 온체인 실시간 · 15분 갱신</div>
+    <div class="subtabs" id="subtabs">
+      <button class="on" data-p="all">종합</button>
+      <button data-p="wallet">고래 지갑</button>
+      <button data-p="exch">거래소 흐름</button>
+      <button data-p="stable">스테이블코인</button>
+      <button data-p="inst">기관·ETF</button>
+      <button data-p="deriv">파생·청산</button>
+    </div>
+  </section>
+
+  <!-- 종합 -->
+  <div class="panel on" data-panel="all">
+    <div class="band">
+      <div class="card">
+        <h3>온체인 수급 방향 <span class="hint">최근 7일 거래소 순흐름</span></h3>
+        <div class="flowbar"><i class="in" style="width:32%"></i><i class="out" style="width:68%"></i></div>
+        <div class="flow-legend"><span class="down">거래소 유입 32%</span><span class="up">거래소 유출 68%</span></div>
+        <div class="flow-note">코인이 거래소에서 <b class="up">빠져나가는 중</b> — 개인 지갑으로 옮긴다는 건 <b>당장 팔 생각이 없다</b>는 뜻이라 강세 신호로 봅니다.</div>
+      </div>
+      <div class="card">
+        <h3>오늘의 큰손 <span class="hint">24시간</span></h3>
+        <div class="kv"><span class="k">BTC 거래소 순유출</span><span class="v up">−1.2만개</span></div>
+        <div class="kv"><span class="k">ETH 거래소 순유출</span><span class="v up">−8.4만개</span></div>
+        <div class="kv"><span class="k">USDT 신규 발행</span><span class="v up">+12억달러</span></div>
+        <div class="kv"><span class="k">현물 ETF 순유입</span><span class="v up">+3.4억달러</span></div>
+      </div>
+      <div class="card">
+        <h3>주목 코인 TOP <span class="hint">고래 매집</span></h3>
+        <div class="kv"><span class="k">① 비트코인</span><span class="v up">고래 매집</span></div>
+        <div class="kv"><span class="k">② 솔라나</span><span class="v up">스마트머니 유입</span></div>
+        <div class="kv"><span class="k">③ 이더리움</span><span class="v up">ETF 유입 재개</span></div>
+        <div class="kv"><span class="k">④ TAO</span><span class="v up">신규 고래 진입</span></div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 고래가 모으는 코인 <span class="hint">최근 7일 지갑 잔고 증가</span></h3>
+        <a class="srow" href="stock-coin.html"><span class="rk">1</span><span class="logo-sq">₿</span><div class="info"><div class="n">비트코인 <span class="badge b-buy">매집</span></div><div class="s">1,000+ BTC 지갑 수 증가</div></div><div class="r"><div class="pct up">+2.1만 BTC</div><div class="cnt">≈ $24.8억</div></div></a>
+        <a class="srow" href="stock-coin.html"><span class="rk">2</span><span class="logo-sq">S</span><div class="info"><div class="n">솔라나 <span class="badge b-new">스마트머니</span></div><div class="s">수익률 상위 지갑 순매수</div></div><div class="r"><div class="pct up">+184만 SOL</div><div class="cnt">≈ $3.9억</div></div></a>
+        <a class="srow" href="stock-coin.html"><span class="rk">3</span><span class="logo-sq">Ξ</span><div class="info"><div class="n">이더리움</div><div class="s">스테이킹 예치 증가</div></div><div class="r"><div class="pct up">+21만 ETH</div><div class="cnt">≈ $8.6억</div></div></a>
+        <a class="srow" href="stock-coin.html"><span class="rk">4</span><span class="logo-sq">T</span><div class="info"><div class="n">TAO (Bittensor)</div><div class="s">신규 대형 지갑 3곳</div></div><div class="r"><div class="pct up">+12만 TAO</div><div class="cnt">≈ $0.6억</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ 고래가 던지는 코인 <span class="hint">최근 7일 지갑 잔고 감소</span></h3>
+        <a class="srow" href="stock-coin.html"><span class="rk">1</span><span class="logo-sq">D</span><div class="info"><div class="n">도지코인 <span class="badge b-sell">분산</span></div><div class="s">상위 지갑 매도 우위</div></div><div class="r"><div class="pct down">−8.2억 DOGE</div><div class="cnt">≈ $1.7억</div></div></a>
+        <a class="srow" href="stock-coin.html"><span class="rk">2</span><span class="logo-sq">X</span><div class="info"><div class="n">리플</div><div class="s">거래소 유입 증가</div></div><div class="r"><div class="pct down">−3.1억 XRP</div><div class="cnt">≈ $8.8억</div></div></a>
+        <a class="srow" href="stock-coin.html"><span class="rk">3</span><span class="logo-sq">A</span><div class="info"><div class="n">에이다</div><div class="s">장기보유 지갑 이탈</div></div><div class="r"><div class="pct down">−1.4억 ADA</div><div class="cnt">≈ $1.2억</div></div></a>
+        <a class="srow" href="stock-coin.html"><span class="rk">4</span><span class="logo-sq">P</span><div class="info"><div class="n">PEPE</div><div class="s">급등 후 차익실현</div></div><div class="r"><div class="pct down">−4.2조 PEPE</div><div class="cnt">≈ $0.9억</div></div></a>
+      </div>
+    </div>
+
+    <div class="card ai-note">
+      <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 온체인 해설</h3>
+      <div style="display:flex;gap:12px">
+        <svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
+        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">
+          비트코인이 거래소에서 <b style="color:var(--txt)">계속 빠져나가고</b> 있어요 — 팔려고 올려둔 물량이 줄어든다는 뜻이라 강세 신호입니다. 여기에 <b style="color:var(--txt)">USDT 12억달러 신규 발행</b>까지 겹쳐 살 돈도 늘었어요. 다만 <b style="color:var(--txt)">밈코인은 고래가 던지는 중</b>이라 급등 후 차익실현 구간으로 보입니다. 펀딩비가 계속 오르면 과열이니 조심하세요.
+          <div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 고래 지갑 -->
+  <div class="panel" data-panel="wallet">
+    <div class="panel-intro">🐋 <b>고래 지갑</b> — 블록체인은 모든 거래가 공개라 <b>큰 지갑이 언제 뭘 샀는지</b> 실시간으로 보입니다. 대형 이체는 시장을 움직이는 선행 신호가 되기도 해요. 단, 거래소 내부 이동일 수도 있어 맥락 해석이 필요합니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">1,000+ BTC 지갑</div><div class="v">2,148</div><div class="s up">▲ +12곳 (7일)</div></div>
+      <div class="statcard"><div class="k">신규 고래</div><div class="v up">37</div><div class="s up">▲ 이번주</div></div>
+      <div class="statcard"><div class="k">장기보유(LTH) 비중</div><div class="v">74.2%</div><div class="s up">▲ +0.8%p</div></div>
+      <div class="statcard"><div class="k">최대 단일 이체</div><div class="v" style="font-size:18px">$4.2억</div><div class="s">BTC · 3시간 전</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3><span class="live-dot"></span> 대형 이체 알림 <span class="hint">$1,000만 이상 · 실시간</span></h3>
+      <div>
+        <div class="alert"><span class="ic out">📤</span><span class="amt up">4,120 BTC</span><span class="desc"><b>바이낸스</b> → 알 수 없는 지갑 <span class="badge b-buy">출금</span></span><span class="tm">3분 전</span></div>
+        <div class="alert"><span class="ic out">📤</span><span class="amt up">62,400 ETH</span><span class="desc"><b>코인베이스</b> → 콜드월렛 <span class="badge b-buy">출금</span></span><span class="tm">18분 전</span></div>
+        <div class="alert"><span class="ic in">📥</span><span class="amt down">1.2억 XRP</span><span class="desc">알 수 없는 지갑 → <b>업비트</b> <span class="badge b-sell">입금</span></span><span class="tm">42분 전</span></div>
+        <div class="alert"><span class="ic out">📤</span><span class="amt up">2,800 BTC</span><span class="desc"><b>크라켄</b> → 신규 지갑 <span class="badge b-buy">출금</span></span><span class="tm">1시간 전</span></div>
+        <div class="alert"><span class="ic in">📥</span><span class="amt down">3.4억 DOGE</span><span class="desc">고래 지갑 → <b>바이낸스</b> <span class="badge b-sell">입금</span></span><span class="tm">2시간 전</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">📤 거래소 <b style="color:var(--up)">출금</b> = 매도 압력 완화(강세) · 📥 거래소 <b style="color:var(--down)">입금</b> = 매도 준비 가능성(약세)</div>
+    </div>
+
+    <div class="card">
+      <h3>🏷️ 라벨링된 큰손 지갑 <span class="hint">클릭 = 보유 내역</span></h3>
+      <div class="inst-cats" id="instCats">
+        <button class="on" data-cat="all">전체 <span class="c">32</span></button>
+        <button data-cat="mm">마켓메이커 <span class="c">8</span></button>
+        <button data-cat="fund">펀드·VC <span class="c">10</span></button>
+        <button data-cat="corp">기업·재단 <span class="c">8</span></button>
+        <button data-cat="ex">거래소 <span class="c">6</span></button>
+      </div>
+      <input class="inst-search" id="instSearch" placeholder="🔍 지갑 라벨 검색 (예: Jump, 그레이스케일)">
+      <div class="inst-grid" id="instGrid"></div>
+      <div class="inst-more"><button id="instMore">＋ 더 보기</button></div>
+    </div>
+  </div>
+
+  <!-- 거래소 흐름 -->
+  <div class="panel" data-panel="exch">
+    <div class="panel-intro">🏦 <b>거래소 흐름</b> — 거래소에 코인이 <b>들어오면 팔 준비</b>, <b>나가면 보관(홀딩)</b>으로 해석합니다. 거래소 보유량이 줄어들수록 시장에 나올 매물이 적어져요.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">거래소 BTC 보유량</div><div class="v">211만</div><div class="s up">▼ 5년 최저</div></div>
+      <div class="statcard"><div class="k">7일 순흐름</div><div class="v up">−1.2만</div><div class="s up">▲ 순유출(강세)</div></div>
+      <div class="statcard"><div class="k">거래소 ETH 보유량</div><div class="v">1,480만</div><div class="s up">▼ 감소</div></div>
+      <div class="statcard"><div class="k">스테이블 잔고</div><div class="v">$412억</div><div class="s up">▲ 대기 자금</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <h3>🔄 거래소별 24시간 순흐름 <span class="hint">− 유출(강세) / + 유입(약세)</span></h3>
+      <div class="exrow"><span class="en">바이낸스</span><div class="exbar"><span class="exmid"></span><i style="right:50%;width:42%;background:var(--up)"></i></div><span class="exval up">−5,240 BTC</span></div>
+      <div class="exrow"><span class="en">코인베이스</span><div class="exbar"><span class="exmid"></span><i style="right:50%;width:30%;background:var(--up)"></i></div><span class="exval up">−3,810 BTC</span></div>
+      <div class="exrow"><span class="en">크라켄</span><div class="exbar"><span class="exmid"></span><i style="right:50%;width:16%;background:var(--up)"></i></div><span class="exval up">−1,920 BTC</span></div>
+      <div class="exrow"><span class="en">업비트</span><div class="exbar"><span class="exmid"></span><i style="left:50%;width:12%;background:var(--down)"></i></div><span class="exval down">+1,450 BTC</span></div>
+      <div class="exrow"><span class="en">바이빗</span><div class="exbar"><span class="exmid"></span><i style="left:50%;width:6%;background:var(--down)"></i></div><span class="exval down">+680 BTC</span></div>
+    </div>
+    <div class="card">
+      <h3>📉 거래소 BTC 보유량 추이 <span class="hint">최근 12개월</span></h3>
+      <svg viewBox="0 0 700 180" style="width:100%">
+        <line x1="0" y1="150" x2="700" y2="150" stroke="#d3d6dd"/>
+        <polygon fill="rgba(216,69,90,.12)" points="0,30 60,38 120,44 180,52 240,58 300,68 360,76 420,88 480,96 540,108 600,118 660,130 700,138 700,150 0,150"/>
+        <polyline fill="none" stroke="#d8455a" stroke-width="2.5" points="0,30 60,38 120,44 180,52 240,58 300,68 360,76 420,88 480,96 540,108 600,118 660,130 700,138"/>
+        <g font-size="11" fill="#5c6470" font-weight="700"><text x="0" y="170">1년 전 248만</text><text x="600" y="170">현재 211만</text></g>
+      </svg>
+      <div style="font-size:12px;color:var(--txt-3);margin-top:6px">1년간 <b style="color:var(--up)">37만 BTC</b>가 거래소에서 빠져나갔어요 — 구조적 공급 감소.</div>
+    </div>
+  </div>
+
+  <!-- 스테이블코인 -->
+  <div class="panel" data-panel="stable">
+    <div class="panel-intro">💵 <b>스테이블코인</b>은 코인 시장의 <b>현금</b>이에요. 새로 발행되면 살 돈이 들어온 것, 소각되면 빠져나간 것으로 봅니다. 거래소에 쌓인 스테이블 잔고는 <b>대기 매수 자금</b>이에요.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">전체 시총</div><div class="v">$1,842억</div><div class="s up">▲ +2.1% (30일)</div></div>
+      <div class="statcard"><div class="k">USDT</div><div class="v">$1,180억</div><div class="s up">▲ +12억 발행</div></div>
+      <div class="statcard"><div class="k">USDC</div><div class="v">$482억</div><div class="s up">▲ +4억</div></div>
+      <div class="statcard"><div class="k">거래소 잔고</div><div class="v">$412억</div><div class="s up">▲ 대기 매수 자금</div></div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>🖨️ 최근 발행·소각 <span class="hint">7일</span></h3>
+        <div class="alert"><span class="ic out">🖨️</span><span class="amt up">+$12억</span><span class="desc"><b>USDT</b> 신규 발행 (Tether Treasury)</span><span class="tm">1일 전</span></div>
+        <div class="alert"><span class="ic out">🖨️</span><span class="amt up">+$4억</span><span class="desc"><b>USDC</b> 신규 발행 (Circle)</span><span class="tm">2일 전</span></div>
+        <div class="alert"><span class="ic in">🔥</span><span class="amt down">−$1.8억</span><span class="desc"><b>USDT</b> 소각</span><span class="tm">4일 전</span></div>
+        <div class="flow-note" style="margin-top:10px">순발행 <b class="up">+$14.2억</b> — 시장에 <b>새 현금이 유입</b>되는 중이에요.</div>
+      </div>
+      <div class="card">
+        <h3>📈 스테이블 시총 추이 <span class="hint">12개월</span></h3>
+        <svg viewBox="0 0 320 140" style="width:100%">
+          <line x1="0" y1="120" x2="320" y2="120" stroke="#d3d6dd"/>
+          <polygon fill="rgba(31,157,87,.14)" points="0,100 40,96 80,88 120,82 160,70 200,62 240,50 280,38 320,28 320,120 0,120"/>
+          <polyline fill="none" stroke="#1f9d57" stroke-width="2.5" points="0,100 40,96 80,88 120,82 160,70 200,62 240,50 280,38 320,28"/>
+        </svg>
+        <div style="font-size:12px;color:var(--txt-3);margin-top:6px">1년간 <b class="up">+38%</b> 증가 — 유동성 확대 국면.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기관·ETF -->
+  <div class="panel" data-panel="inst">
+    <div class="panel-intro">🏛️ <b>기관·ETF</b> — 현물 ETF 승인 이후 기관 자금이 코인으로 들어옵니다. ETF 순유입은 <b>전통 금융권의 수요</b>를 직접 보여주는 지표예요.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">BTC 현물 ETF 순유입</div><div class="v up">+$3.4억</div><div class="s up">▲ 어제</div></div>
+      <div class="statcard"><div class="k">누적 순유입</div><div class="v">$682억</div><div class="s">출시 이후</div></div>
+      <div class="statcard"><div class="k">ETF 보유 BTC</div><div class="v">128만</div><div class="s">전체의 6.1%</div></div>
+      <div class="statcard"><div class="k">ETH ETF 순유입</div><div class="v up">+$0.9억</div><div class="s up">▲ 재개</div></div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>📊 현물 ETF별 자금 흐름 <span class="hint">어제 · BTC</span></h3>
+        <table class="tbl">
+          <thead><tr><th>ETF</th><th class="hide">운용사</th><th class="r">순유입</th><th class="r">보유 BTC</span></th></tr></thead>
+          <tbody>
+            <tr><td class="nm">IBIT</td><td class="hide sub">BlackRock</td><td class="r up">+$2.8억</td><td class="r">72.1만</td></tr>
+            <tr><td class="nm">FBTC</td><td class="hide sub">Fidelity</td><td class="r up">+$0.6억</td><td class="r">21.4만</td></tr>
+            <tr><td class="nm">ARKB</td><td class="hide sub">ARK/21Shares</td><td class="r up">+$0.2억</td><td class="r">4.8만</td></tr>
+            <tr><td class="nm">GBTC</td><td class="hide sub">Grayscale</td><td class="r down">−$0.2억</td><td class="r">18.2만</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>🏢 기업·국가 보유 <span class="hint">공시 기준</span></h3>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">M</span><div class="info"><div class="n">MicroStrategy <span class="badge b-buy">추가매수</span></div><div class="s">최대 기업 보유자</div></div><div class="r"><div class="pct">62.4만 BTC</div><div class="cnt">≈ $738억</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">T</span><div class="info"><div class="n">Tesla</div><div class="s">2021년 매입 후 유지</div></div><div class="r"><div class="pct">1.1만 BTC</div><div class="cnt">≈ $13억</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">B</span><div class="info"><div class="n">Block (Square)</div><div class="s">기업 재무 보유</div></div><div class="r"><div class="pct">0.8만 BTC</div><div class="cnt">≈ $9.5억</div></div></a>
+        <a class="srow" href="#"><span class="logo-sq">🇺🇸</span><div class="info"><div class="n">미국 정부</div><div class="s">압류 자산</div></div><div class="r"><div class="pct">19.8만 BTC</div><div class="cnt">≈ $234억</div></div></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 파생·청산 -->
+  <div class="panel" data-panel="deriv">
+    <div class="panel-intro">⚡ <b>파생·청산</b> — 레버리지 포지션이 강제 청산되는 가격대를 보여줍니다. 청산 물량이 몰린 구간은 <b>가격이 끌려가기 쉬운 자리</b>예요.</div>
+    <div class="warn">⚠️ <b>주의</b> — 레버리지 선물은 <b>원금 전액 손실(청산)</b>이 가능합니다. 아래 지표는 참고용이며 매매 권유가 아닙니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">김치프리미엄 <span style="color:var(--up);font-size:9px">LIVE</span></div><div class="v" id="liveKimp">…</div><div class="s" id="liveKimpS">업비트 vs 바이낸스</div></div>
+      <div class="statcard"><div class="k">펀딩비 (BTC) <span style="color:var(--up);font-size:9px">LIVE</span></div><div class="v" id="liveFunding">…</div><div class="s" id="liveFundingS">8시간 기준</div></div>
+      <div class="statcard"><div class="k">24h 청산</div><div class="v down">$2.4억</div><div class="s down">롱 68% / 숏 32%</div></div>
+      <div class="statcard"><div class="k">공포·탐욕 <span style="color:var(--up);font-size:9px">LIVE</span></div><div class="v" id="liveFng">…</div><div class="s" id="liveFngS">alternative.me</div></div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>🗺️ 청산맵 (BTC) <span class="hint">가격대별 청산 예정 물량</span></h3>
+        <div class="liqmap">
+          <div class="liqrow"><span class="px">$126,000</span><div class="bar"><i style="width:38%;background:var(--down)"></i></div><span class="amt">$1.8억</span></div>
+          <div class="liqrow"><span class="px">$123,000</span><div class="bar"><i style="width:62%;background:var(--down)"></i></div><span class="amt">$2.9억</span></div>
+          <div class="liqrow"><span class="px">$120,000</span><div class="bar"><i style="width:88%;background:var(--down)"></i></div><span class="amt">$4.1억</span></div>
+          <div class="liqrow now"><span class="px">$118,240</span><div class="bar"><i style="width:4%;background:var(--brand)"></i></div><span class="amt">현재가</span></div>
+          <div class="liqrow"><span class="px">$115,000</span><div class="bar"><i style="width:100%;background:var(--up)"></i></div><span class="amt">$4.8억</span></div>
+          <div class="liqrow"><span class="px">$112,000</span><div class="bar"><i style="width:71%;background:var(--up)"></i></div><span class="amt">$3.3억</span></div>
+          <div class="liqrow"><span class="px">$108,000</span><div class="bar"><i style="width:45%;background:var(--up)"></i></div><span class="amt">$2.1억</span></div>
+        </div>
+        <div style="font-size:11.5px;color:var(--txt-3);margin-top:10px">아래쪽 <b style="color:var(--up)">$115,000</b>에 롱 청산이 가장 많이 쌓여 있어요 — 하락하면 이 구간에서 <b>연쇄 청산</b>이 나올 수 있습니다.</div>
+      </div>
+      <div class="card">
+        <h3>📊 롱숏 비율 · 펀딩비 <span class="hint">주요 거래소</span></h3>
+        <div class="exrow"><span class="en">바이낸스</span><div class="exbar"><span class="exmid"></span><i style="left:50%;width:14%;background:var(--up)"></i></div><span class="exval up">롱 57%</span></div>
+        <div class="exrow"><span class="en">바이빗</span><div class="exbar"><span class="exmid"></span><i style="left:50%;width:10%;background:var(--up)"></i></div><span class="exval up">롱 55%</span></div>
+        <div class="exrow"><span class="en">OKX</span><div class="exbar"><span class="exmid"></span><i style="left:50%;width:8%;background:var(--up)"></i></div><span class="exval up">롱 54%</span></div>
+        <div class="exrow"><span class="en">Hyperliquid</span><div class="exbar"><span class="exmid"></span><i style="left:50%;width:18%;background:var(--up)"></i></div><span class="exval up">롱 59%</span></div>
+        <div class="flow-note" style="margin-top:12px">전 거래소 <b>롱 우위</b> + 펀딩비 <b class="up">플러스</b> = 상승 베팅이 몰린 상태. 과열되면 <b class="down">롱 스퀴즈</b> 위험이 커져요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disc">데이터 출처: 온체인(Glassnode·Arkham 계열 공개지표) · 거래소 공개 API(Binance·Coinbase·Upbit·Bybit) · CoinGecko · alternative.me(공포탐욕) · ETF 공시 · 분석은 RICHFLOW 자체 산출물.
+  온체인 라벨링은 추정이며 거래소 내부 이동일 수 있습니다. 암호화폐·레버리지 거래는 <b>원금 전액 손실</b>이 가능하며, 본 페이지는 정보 제공용으로 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<!-- modal -->
+<div class="modal-bg" id="modalBg"><div class="modal">
+  <div class="mh"><div class="av" id="mAv">🐋</div><div class="t"><h4 id="mName">지갑</h4><div class="s" id="mSub">라벨</div></div><button class="close" id="mClose">✕</button></div>
+  <div class="mstat"><div><div class="k">추정 보유액</div><div class="v" id="mCount">-</div></div><div><div class="k">최근 30일</div><div class="v" id="mTrend">매집</div></div><div><div class="k">주력 코인</div><div class="v" id="mSector" style="font-size:14px">BTC</div></div></div>
+  <h5>📌 주요 보유 코인</h5><div id="mHoldings"></div>
+  <div style="font-size:11px;color:var(--txt-3);margin-top:14px">온체인 공개 데이터 기반 추정 · 라벨은 확정이 아님 · 정보 제공용 · <b style="color:var(--brand)">샘플 데이터</b></div>
+</div></div>
+
+<script>
+  const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    panels.forEach(p=>p.classList.toggle('on',p.dataset.panel===b.dataset.p));window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  // [라벨, 설명, 추정보유($억), 분류, 아이콘]
+  const WAL=[
+    ['Jump Crypto','마켓메이커',48,'mm','⚡'],['Wintermute','마켓메이커',62,'mm','⚡'],
+    ['GSR Markets','마켓메이커',21,'mm','⚡'],['Cumberland (DRW)','마켓메이커',34,'mm','⚡'],
+    ['B2C2','마켓메이커',18,'mm','⚡'],['Amber Group','마켓메이커',15,'mm','⚡'],
+    ['Flow Traders','마켓메이커',12,'mm','⚡'],['Keyrock','마켓메이커',9,'mm','⚡'],
+    ['Grayscale','자산운용 신탁',218,'fund','🏛️'],['Pantera Capital','크립토 VC',31,'fund','🏛️'],
+    ['a16z crypto','크립토 VC',42,'fund','🏛️'],['Paradigm','크립토 VC',38,'fund','🏛️'],
+    ['Polychain','크립토 펀드',24,'fund','🏛️'],['Multicoin','크립토 펀드',19,'fund','🏛️'],
+    ['Galaxy Digital','디지털자산 금융',56,'fund','🏛️'],['Bitwise','자산운용',28,'fund','🏛️'],
+    ['DCG','지주·투자',74,'fund','🏛️'],['Framework Ventures','크립토 VC',11,'fund','🏛️'],
+    ['MicroStrategy','기업 재무 보유',738,'corp','🏢'],['Tesla','기업 재무 보유',13,'corp','🏢'],
+    ['Block (Square)','기업 재무 보유',9.5,'corp','🏢'],['Marathon Digital','채굴 기업',42,'corp','🏢'],
+    ['Riot Platforms','채굴 기업',24,'corp','🏢'],['Ethereum Foundation','재단',12,'corp','🏢'],
+    ['Ripple Labs','재단·기업',186,'corp','🏢'],['미국 정부','압류 자산',234,'corp','🏛️'],
+    ['Binance 콜드월렛','거래소 지갑',612,'ex','🏦'],['Coinbase 콜드월렛','거래소 지갑',428,'ex','🏦'],
+    ['Bitfinex 콜드월렛','거래소 지갑',124,'ex','🏦'],['OKX 콜드월렛','거래소 지갑',96,'ex','🏦'],
+    ['Kraken 콜드월렛','거래소 지갑',88,'ex','🏦'],['Upbit 콜드월렛','거래소 지갑',72,'ex','🏦']
+  ];
+  const CATL={mm:'마켓메이커',fund:'펀드·VC',corp:'기업·재단',ex:'거래소'};
+  const COINS=[['비트코인','BTC'],['이더리움','ETH'],['솔라나','SOL'],['리플','XRP'],['BNB','BNB'],['카르다노','ADA'],['도지코인','DOGE'],['체인링크','LINK'],['아발란체','AVAX'],['폴리곤','MATIC'],['TAO','TAO'],['유니스왑','UNI']];
+  const SECT=['BTC','ETH','SOL','알트','스테이블','DeFi'];
+  function seed(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+  function holdingsOf(w){const s=seed(w[0]);const n=Math.min(5,Math.max(3,(Math.floor(w[2])%3)+3));const out=[];const used=new Set();
+    for(let i=0;i<n;i++){let idx=(s+i*7)%COINS.length;while(used.has(idx))idx=(idx+1)%COINS.length;used.add(idx);
+      const pct=(8+((s>>>(i*3))%30)+(i===0?15:0));out.push([COINS[idx],pct])}
+    return out.sort((a,b)=>b[1]-a[1]);}
+
+  const grid=document.getElementById('instGrid');
+  let curCat='all',curQ='',limit=16;
+  function renderGrid(){
+    const f=WAL.filter(x=>(curCat==='all'||x[3]===curCat)&&(!curQ||x[0].toLowerCase().includes(curQ.toLowerCase())||x[1].includes(curQ)));
+    grid.innerHTML=f.slice(0,limit).map(x=>
+      `<div class="inst" data-i="${WAL.indexOf(x)}"><span class="av">${x[4]}</span><span class="nm"><div class="n">${x[0]}</div><div class="p">${x[1]}</div></span><span class="c">$${x[2]}억</span></div>`
+    ).join('')||`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--txt-3);font-size:13px">검색 결과가 없어요</div>`;
+    document.getElementById('instMore').style.display=f.length>limit?'inline-block':'none';
+    grid.querySelectorAll('.inst').forEach(el=>el.onclick=()=>openModal(WAL[+el.dataset.i]));
+  }
+  document.getElementById('instCats').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{document.querySelectorAll('#instCats button').forEach(x=>x.classList.remove('on'));b.classList.add('on');curCat=b.dataset.cat;limit=16;renderGrid();};
+  });
+  document.getElementById('instSearch').oninput=e=>{curQ=e.target.value.trim();limit=16;renderGrid();};
+  document.getElementById('instMore').onclick=()=>{limit+=16;renderGrid();};
+  renderGrid();
+
+  function openModal(w){
+    document.getElementById('mAv').textContent=w[4];
+    document.getElementById('mName').textContent=w[0];
+    document.getElementById('mSub').textContent=w[1]+' · '+CATL[w[3]];
+    document.getElementById('mCount').textContent='$'+w[2]+'억';
+    const s=seed(w[0]);
+    document.getElementById('mTrend').textContent=(s%2)?'매집':'분산';
+    document.getElementById('mTrend').style.color=(s%2)?'var(--up)':'var(--down)';
+    document.getElementById('mSector').textContent=SECT[s%SECT.length];
+    const hs=holdingsOf(w);const max=hs[0][1];
+    document.getElementById('mHoldings').innerHTML=hs.map(h=>`<div class="mhold"><span class="hn">${h[0][0]} <span style="color:var(--txt-3);font-weight:600;font-size:11px">${h[0][1]}</span></span><div class="hbar"><i style="width:${h[1]/max*100}%"></i></div><span class="hp">${h[1].toFixed(1)}%</span></div>`).join('');
+    document.getElementById('modalBg').classList.add('on');
+  }
+  document.getElementById('mClose').onclick=()=>document.getElementById('modalBg').classList.remove('on');
+  document.getElementById('modalBg').onclick=e=>{if(e.target.id==='modalBg')document.getElementById('modalBg').classList.remove('on')};
+
+  /* ===== 실시간 지표 (무료 API·키불필요) ===== */
+  function setV(id,txt,color){const el=document.getElementById(id);if(el){el.textContent=txt;if(color)el.style.color=color;}}
+  async function updateLiveCoin(){
+    // 공포·탐욕 (alternative.me)
+    try{const r=await fetch('https://api.alternative.me/fng/');const d=(await r.json()).data[0];
+      const v=+d.value;const col=v>=60?'var(--up)':(v<=40?'var(--down)':'var(--amber)');
+      const kmap={'Extreme Fear':'극단적 공포','Fear':'공포','Neutral':'중립','Greed':'탐욕','Extreme Greed':'극단적 탐욕'};
+      setV('liveFng',v,col);setV('liveFngS',kmap[d.value_classification]||d.value_classification,col);
+    }catch(e){setV('liveFng','—');}
+    // 펀딩비 (Binance 선물)
+    try{const r=await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');const d=await r.json();
+      const f=parseFloat(d.lastFundingRate)*100;const col=f>=0?'var(--up)':'var(--down)';
+      setV('liveFunding',(f>=0?'+':'')+f.toFixed(4)+'%',col);setV('liveFundingS',f>=0?'▲ 롱 우위':'▼ 숏 우위',col);
+    }catch(e){setV('liveFunding','—');}
+    // 김치프리미엄 (업비트 vs 바이낸스)
+    try{const[ub,bn]=await Promise.all([
+        fetch('https://api.upbit.com/v1/ticker?markets=KRW-BTC,KRW-USDT').then(r=>r.json()),
+        fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT').then(r=>r.json())]);
+      const krwBtc=ub[0].trade_price,krwUsdt=ub[1].trade_price,usdBtc=parseFloat(bn.price);
+      const kimp=(krwBtc/(usdBtc*krwUsdt)-1)*100;const col=kimp>=0?'var(--up)':'var(--down)';
+      setV('liveKimp',(kimp>=0?'+':'')+kimp.toFixed(2)+'%',col);
+      setV('liveKimpS','₩'+(krwBtc/10000).toFixed(0)+'만 · 환율 '+Math.round(krwUsdt),col);
+    }catch(e){setV('liveKimp','—');}
+  }
+  updateLiveCoin();setInterval(updateLiveCoin,15000);
+</script>
+</body>
+</html>

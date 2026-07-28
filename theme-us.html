@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>테마·흐름 · 미장 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.mono{font-variant-numeric:tabular-nums}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  .mkbadge{font-size:11px;font-weight:800;color:#fff;background:var(--brand);padding:3px 9px;border-radius:7px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .subtabs{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap}
+  .subtabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .subtabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+  .band{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .flow-row{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:13px}
+  .flow-row .tn{width:96px;font-weight:700}
+  .flow-bar{flex:1;height:24px;border-radius:6px;background:var(--card-2);position:relative;overflow:hidden}
+  .flow-bar i{position:absolute;left:50%;height:100%;top:0}.flow-mid{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--line-2)}
+  .flow-val{width:80px;text-align:right;font-weight:800;font-size:12.5px}
+  .strength{display:flex;align-items:center;gap:12px;padding:11px 8px;border-radius:11px;cursor:pointer}
+  .strength:hover{background:var(--card-2)}
+  .strength .rk{width:20px;font-weight:800;color:var(--txt-3);font-size:13px}
+  .strength .nm{width:130px;font-weight:800;font-size:14px}
+  .strength .gauge{flex:1;height:8px;border-radius:4px;background:var(--card-2);overflow:hidden}.strength .gauge i{display:block;height:100%}
+  .strength .chg{width:56px;text-align:right;font-weight:800;font-size:13px}
+  .theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .tcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);cursor:pointer;transition:.12s}
+  .tcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line-2)}
+  .tcard .th{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .tcard .tname{font-size:15px;font-weight:800}.tcard .tchg{font-size:14px;font-weight:800}
+  .tcard .sub{font-size:11px;color:var(--txt-3);margin-bottom:10px}
+  .tcard .stocks{display:flex;flex-wrap:wrap;gap:5px}.tcard .stk{font-size:11px;font-weight:600;background:var(--card-2);border:1px solid var(--line);padding:3px 8px;border-radius:7px;color:var(--txt-2)}
+  .tspark{width:100%;height:34px;margin:6px 0}
+  .rot-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .rot-row:last-child{border:none}.rot-row .tn{width:96px;font-weight:700}
+  .rot-bar{flex:1;height:7px;border-radius:4px;background:var(--card-2);overflow:hidden}.rot-bar i{display:block;height:100%}
+  .rot-val{width:52px;text-align:right;font-weight:800;font-size:12.5px}
+  .ai-note{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2)}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
+  .conn{display:flex;flex-direction:column;gap:12px}
+  .conn-row{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:13px}
+  .conn-row .hub{font-weight:800;font-size:14px;margin-bottom:6px}
+  .conn-row .links{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .conn-row .lk{font-size:11.5px;font-weight:600;background:var(--card);border:1px solid var(--line);padding:4px 9px;border-radius:20px}.conn-row .arrow{color:var(--txt-3);font-weight:800}
+  .mag7{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .m7{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+  .m7 .n{font-weight:800;font-size:14px}.m7 .c{font-size:13px;font-weight:800;margin-top:3px}.m7 .s{font-size:10px;color:var(--txt-3);margin-top:2px}
+  .disc-card{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:11px;cursor:pointer}
+  .disc-card:hover{background:var(--card-2)}
+  .disc-card .ic{width:38px;height:38px;border-radius:11px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+  .disc-card .nm{flex:1}.disc-card .nm .n{font-weight:800;font-size:14px}.disc-card .nm .s{font-size:11px;color:var(--txt-3)}
+  .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:var(--up-bg);color:var(--up)}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:900px){.band,.cols{grid-template-columns:1fr}nav.menu,.search{display:none}.strength .nm{width:90px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <span class="mkbadge">🇺🇸 미장</span>
+  <nav class="menu"><a href="whale-us.html">큰손 수급</a><a href="leaders-us.html">대표주</a><a href="idea-us.html">커넥션</a><a href="forecast-us.html">확률 통계</a><a href="research.html">리서치</a><a href="theme-us.html" class="on">테마·흐름</a><a href="screener-us.html">종목탐색</a><a href="calendar-us.html">캘린더</a></nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="테마·Ticker 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>💠 테마·흐름 <span class="mkbadge" style="font-size:14px">🇺🇸 US</span></h1>
+    <p>미국 섹터 로테이션·ARK 테마·자금 흐름을 추적합니다. <b style="color:var(--txt-2)">전일 종가 기준</b></p>
+    <div class="subtabs" id="subtabs">
+      <button class="on" data-p="today">오늘의 테마</button>
+      <button data-p="mag7">매그니피센트 7</button>
+      <button data-p="rot">섹터 로테이션</button>
+      <button data-p="find">테마 발굴</button>
+    </div>
+  </section>
+
+  <!-- 오늘의 테마 -->
+  <div class="panel" data-panel="today">
+    <div class="band">
+      <div class="card">
+        <h3>💧 자금 유입 섹터 <span class="hint">ETF 순유입</span></h3>
+        <div class="flow-row"><span class="tn up">반도체</span><div class="flow-bar"><span class="flow-mid"></span><i class="up" style="left:50%;width:46%;background:var(--up)"></i></div><span class="flow-val up">+$8.2B</span></div>
+        <div class="flow-row"><span class="tn up">AI SW</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:20%;background:var(--up)"></i></div><span class="flow-val up">+$3.1B</span></div>
+        <div class="flow-row"><span class="tn up">금융</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:10%;background:var(--up)"></i></div><span class="flow-val up">+$1.4B</span></div>
+      </div>
+      <div class="card">
+        <h3>🩸 자금 유출 섹터 <span class="hint">ETF 순유출</span></h3>
+        <div class="flow-row"><span class="tn down">전기차</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:14%;background:var(--down)"></i></div><span class="flow-val down">−$2.1B</span></div>
+        <div class="flow-row"><span class="tn down">소비재</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:6%;background:var(--down)"></i></div><span class="flow-val down">−$0.9B</span></div>
+        <div class="flow-row"><span class="tn down">리츠</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:5%;background:var(--down)"></i></div><span class="flow-val down">−$0.6B</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>🏆 테마 강도 랭킹 <span class="hint">등락·자금 종합 · 클릭 = 종목</span></h3>
+      <div id="strengthList"></div>
+    </div>
+    <div class="card" style="margin-bottom:16px"><h3>🃏 테마 카드 <span class="hint">대표종목·추세</span></h3></div>
+    <div class="theme-grid" id="themeGrid"></div>
+
+    <div class="card ai-note" style="margin-top:16px">
+      <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 테마 해설</h3>
+      <div style="display:flex;gap:12px"><svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
+        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">돈은 <b style="color:var(--txt)">AI 반도체·소프트웨어</b>로 계속 몰려요. 엔비디아·팔란티어가 주도. 반면 <b style="color:var(--txt)">전기차</b>는 캐즘 우려로 자금 이탈 지속. ARK는 로봇(ACHR)·유전자로 로테이션 중입니다.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 매그니피센트 7 -->
+  <div class="panel" data-panel="mag7" style="display:none">
+    <div class="card" style="margin:20px 0">
+      <h3>💎 매그니피센트 7 <span class="hint">미장 시총 최상위 7종목</span></h3>
+      <div class="mag7">
+        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">NVIDIA</div><div class="c up">+2.2%</div><div class="s">$4.48T · AI 반도체</div></div>
+        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Apple</div><div class="c up">+0.6%</div><div class="s">$3.54T · 하드웨어</div></div>
+        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Microsoft</div><div class="c down">−2.1%</div><div class="s">$2.96T · 클라우드</div></div>
+        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Alphabet</div><div class="c up">+1.8%</div><div class="s">$2.42T · 검색·AI</div></div>
+        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Amazon</div><div class="c up">+1.2%</div><div class="s">$2.28T · 이커머스</div></div>
+        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Meta</div><div class="c down">−0.9%</div><div class="s">$1.55T · 광고·AI</div></div>
+        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Tesla</div><div class="c down">−4.1%</div><div class="s">$1.21T · 전기차</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--txt-3);margin-top:14px">매그니피센트 7이 S&P500 시총의 <b>약 33%</b>를 차지 — 지수 방향을 사실상 좌우합니다.</div>
+    </div>
+    <div class="cols">
+      <div class="card"><h3>📊 M7 오늘 기여도 <span class="hint">지수 포인트</span></h3>
+        <div class="rot-row"><span class="tn up">NVIDIA</span><div class="rot-bar"><i style="width:100%;background:var(--up)"></i></div><span class="rot-val up">+18p</span></div>
+        <div class="rot-row"><span class="tn up">Alphabet</span><div class="rot-bar"><i style="width:40%;background:var(--up)"></i></div><span class="rot-val up">+7p</span></div>
+        <div class="rot-row"><span class="tn up">Amazon</span><div class="rot-bar"><i style="width:30%;background:var(--up)"></i></div><span class="rot-val up">+5p</span></div>
+        <div class="rot-row"><span class="tn down">Microsoft</span><div class="rot-bar"><i style="width:60%;background:var(--down)"></i></div><span class="rot-val down">−11p</span></div>
+        <div class="rot-row"><span class="tn down">Tesla</span><div class="rot-bar"><i style="width:45%;background:var(--down)"></i></div><span class="rot-val down">−8p</span></div>
+      </div>
+      <div class="card"><h3>⚖️ M7 vs 나머지 493 <span class="hint">YTD 수익률</span></h3>
+        <div style="text-align:center;padding:14px 0">
+          <div style="display:flex;justify-content:space-around;align-items:flex-end;height:120px">
+            <div style="text-align:center"><div style="width:60px;height:110px;background:var(--brand);border-radius:8px 8px 0 0;margin:0 auto"></div><div style="font-weight:800;margin-top:6px;color:var(--up)">+34%</div><div style="font-size:11px;color:var(--txt-3)">M7</div></div>
+            <div style="text-align:center"><div style="width:60px;height:38px;background:var(--line-2);border-radius:8px 8px 0 0;margin:0 auto"></div><div style="font-weight:800;margin-top:6px">+9%</div><div style="font-size:11px;color:var(--txt-3)">나머지 493</div></div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--txt-3);text-align:center">소수 대형주 <b>쏠림</b>이 심화된 장세예요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 섹터 로테이션 -->
+  <div class="panel" data-panel="rot" style="display:none">
+    <div class="card" style="margin:20px 0">
+      <h3>🔄 GICS 11개 섹터 등락 <span class="hint">전일 · S&P500 기준</span></h3>
+      <div class="rot-row"><span class="tn up">기술(IT)</span><div class="rot-bar"><i style="width:100%;background:var(--up)"></i></div><span class="rot-val up">+2.1%</span></div>
+      <div class="rot-row"><span class="tn up">통신서비스</span><div class="rot-bar"><i style="width:62%;background:var(--up)"></i></div><span class="rot-val up">+1.3%</span></div>
+      <div class="rot-row"><span class="tn up">금융</span><div class="rot-bar"><i style="width:43%;background:var(--up)"></i></div><span class="rot-val up">+0.9%</span></div>
+      <div class="rot-row"><span class="tn up">에너지</span><div class="rot-bar"><i style="width:38%;background:var(--up)"></i></div><span class="rot-val up">+0.8%</span></div>
+      <div class="rot-row"><span class="tn up">헬스케어</span><div class="rot-bar"><i style="width:15%;background:var(--up)"></i></div><span class="rot-val up">+0.3%</span></div>
+      <div class="rot-row"><span class="tn down">임의소비재</span><div class="rot-bar"><i style="width:52%;background:var(--down)"></i></div><span class="rot-val down">−1.1%</span></div>
+      <div class="rot-row"><span class="tn down">유틸리티</span><div class="rot-bar"><i style="width:30%;background:var(--down)"></i></div><span class="rot-val down">−0.6%</span></div>
+    </div>
+    <div class="card">
+      <h3>🔗 연계 테마 <span class="hint">함께 움직이는 테마</span></h3>
+      <div class="conn">
+        <div class="conn-row"><div class="hub">🤖 AI 인프라</div><div class="links"><span class="lk">AI 반도체(NVDA)</span><span class="arrow">→</span><span class="lk">데이터센터</span><span class="arrow">→</span><span class="lk">전력·유틸</span><span class="arrow">→</span><span class="lk">냉각·네트워킹</span></div></div>
+        <div class="conn-row"><div class="hub">💊 비만치료제(GLP-1)</div><div class="links"><span class="lk">일라이릴리</span><span class="arrow">→</span><span class="lk">노보노디스크</span><span class="arrow">→</span><span class="lk">CDMO</span></div></div>
+        <div class="conn-row"><div class="hub">₿ 크립토 인프라</div><div class="links"><span class="lk">Coinbase</span><span class="arrow">→</span><span class="lk">MicroStrategy</span><span class="arrow">→</span><span class="lk">채굴주</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 테마 발굴 -->
+  <div class="panel" data-panel="find" style="display:none">
+    <div class="cols" style="margin-top:20px">
+      <div class="card">
+        <h3>✨ 신규·급부상 테마 <span class="hint">ARK·큰손 주목</span></h3>
+        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">🚁</div><div class="nm"><div class="n">eVTOL·도심항공 <span class="badge">NEW</span></div><div class="s">ARK 신규 매집(ACHR) · +18%</div></div></div>
+        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">⚛️</div><div class="nm"><div class="n">양자컴퓨팅 <span class="badge">급부상</span></div><div class="s">IONQ·RGTI 급등 · +22%</div></div></div>
+        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">🔋</div><div class="nm"><div class="n">전력·원자력</div><div class="s">AI 전력수요 · +12%</div></div></div>
+        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">🛰️</div><div class="nm"><div class="n">우주·위성</div><div class="s">SpaceX 상장 기대 · +9%</div></div></div>
+      </div>
+      <div class="card">
+        <h3>🔥 오늘의 급등 테마 <span class="hint">테마 지수</span></h3>
+        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">1</span><span class="nm" style="width:auto;flex:1">양자컴퓨팅</span><span class="chg up">+22.1%</span></div>
+        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">2</span><span class="nm" style="width:auto;flex:1">eVTOL</span><span class="chg up">+9.2%</span></div>
+        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">3</span><span class="nm" style="width:auto;flex:1">AI 소프트웨어</span><span class="chg up">+4.1%</span></div>
+        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">4</span><span class="nm" style="width:auto;flex:1">크립토 인프라</span><span class="chg up">+3.8%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📰 테마 관련 뉴스 <span class="hint">촉발 이벤트</span></h3>
+      <div style="font-size:12.5px;color:var(--txt-2);padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="location.href='article.html'"><b style="color:var(--brand)">[AI 반도체]</b> 엔비디아 블랙웰 공급 완판… 4분기 가시성 확보</div>
+      <div style="font-size:12.5px;color:var(--txt-2);padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="location.href='article.html'"><b style="color:var(--brand)">[eVTOL]</b> ARK, 아처 에비에이션 6거래일 연속 매집</div>
+      <div style="font-size:12.5px;color:var(--txt-2);padding:8px 0;cursor:pointer" onclick="location.href='article.html'"><b style="color:var(--brand)">[양자]</b> 구글 양자칩 발표에 IONQ·RGTI 동반 급등</div>
+    </div>
+  </div>
+
+  <div class="disc">데이터 출처: 미국 거래소 · ETF 순유입(ETF.com) · ARK 공개 · 자체 산출물. 정보 제공용이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<script>
+  const THEMES=[
+    ['AI 반도체','+3.4%',1,'자금 최다 유입 · HBM/GPU',[['NVIDIA','+2.2%'],['AMD','+3.4%'],['Broadcom','+1.1%'],['Micron','-0.8%']]],
+    ['AI 소프트웨어','+4.1%',1,'팔란티어 주도',[['Palantir','+6.0%'],['Snowflake','+2.1%'],['C3.ai','+4.2%']]],
+    ['크립토 인프라','+3.8%',1,'클래리티 액트 기대',[['Coinbase','+4.2%'],['MicroStrategy','+7.1%']]],
+    ['eVTOL·항공','+9.2%',1,'ARK 신규 매집',[['Archer','+9.2%'],['Joby','+6.1%']]],
+    ['비만치료제','+1.2%',1,'GLP-1 성장',[['Eli Lilly','+1.4%'],['Novo','+0.8%']]],
+    ['방산','+0.9%',1,'지정학 리스크',[['Lockheed','+0.8%'],['RTX','+1.1%']]],
+    ['빅테크','+0.1%',1,'실적 대기',[['Apple','+0.6%'],['Microsoft','-2.1%'],['Meta','-0.9%'],['Alphabet','+1.8%']]],
+    ['전기차','-2.6%',0,'수요 캐즘',[['Tesla','-4.1%'],['Rivian','-2.2%'],['Lucid','-1.5%']]]
+  ];
+  const sList=document.getElementById('strengthList');
+  [...THEMES].sort((a,b)=>parseFloat(b[1])-parseFloat(a[1])).forEach((t,i)=>{
+    const up=t[2];const col=up?'var(--up)':'var(--down)';const w=Math.min(100,Math.abs(parseFloat(t[1]))/10*100);
+    const el=document.createElement('div');el.className='strength';
+    el.innerHTML=`<span class="rk">${i+1}</span><span class="nm">${t[0]}</span><div class="gauge"><i style="width:${w}%;background:${col}"></i></div><span class="chg" style="color:${col}">${t[1]}</span>`;
+    el.onclick=()=>location.href='stock-us.html';sList.appendChild(el);
+  });
+  const grid=document.getElementById('themeGrid');
+  THEMES.forEach(t=>{
+    const up=t[2];const col=up?'var(--up)':'var(--down)';
+    const pts=up?'0,30 30,26 60,28 90,18 120,20 150,10 180,6':'0,8 30,10 60,14 90,12 120,20 150,24 180,30';
+    const el=document.createElement('div');el.className='tcard';el.onclick=()=>location.href='stock-us.html';
+    el.innerHTML=`<div class="th"><span class="tname">${t[0]}</span><span class="tchg" style="color:${col}">${t[1]}</span></div><div class="sub">${t[3]}</div><svg class="tspark" viewBox="0 0 180 34" preserveAspectRatio="none"><polyline fill="none" stroke="${col}" stroke-width="2" points="${pts}"/></svg><div class="stocks">${t[4].map(s=>`<span class="stk">${s[0]}</span>`).join('')}</div>`;
+    grid.appendChild(el);
+  });
+  const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');panels.forEach(p=>p.style.display=p.dataset.panel===b.dataset.p?'block':'none');});
+</script>
+</body>
+</html>

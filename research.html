@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리서치 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:2px;margin-left:4px;flex-wrap:wrap}
+  nav.menu a{color:var(--txt-2);font-size:13.5px;font-weight:500;padding:8px 11px;border-radius:9px;white-space:nowrap}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:170px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+
+  /* featured hero */
+  .feat{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin:18px 0}
+  .feat-main{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);cursor:pointer;transition:.15s;display:flex;flex-direction:column}
+  .feat-main:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .feat-main .thumb{height:220px;background:linear-gradient(135deg,var(--card-2),#dfe2e8);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;color:var(--brand-2)}
+  .feat-main .body{padding:20px}
+  .feat-main .cat{font-size:11px;font-weight:800;color:var(--brand);margin-bottom:8px;display:flex;gap:8px;align-items:center}
+  .feat-main h2{font-size:22px;font-weight:800;line-height:1.35;margin-bottom:10px}
+  .feat-main p{font-size:13.5px;color:var(--txt-2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .feat-side{display:flex;flex-direction:column;gap:10px}
+  .fs{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;cursor:pointer;transition:.15s;box-shadow:var(--shadow-sm)}
+  .fs:hover{transform:translateY(-1px);border-color:var(--line-2)}
+  .fs .th{width:56px;height:56px;border-radius:11px;background:var(--card-2);border:1px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--brand)}
+  .fs .b .c{font-size:10px;font-weight:800;color:var(--brand);margin-bottom:3px}
+  .fs .b h4{font-size:13.5px;font-weight:700;line-height:1.4}
+
+  /* controls */
+  .ctrl{display:flex;align-items:center;gap:10px;margin:22px 0 14px;flex-wrap:wrap}
+  .cats{display:flex;gap:6px;flex-wrap:wrap}
+  .cats button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 14px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .cats button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .sort{margin-left:auto;display:flex;gap:3px;background:var(--card);border:1px solid var(--line);padding:3px;border-radius:10px;box-shadow:var(--shadow-sm)}
+  .sort button{background:none;border:none;color:var(--txt-3);font-size:12px;font-weight:700;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit}
+  .sort button.on{background:var(--card-2);color:var(--txt)}
+
+  .layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;padding-bottom:20px}
+  /* feed */
+  .feed{display:flex;flex-direction:column;gap:12px}
+  .art{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;transition:.15s;box-shadow:var(--shadow-sm);position:relative}
+  .art:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line-2)}
+  .art .thumb{width:88px;height:88px;border-radius:13px;flex-shrink:0;background:var(--card-2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--brand);border:1px solid var(--line)}
+  .art .body{flex:1;min-width:0}
+  .art .cat{display:inline-flex;gap:7px;align-items:center;font-size:11px;color:var(--txt-3);margin-bottom:6px}
+  .art .cat .tag{color:var(--brand);font-weight:800}
+  .art h3{font-size:15.5px;font-weight:700;line-height:1.4;margin-bottom:6px}
+  .art p{font-size:12.5px;color:var(--txt-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.55}
+  .art .meta{font-size:11px;color:var(--txt-3);margin-top:8px;display:flex;gap:12px}
+  .art .badge-new{position:absolute;top:14px;right:16px;font-size:10px;font-weight:800;color:var(--amber)}
+  .loadmore{text-align:center;margin-top:14px}
+  .loadmore button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:11px 24px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+
+  /* sidebar */
+  aside{display:flex;flex-direction:column;gap:18px;position:sticky;top:84px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .pop{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .pop:last-child{border:none}.pop:hover .pt{color:var(--brand)}
+  .pop .rk{font-size:18px;font-weight:800;color:var(--brand-2);width:20px;flex-shrink:0}
+  .pop .pt{font-size:13px;font-weight:700;line-height:1.4}
+  .pop .pm{font-size:11px;color:var(--txt-3);margin-top:3px}
+  .catlist a{display:flex;justify-content:space-between;font-size:13px;color:var(--txt-2);padding:8px 0;border-bottom:1px solid var(--line);font-weight:600}
+  .catlist a:last-child{border:none}.catlist a:hover{color:var(--txt)}
+  .catlist a span{color:var(--txt-3);font-weight:700}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tags a{font-size:12px;font-weight:600;color:var(--txt-2);background:var(--card-2);border:1px solid var(--line);padding:5px 11px;border-radius:20px}
+  .tags a:hover{color:var(--txt)}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:16px 2px 44px}
+  @media(max-width:900px){.feat,.layout{grid-template-columns:1fr}aside{position:static}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <nav class="menu">
+    <a href="whale.html">큰손 수급</a><a href="leaders.html">대표주</a><a href="idea.html">커넥션</a><a href="forecast.html">확률 통계</a>
+    <a href="research.html" class="on">리서치</a><a href="theme.html">테마·흐름</a><a href="screener.html">종목탐색</a><a href="calendar.html">캘린더</a>
+  </nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="아티클 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>📰 리서치</h1>
+    <p>AI가 공시·수급·뉴스를 읽고 쓴 종목·거시·ETF 분석을 매일 발행합니다.</p>
+  </section>
+
+  <!-- featured -->
+  <div class="feat">
+    <div class="feat-main" onclick="location.href='article.html'">
+      <div class="thumb">MS</div>
+      <div class="body">
+        <div class="cat"><span>종목분석</span> · 미국주식 · 7분 전</div>
+        <h2>마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다</h2>
+        <p>1,900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화, OpenAI 의존 리스크가 겹치며 52주 고점 대비 약 30% 하락. 7월 29일 실적이 다음 방향을 가를 분수령이다.</p>
+      </div>
+    </div>
+    <div class="feat-side">
+      <div class="fs" onclick="location.href='article.html'"><div class="th">₿</div><div class="b"><div class="c">거시·정책</div><h4>클래리티 액트, 통과되면 진짜 뭐가 바뀌나</h4></div></div>
+      <div class="fs" onclick="location.href='article.html'"><div class="th">SK</div><div class="b"><div class="c">종목분석</div><h4>SK하이닉스 HBM4 퀄 임박, 목표주가 상향 러시</h4></div></div>
+      <div class="fs" onclick="location.href='article.html'"><div class="th">ETF</div><div class="b"><div class="c">ETF·배당</div><h4>SCHD 월배당 아니라 분기배당, 2026 지급일정 총정리</h4></div></div>
+    </div>
+  </div>
+
+  <!-- controls -->
+  <div class="ctrl">
+    <div class="cats" id="cats">
+      <button class="on">전체</button><button>종목분석</button><button>거시·정책</button><button>ETF·배당</button><button>선물·지수</button><button>산업분석</button>
+    </div>
+    <div class="sort" id="sort"><button class="on">추천순</button><button>최신순</button><button>인기순</button></div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="feed" id="feed"></div>
+      <div class="loadmore"><button id="more">＋ 더 보기</button></div>
+    </div>
+
+    <aside>
+      <div class="card">
+        <h3>🔥 인기 아티클 <span style="margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500">주간</span></h3>
+        <div class="pop" onclick="location.href='article.html'"><span class="rk">1</span><div><div class="pt">엔비디아 주가 전망 2026, AI 수요와 실적 기대치 점검</div><div class="pm">종목분석 · 조회 4.2만</div></div></div>
+        <div class="pop" onclick="location.href='article.html'"><span class="rk">2</span><div><div class="pt">삼성전자 주가 전망 2026, 목표주가 51만원의 근거</div><div class="pm">종목분석 · 조회 3.8만</div></div></div>
+        <div class="pop" onclick="location.href='article.html'"><span class="rk">3</span><div><div class="pt">미국 배당 ETF 추천 6선, 목적별로 골라야 돈 된다</div><div class="pm">ETF·배당 · 조회 3.1만</div></div></div>
+        <div class="pop" onclick="location.href='article.html'"><span class="rk">4</span><div><div class="pt">비트코인 전망, 골든크로스는 떴지만 200일선은 멀다</div><div class="pm">거시·정책 · 조회 2.7만</div></div></div>
+        <div class="pop" onclick="location.href='article.html'"><span class="rk">5</span><div><div class="pt">해외주식 양도소득세 신고 방법 한 번에 정리</div><div class="pm">거시·정책 · 조회 2.4만</div></div></div>
+      </div>
+      <div class="card">
+        <h3>🗂️ 카테고리</h3>
+        <div class="catlist">
+          <a>종목분석 <span>128</span></a><a>거시·정책 <span>64</span></a><a>ETF·배당 <span>52</span></a>
+          <a>선물·지수 <span>38</span></a><a>산업분석 <span>41</span></a><a>세금·제도 <span>29</span></a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🏷️ 인기 태그</h3>
+        <div class="tags"><a>#HBM</a><a>#AI반도체</a><a>#월배당</a><a>#금리인하</a><a>#조선</a><a>#전력기기</a><a>#비트코인ETF</a><a>#밸류업</a></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="disc">본 리서치는 RICHFLOW AI가 공개 데이터·뉴스를 기반으로 작성하고 사람이 검수한 콘텐츠입니다. 정보 제공용이며 특정 종목의 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<script>
+  // [thumb, cat, market, title, desc, time(정렬용 분), views(만), new]
+  const ARTS=[
+    ['MS','종목분석','미국주식','마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다','1,900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화가 겹치며 52주 고점 대비 약 30% 하락. 7/29 실적이 분수령.',7,4.2,1],
+    ['SK','종목분석','한국주식','SK하이닉스 HBM4 퀄 임박, 목표주가 상향 러시','엔비디아 퀄 통과 기대감에 증권사 목표가가 잇따라 상향. 4분기 공급 물꼬가 관건.',29,3.5,1],
+    ['₿','거시·정책','코인','클래리티 액트, 통과되면 진짜 뭐가 바뀌나 — 지금 봐야 할 것','미국이 코인 시장 규칙을 통째로 다시 쓰는 중. 통과되면 내 자산은 어떻게 되는지 정리.',35,2.7,1],
+    ['TSLA','선물·지수','미국주식','나스닥 100 선물, 2만9000선까지 밀렸다 — 실적 쇼크의 여파','테슬라·알파벳 애프터마켓 급락과 풋옵션 우세 속 변동성 확대.',120,1.8,0],
+    ['AVGO','종목분석','미국주식','브로드컴 주가 전망: 396달러대에서 반등, 관건은 9월 실적','월가 목표주가 평균 509달러. 9월 2일 실적에서 AI 반도체 매출이 반등 지속 여부를 가른다.',180,2.1,0],
+    ['ETF','ETF·배당','미국주식','SCHD 월배당 아니라 분기배당이다 — 2026 지급일정과 수익률 총정리','3·6·9·12월 분기배당, TTM 배당수익률 약 3.19%. 월배당 원하면 국내 상장 대안 ETF.',240,3.1,0],
+    ['한','종목분석','한국주식','한화오션 주가 전망 2026: 캐나다 잠수함 이후에도 매수가 유지되는 이유','조선 슈퍼사이클과 방산 수주로 목표주가 유지. 수주잔고 3년치 확보.',300,1.5,0],
+    ['NV','종목분석','미국주식','엔비디아 주가 전망 2026, AI 수요와 실적 기대치 점검','블랙웰 램프업과 데이터센터 자본지출이 실적을 좌우. 밸류에이션 논쟁 지속.',360,4.2,0],
+    ['금','ETF·배당','한국주식','금 ETF 완전 정복, 국내외 상품 비교와 세금·계좌 절세 전략','KRX금현물·해외금 ETF·골드뱅킹 비교. 매매차익 세금 0원 조건 정리.',420,2.2,0],
+    ['⚡','산업분석','한국주식','AI 데이터센터 전력 수요 급증, 변압기 3사 수주잔고 사상 최대','전력 인프라가 구조적 수혜 구간. 큰손 수급에서 전력기기 신규 진입 포착.',480,2.6,0],
+    ['세','세금·제도','한국주식','해외주식 양도소득세 신고 방법: 신고 시기·세율, 가산세까지','연 250만원 기본공제와 22% 세율. 신고 시기 놓치면 가산세.',540,2.4,0],
+    ['BTC','거시·정책','코인','비트코인 전망: 골든크로스는 떴지만 200일선은 아직 멀다','단기 반등 신호에도 주요 저항선이 남아있다. 온체인 지표로 본 다음 방향.',600,2.7,0],
+    ['현','종목분석','한국주식','현대차 주가 전망 2026: 하락 이유와 실적 체크포인트','환율·수요 둔화 우려 속 배당 매력. 2분기 실적이 방향을 가른다.',660,1.3,0],
+    ['JEP','ETF·배당','미국주식','JEPI JEPQ 차이 완전 정리, 배당률·수익률·위험도 한눈에 비교','커버드콜 ETF의 구조와 위험. 월배당 매력 뒤의 원금 손실 가능성.',720,1.9,0]
+  ];
+  const CATC={'전체':'','종목분석':'종목분석','거시·정책':'거시·정책','ETF·배당':'ETF·배당','선물·지수':'선물·지수','산업분석':'산업분석'};
+  // 인덱스: 0=thumb 1=cat 2=market 3=title 4=desc 5=time(분) 6=views(만) 7=new
+  let cat='전체',sort='추천순',limit=6;
+  function render(){
+    let list=ARTS.filter(a=>cat==='전체'||a[1]===cat);
+    if(sort==='최신순')list=[...list].sort((a,b)=>a[5]-b[5]);
+    else if(sort==='인기순')list=[...list].sort((a,b)=>b[6]-a[6]);
+    const feed=document.getElementById('feed');
+    feed.innerHTML=list.slice(0,limit).map(a=>{
+      const m=a[5];const t=m<60?m+'분 전':(m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전');
+      return `<div class="art" onclick="location.href='article.html'">
+        ${a[6]>=3?'<span class="badge-new">🔥 인기</span>':(a[7]?'<span class="badge-new">NEW</span>':'')}
+        <div class="thumb">${a[0]}</div>
+        <div class="body">
+          <div class="cat"><span class="tag">${a[1]}</span> · ${a[2]}</div>
+          <h3>${a[3]}</h3><p>${a[4]}</p>
+          <div class="meta"><span>🕐 ${t}</span><span>👁 ${a[6]}만</span></div>
+        </div></div>`;
+    }).join('');
+    document.getElementById('more').style.display=list.length>limit?'inline-block':'none';
+  }
+  document.getElementById('cats').querySelectorAll('button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#cats button').forEach(x=>x.classList.remove('on'));b.classList.add('on');cat=b.textContent;limit=6;render();});
+  document.getElementById('sort').querySelectorAll('button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#sort button').forEach(x=>x.classList.remove('on'));b.classList.add('on');sort=b.textContent;render();});
+  document.getElementById('more').onclick=()=>{limit+=6;render();};
+  render();
+</script>
+</body>
+</html>

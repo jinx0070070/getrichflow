@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>확률 통계 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--amber-bg:rgba(192,127,36,.12);
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.bot{display:block}.mono{font-variant-numeric:tabular-nums}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:2px;margin-left:4px;flex-wrap:wrap}
+  nav.menu a{color:var(--txt-2);font-size:13.5px;font-weight:500;padding:8px 11px;border-radius:9px;white-space:nowrap}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:170px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .us-link{margin-left:auto;font-size:13px;font-weight:700;color:var(--brand);background:var(--card);border:1px solid var(--line);padding:9px 15px;border-radius:11px;box-shadow:var(--shadow-sm)}
+  .notice{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;font-size:12.5px;color:var(--txt-2);line-height:1.6;margin:16px 0}
+  .notice b{color:var(--txt)}
+  /* buckets */
+  .buckets{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+  .bk{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+  .bk .k{font-size:12.5px;font-weight:700;color:var(--txt-2);display:flex;align-items:center;gap:6px}
+  .bk .v{font-size:26px;font-weight:800;margin-top:4px}
+  .bk.good .v{color:var(--up)}.bk.mid .v{color:var(--amber)}.bk.no .v{color:var(--txt-3)}
+  .headline{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2);border-radius:16px;padding:18px 20px;margin-bottom:16px;font-size:13.5px;color:var(--txt-2);line-height:1.7}
+  .headline b{color:var(--txt)}
+  .pairs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pair{font-size:12px;font-weight:700;background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:20px;color:var(--txt-2)}
+  .pair b{color:var(--up)}
+  /* rank list */
+  .sec-title{font-size:17px;font-weight:800;margin:24px 0 12px;display:flex;align-items:center;gap:10px}
+  .sec-title .s{font-size:12px;font-weight:600;color:var(--txt-3)}
+  .ranks{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .rk{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);cursor:pointer;transition:.12s}
+  .rk:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line-2)}
+  .rk .st{font-size:11px;font-weight:800;margin-bottom:4px}
+  .rk .st.good{color:var(--up)}.rk .st.mid{color:var(--amber)}
+  .rk .n{font-size:16px;font-weight:800}
+  .rk .p{font-size:22px;font-weight:800;color:var(--up);margin-top:4px}
+  .rk .sub{font-size:11px;color:var(--txt-3);margin-top:2px}
+  .notyet{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .ny{font-size:12.5px;font-weight:700;background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:20px;color:var(--txt-3)}
+  /* detail card */
+  .detail{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+  .dh{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .dh .nm{font-size:20px;font-weight:800}
+  .dh .badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px}
+  .dh .badge.mid{color:var(--amber);background:var(--amber-bg)}.dh .badge.good{color:var(--up);background:var(--up-bg)}
+  .dh .big{margin-left:auto;font-size:26px;font-weight:800;color:var(--up)}
+  .dsub{font-size:12px;color:var(--txt-3);font-weight:600;margin-bottom:14px}
+  .plain{font-size:14px;color:var(--txt-2);line-height:1.7;background:var(--card-2);border-radius:12px;padding:14px 16px}
+  .plain b{color:var(--txt);font-size:15px}
+  .median{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--txt-2);margin-top:10px;font-weight:600}
+  .median b{color:var(--txt)}
+  .horizon{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  .hz{background:var(--card-2);border-radius:11px;padding:12px;text-align:center}
+  .hz .k{font-size:11px;color:var(--txt-3);font-weight:700}
+  .hz .v{font-size:17px;font-weight:800;margin-top:3px}
+  .hz .bar{height:5px;border-radius:3px;background:var(--line);margin-top:7px;overflow:hidden}
+  .hz .bar i{display:block;height:100%;background:var(--up)}
+  .path{font-size:12.5px;color:var(--txt-2);background:var(--amber-bg);border:1px solid rgba(192,127,36,.25);border-radius:11px;padding:11px 14px;margin-top:12px;line-height:1.55}
+  .path b{color:var(--amber)}
+  .signals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  .sg{background:var(--card-2);border-radius:11px;padding:12px}
+  .sg .t{font-size:10.5px;color:var(--txt-3);font-weight:700}
+  .sg .v{font-size:13px;font-weight:800;margin-top:3px}
+  .sg .d{font-size:10.5px;color:var(--txt-3);margin-top:2px}
+  .sg.ok .v{color:var(--up)}.sg.no .v{color:var(--down)}.sg.mid .v{color:var(--amber)}
+  .stocks{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+  .stk{font-size:12px;font-weight:700;background:var(--card-2);border:1px solid var(--line);padding:6px 12px;border-radius:20px;color:var(--txt-2);cursor:pointer}
+  .stk:hover{color:var(--txt)}
+  .uspair{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:8px 14px;border-radius:11px;margin-top:12px}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:900px){.buckets,.horizon,.signals{grid-template-columns:1fr 1fr}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <nav class="menu">
+    <a href="whale.html">큰손 수급</a><a href="leaders.html">대표주</a><a href="idea.html">커넥션</a><a href="forecast.html" class="on">확률 통계</a>
+    <a href="research.html">리서치</a><a href="theme.html">테마·흐름</a><a href="screener.html">종목탐색</a><a href="calendar.html">캘린더</a>
+  </nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="섹터 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <div>
+      <h1>🔮 확률 통계</h1>
+      <p>지금과 <b style="color:var(--txt)">비슷했던 과거 국면</b> 뒤에 실제로 벌어진 일의 통계입니다.</p>
+    </div>
+    <a href="forecast-us.html" class="us-link">🇺🇸 미장 확률 통계 →</a>
+  </section>
+
+  <div class="notice">
+    ◈ 이 화면은 <b>투자 권유가 아닙니다.</b> 아래 확률·수익률은 과거에 지금과 비슷한 국면이 나온 뒤 실제로 벌어진 일의 통계예요. 과거에 없던 일은 통계에 없습니다. · 통계 구간: <b>2021-06 ~ 2026-07 (약 5.1년)</b> · 마지막 거래일 종가 기준
+  </div>
+
+  <div class="buckets">
+    <div class="bk good"><div class="k">◉ 담기 우호</div><div class="v">1</div></div>
+    <div class="bk mid"><div class="k">◐ 갈림길</div><div class="v">19</div></div>
+    <div class="bk no"><div class="k">◎ 아직 아님</div><div class="v">10</div></div>
+  </div>
+
+  <div class="headline">
+    3달 평균 — <b>국장 52% · 미장 53%</b> 미장이 반 발 앞서 있어요.<br>
+    ◈ 오늘 신호가 가장 모인 곳: <b>금융 3/4 일치 ↗</b> (구조·통계·AI랩·큰손)
+    <div style="font-size:12px;font-weight:800;color:var(--txt-3);margin-top:12px">◈ 한·미 동반 강세</div>
+    <div class="pairs">
+      <span class="pair">전력기기 ↔ 전력 인프라 <b>64·79%</b></span>
+      <span class="pair">방산 ↔ 항공우주/방산 <b>72·60%</b></span>
+      <span class="pair">금융 ↔ 금융 <b>63·63%</b></span>
+    </div>
+  </div>
+
+  <div class="sec-title">📈 지금부터 모으면 <span class="s">3달 뒤 더 높았을 확률 (비슷한 과거 국면 기준)</span></div>
+  <div class="ranks" id="ranks"></div>
+
+  <div class="sec-title">◎ 아직 아님 <span class="s">통계가 우호적이지 않은 섹터</span></div>
+  <div class="notyet">
+    <span class="ny">플랫폼 36%</span><span class="ny">2차전지 41%</span><span class="ny">엔터 42%</span><span class="ny">AI 43%</span><span class="ny">화장품 45%</span>
+  </div>
+
+  <div class="sec-title">🔍 섹터 상세</div>
+  <div id="details"></div>
+
+  <div class="disc">과거 유사 국면 통계 기반 <b>정보 제공용</b> 자료이며 매수·매도 권유나 투자자문이 아닙니다. 과거 통계는 미래 수익을 보장하지 않으며, 표본 수(n)와 기준일을 함께 확인하세요. 데이터: 한국거래소 시세 · DART · 자체 산출물. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<script>
+  const SECS=[
+    {n:'방산',state:'mid',stateL:'◐ 하락 추세 · 통계만 우호',p3:72,w1:56,m1:62,m6:84,
+     agree:'신호 2/4 일치 ↘',hit:'10번 중 7번',up:19,dn:-6.5,cnt:493,dip:-3.3,
+     us:['항공우주/방산',60],
+     sig:[['① 추세 구조','no','◎ 하락 추세','하락구조 · BOS'],['② 과거 통계','ok','◉ 승률 우위','3달 뒤 72% · n 493'],['③ AI 랩 (OOS)','mid','◐ 학습중','승격 대기 · 기준 59%'],['④ 큰손 수급','no','◎ 파는 중','최근 5일 41↑ 72↓']],
+     stocks:['한화에어로스페이스','현대로템','LIG넥스원','한국항공우주','한화시스템']},
+    {n:'전력기기',state:'mid',stateL:'◐ 하락 추세 · 통계만 우호',p3:64,w1:52,m1:55,m6:77,
+     agree:'신호 2/4 일치 →',hit:'10번 중 6번',up:27.7,dn:-13.4,cnt:643,dip:-4.3,
+     us:['전력 인프라/송배전',79],
+     sig:[['① 추세 구조','no','◎ 하락 추세','상승구조'],['② 과거 통계','ok','◉ 승률 우위','3달 뒤 64% · n 643'],['③ AI 랩 (OOS)','mid','◐ 학습중','승격 대기 · 기준 63%'],['④ 큰손 수급','mid','◐ 엇갈림','최근 5일 43↑ 35↓']],
+     stocks:['HD현대일렉트릭','LS ELECTRIC','LS','대한전선','일진전기']},
+    {n:'금융',state:'good',stateL:'◉ 모아가기 우호',p3:63,w1:47,m1:50,m6:66,
+     agree:'신호 3/4 일치 ↗',hit:'10번 중 6번',up:9.9,dn:-6.7,cnt:1024,dip:-3.1,
+     us:['금융',63],
+     sig:[['① 추세 구조','ok','◉ 상승 추세','상승구조'],['② 과거 통계','ok','◉ 승률 우위','3달 뒤 63% · n 1,024'],['③ AI 랩 (OOS)','mid','◐ 학습중','승격 대기 · 기준 62%'],['④ 큰손 수급','ok','◉ 사는 중','최근 5일 125↑ 65↓']],
+     stocks:['삼성생명','KB금융','신한지주','하나금융지주','삼성화재']},
+    {n:'조선',state:'mid',stateL:'◐ 하락 추세 · 통계만 우호',p3:62,w1:56,m1:63,m6:64,
+     agree:'신호 2/4 일치 ↘',hit:'10번 중 6번',up:14,dn:-6.6,cnt:619,dip:-2.8,
+     us:['산업재',55],
+     sig:[['① 추세 구조','no','◎ 하락 추세','하락구조'],['② 과거 통계','ok','◉ 승률 우위','3달 뒤 62% · n 619'],['③ AI 랩 (OOS)','mid','◐ 학습중','승격 대기'],['④ 큰손 수급','mid','◐ 엇갈림','최근 5일 52↑ 48↓']],
+     stocks:['한화오션','HD한국조선해양','삼성중공업','HD현대중공업']}
+  ];
+  const RANK=[['방산','mid',72],['전력기기','mid',64],['금융','good',63],['조선','mid',62],['원전','mid',62],['지주','mid',61]];
+  document.getElementById('ranks').innerHTML=RANK.map(r=>`
+    <div class="rk" onclick="document.getElementById('d-${r[0]}')?.scrollIntoView({behavior:'smooth'})">
+      <div class="st ${r[1]}">${r[1]==='good'?'◉ 담기 우호':'◐ 갈림길'}</div>
+      <div class="n">${r[0]}</div><div class="p">↗ ${r[2]}%</div>
+      <div class="sub">3달 뒤 더 높았을 확률</div>
+    </div>`).join('');
+  document.getElementById('details').innerHTML=SECS.map(s=>`
+    <div class="detail" id="d-${s.n}">
+      <div class="dh"><span class="nm">${s.n}</span><span class="badge ${s.state}">${s.stateL}</span><span class="big">↗ ${s.p3}%</span></div>
+      <div class="dsub">3달 기준 · ◈ ${s.agree}</div>
+      <div class="plain">지금과 비슷한 국면이었을 때, 3달 뒤 더 높았던 경우가 <b>${s.hit} 상승</b>이었어요.
+        <div class="median"><span>올랐을 때 보통 <b class="up">+${s.up}%</b></span><span>내렸을 때 보통 <b class="down">${s.dn}%</b></span><span>중앙값 · <b>${s.cnt.toLocaleString()}번</b> 조사</span></div>
+      </div>
+      <div class="horizon">
+        <div class="hz"><div class="k">1주</div><div class="v ${s.w1>=55?'up':''}">${s.w1>=55?'↗':'→'} ${s.w1}%</div><div class="bar"><i style="width:${s.w1}%"></i></div></div>
+        <div class="hz"><div class="k">1달</div><div class="v ${s.m1>=55?'up':''}">${s.m1>=55?'↗':'→'} ${s.m1}%</div><div class="bar"><i style="width:${s.m1}%"></i></div></div>
+        <div class="hz"><div class="k">3달</div><div class="v up">↗ ${s.p3}%</div><div class="bar"><i style="width:${s.p3}%"></i></div></div>
+        <div class="hz"><div class="k">6달</div><div class="v up">↗ ${s.m6}%</div><div class="bar"><i style="width:${s.m6}%"></i></div></div>
+      </div>
+      <div class="path">◈ <b>가는 길</b> — 첫 2주 보통 <b>${s.dip}%</b> 눌림이 있었어요. 겁낼 자리가 아니라 나눠 사는 자리였습니다. (1주 방향은 동전 수준 ${s.w1}%)</div>
+      <div class="signals">${s.sig.map(g=>`<div class="sg ${g[1]}"><div class="t">${g[0]}</div><div class="v">${g[2]}</div><div class="d">${g[3]}</div></div>`).join('')}</div>
+      <div class="uspair">↔ 미장 짝 · <b>${s.us[0]}</b> <span class="up">↗ ${s.us[1]}%</span> <a href="forecast-us.html" style="color:var(--brand)">보러가기 ›</a></div>
+      <div class="stocks">${s.stocks.map(x=>`<span class="stk" onclick="location.href='stock.html'">${x}</span>`).join('')}</div>
+    </div>`).join('');
+</script>
+</body>
+</html>

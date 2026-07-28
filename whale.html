@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>큰손 수급 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;
+    --txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;
+    --up:#1f9d57;--up-bg:rgba(31,157,87,.11);--down:#d8455a;--down-bg:rgba(216,69,90,.11);
+    --amber:#c07f24;--radius:20px;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}
+  .mono{font-variant-numeric:tabular-nums}
+  .bot{display:block}
+
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}
+  nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+
+  .phead{padding:26px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .subtabs{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap}
+  .subtabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;
+    font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .subtabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+  /* panels */
+  .panel{display:none;padding-bottom:10px}
+  .panel.on{display:block}
+  .panel-intro{font-size:13.5px;color:var(--txt-2);margin:18px 0;line-height:1.6;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow-sm)}
+  .panel-intro b{color:var(--txt)}
+
+  .band{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:16px;margin:20px 0}
+  .statcards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+  .statcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+  .statcard .k{font-size:12px;color:var(--txt-2);font-weight:600;margin-bottom:6px}
+  .statcard .v{font-size:24px;font-weight:800;letter-spacing:-.02em}
+  .statcard .s{font-size:11px;font-weight:700;margin-top:3px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+  .flowbar{height:12px;border-radius:6px;overflow:hidden;display:flex;margin:8px 0 8px}
+  .flowbar .in{background:var(--up)}.flowbar .out{background:var(--down)}
+  .flow-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--txt-2);font-weight:600}
+  .flow-note{font-size:12.5px;color:var(--txt-2);margin-top:12px;line-height:1.55}
+  .flow-note b{color:var(--txt)}
+  .kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .kv:last-child{border:none}.kv .k{color:var(--txt-2);font-weight:600}.kv .v{font-weight:800}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+
+  .srow{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:11px;cursor:pointer}
+  .srow:hover{background:var(--card-2)}
+  .srow .rk{width:20px;font-weight:800;color:var(--txt-3);font-size:13px}
+  .srow .logo-sq{width:34px;height:34px;border-radius:10px;background:var(--card-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .srow .info{flex:1;min-width:0}
+  .srow .info .n{font-size:14px;font-weight:700}
+  .srow .info .s{font-size:11px;color:var(--txt-3);margin-top:1px}
+  .srow .r{text-align:right}
+  .srow .r .pct{font-weight:800;font-size:14px}
+  .srow .r .cnt{font-size:11px;color:var(--txt-3);font-weight:600}
+  .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+  .b-new{color:var(--brand);background:var(--card-2)}.b-buy{color:var(--up);background:var(--up-bg)}.b-sell{color:var(--down);background:var(--down-bg)}
+
+  .maprow{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px}
+  .maprow .sec{width:60px;font-weight:700}
+  .maprow .mbar{flex:1;height:20px;border-radius:6px;background:var(--card-2);overflow:hidden;position:relative}
+  .maprow .mbar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand-2),var(--brand))}
+  .maprow .mv{width:98px;text-align:right;font-size:11.5px;color:var(--txt-2);font-weight:600}
+  .maprow .mv b{color:var(--txt);font-size:13px}
+
+  .rot-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .rot-row:last-child{border:none}
+  .rot-row .tn{width:76px;font-weight:700}
+  .rot-bar{flex:1;height:7px;border-radius:4px;background:var(--card-2);overflow:hidden}
+  .rot-bar i{display:block;height:100%}
+  .rot-val{width:52px;text-align:right;font-weight:800;font-size:12.5px}
+
+  .tl{position:relative;padding-left:22px}
+  .tl:before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line-2)}
+  .tl-item{position:relative;padding:0 0 16px}.tl-item:last-child{padding-bottom:0}
+  .tl-item:before{content:"";position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;
+    background:var(--brand);border:2px solid var(--card)}
+  .tl-item .t{font-size:11px;color:var(--txt-3);font-weight:700;margin-bottom:3px}
+  .tl-item .d{font-size:13px;color:var(--txt-2);line-height:1.5}.tl-item .d b{color:var(--txt)}
+
+  /* table */
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl th{text-align:left;font-size:11px;color:var(--txt-3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+  .tbl th.r,.tbl td.r{text-align:right}
+  .tbl td{padding:11px 10px;border-bottom:1px solid var(--line)}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tr:hover td{background:var(--card-2)}
+  .tbl .nm{font-weight:700}
+  .tbl .sub{font-size:11px;color:var(--txt-3)}
+  .pill{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px}
+
+  /* donut alloc */
+  .alloc{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .donut{width:150px;height:150px;flex-shrink:0}
+  .legend{flex:1;min-width:180px}
+  .lg-row{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:12.5px}
+  .lg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .lg-row .ln{flex:1;font-weight:600}
+  .lg-row .lv{font-weight:800}
+
+  .ai-note{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2)}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;
+    display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
+
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  .warn{background:var(--down-bg);border:1px solid rgba(216,69,90,.25);border-radius:12px;padding:12px 15px;
+    font-size:12px;color:var(--txt-2);margin:16px 0;line-height:1.55}
+  .warn b{color:var(--down)}
+
+  /* institution directory */
+  .inst-cats{display:flex;gap:8px;margin:6px 0 14px;flex-wrap:wrap}
+  .inst-cats button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;
+    font-weight:700;padding:9px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);
+    display:flex;align-items:center;gap:8px}
+  .inst-cats button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .inst-cats button .c{font-size:11px;font-weight:800;opacity:.85}
+  .inst-search{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 15px;
+    font-family:inherit;font-size:13px;color:var(--txt);outline:none;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+  .inst-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:8px}
+  .inst{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:9px 12px;cursor:pointer;box-shadow:var(--shadow-sm);transition:.12s}
+  .inst:hover{border-color:var(--line-2);transform:translateY(-1px)}
+  .inst .av{width:32px;height:32px;border-radius:9px;background:var(--card-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .inst .nm{flex:1;min-width:0;font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inst .c{font-size:13px;font-weight:800;color:var(--brand-2);flex-shrink:0}
+  .inst.hide{display:none}
+  .inst-more{text-align:center;margin-top:12px}
+
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(20,24,30,.5);backdrop-filter:blur(4px);z-index:100;
+    display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--card);border:1px solid var(--line-2);border-radius:20px;max-width:540px;width:100%;
+    max-height:86vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.32);padding:24px}
+  .modal .mh{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+  .modal .mh .av{width:48px;height:48px;border-radius:13px;background:var(--card-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .modal .mh .t h4{font-size:17px;font-weight:800}
+  .modal .mh .t .s{font-size:12px;color:var(--txt-3);font-weight:600;margin-top:2px}
+  .modal .close{margin-left:auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card-2);cursor:pointer;font-size:15px;color:var(--txt-2)}
+  .modal .mstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+  .modal .mstat div{background:var(--card-2);border-radius:11px;padding:11px;text-align:center}
+  .modal .mstat .k{font-size:11px;color:var(--txt-3);font-weight:600}
+  .modal .mstat .v{font-size:16px;font-weight:800;margin-top:3px}
+  .modal h5{font-size:12px;font-weight:800;color:var(--txt-2);margin:14px 0 8px}
+  .mhold{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .mhold:last-child{border:none}
+  .mhold .hn{flex:1;font-weight:700}
+  .mhold .hp{font-weight:800}
+  .mhold .hbar{width:70px;height:6px;border-radius:3px;background:var(--card-2);overflow:hidden}
+  .mhold .hbar i{display:block;height:100%;background:var(--brand)}
+
+  /* daily net-trade strip */
+  .daystrip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+  .daycard{flex:0 0 auto;min-width:96px;background:var(--card-2);border:1px solid var(--line);border-radius:12px;
+    padding:11px 12px;text-align:center}
+  .daycard .dd{font-size:11px;color:var(--txt-3);font-weight:700}
+  .daycard .dv{font-size:15px;font-weight:800;margin:4px 0 3px}
+  .daycard .src{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;background:var(--card);border:1px solid var(--line);color:var(--txt-3)}
+  .daycard .src.ok{color:var(--up);border-color:rgba(31,157,87,.3)}
+  /* over/underweight */
+  .ow-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px}
+  .ow-row .on{flex:1;font-weight:700}
+  .ow-track{flex:1.6;height:8px;border-radius:4px;background:var(--card-2);position:relative;overflow:hidden;display:flex;justify-content:center}
+  .ow-track i{position:absolute;top:0;height:100%}
+  .ow-mid{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--line-2)}
+  .ow-val{width:64px;text-align:right;font-weight:800;font-size:12.5px}
+
+  @media(max-width:900px){
+    .band,.cols,.statcards{grid-template-columns:1fr}
+    nav.menu,.search{display:none}
+    .statcards{grid-template-columns:1fr 1fr}
+    .tbl .hide{display:none}
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mascot" viewBox="0 0 100 100">
+    <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/>
+    <rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+    <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/>
+    <rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+    <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/>
+    <circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+    <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+    <nav class="menu">
+      <a href="whale.html" class="on">큰손 수급</a><a href="leaders.html">대표주</a>
+      <a href="idea.html">커넥션</a>
+      <a href="forecast.html">확률 통계</a>
+      <a href="research.html">리서치</a>
+      <a href="theme.html">테마·흐름</a>
+      <a href="screener.html">종목탐색</a>
+      <a href="calendar.html">캘린더</a>
+    </nav>
+    <div class="nav-right"><div class="search">🔍<input placeholder="종목·기관 검색"></div></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="phead">
+    <h1>🐋 큰손 수급</h1>
+    <p>국민연금·운용사·세력·공직자·외국인이 지금 뭘 사고 파는지 — 공시 데이터로 추적합니다. <b style="color:var(--txt-2)">매일 16:30 갱신 · 마지막 7/23</b></p>
+    <div class="subtabs" id="subtabs">
+      <button class="on" data-p="all">종합</button>
+      <button data-p="nps">국민연금</button>
+      <button data-p="fund">운용사</button>
+      <button data-p="rule5">세력(5%룰)</button>
+      <button data-p="gov">공직자</button>
+      <button data-p="foreign">외국인</button>
+    </div>
+  </section>
+
+  <!-- ============ 종합 ============ -->
+  <div class="panel on" data-panel="all">
+    <div class="band">
+      <div class="card">
+        <h3>큰손 수급 방향 <span class="hint">최근 24거래일 누적</span></h3>
+        <div class="flowbar"><i class="in" style="width:34%"></i><i class="out" style="width:66%"></i></div>
+        <div class="flow-legend"><span class="up">유입 34% · 36.6조</span><span class="down">유출 66% · 71.9조</span></div>
+        <div class="flow-note">큰손들은 지금 <b class="down">파는 쪽</b>이에요. 주로 파는 곳은 <b>바이오·반도체</b>, 담는 곳은 <b>플랫폼·전력기기</b>.</div>
+      </div>
+      <div class="card">
+        <h3>오늘의 큰손 <span class="hint">7/22 공시</span></h3>
+        <div class="kv"><span class="k">외국인 (장중)</span><span class="v up">▲ 1.6조</span></div>
+        <div class="kv"><span class="k">기관 (장중)</span><span class="v down">▼ 357억</span></div>
+        <div class="kv"><span class="k">국민연금 (7/22)</span><span class="v up">▲ 1,000억</span></div>
+        <div class="kv"><span class="k">운용사 순매수</span><span class="v">21 담음 / 24 팜</span></div>
+      </div>
+      <div class="card">
+        <h3>주목 종목 TOP <span class="hint">겹침 신호</span></h3>
+        <div class="kv"><span class="k">① LS</span><span class="v up">3곳 겹침</span></div>
+        <div class="kv"><span class="k">② LSK아이로봇</span><span class="v up">신규 7곳</span></div>
+        <div class="kv"><span class="k">③ 엘앤에프</span><span class="v up">5일 연속 매집</span></div>
+        <div class="kv"><span class="k">④ CJ</span><span class="v up">2곳 겹침</span></div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 큰손이 담은 종목 <span class="hint">최근 30일 · 지분 확대</span></h3>
+        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">아</span><div class="info"><div class="n">아틀라스링크 <span class="badge b-buy">담는중</span></div><div class="s">5곳 기관 · 진입 후 추가매수</div></div><div class="r"><div class="pct up">+103.5%p</div><div class="cnt">5곳</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">LS</span><div class="info"><div class="n">LSK아이로봇 <span class="badge b-new">신규</span></div><div class="s">7곳 동시 5% 진입</div></div><div class="r"><div class="pct up">+96.3%p</div><div class="cnt">7곳</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">세</span><div class="info"><div class="n">세원물산</div><div class="s">단일 기관 대량 매집</div></div><div class="r"><div class="pct up">+74.9%p</div><div class="cnt">1곳</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">4</span><span class="logo-sq">이</span><div class="info"><div class="n">이화산업</div><div class="s">지분 신규 신고</div></div><div class="r"><div class="pct up">+72.8%p</div><div class="cnt">1곳</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ 큰손이 비운 종목 <span class="hint">최근 30일 · 지분 축소</span></h3>
+        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">엑</span><div class="info"><div class="n">엑시큐어하이트론 <span class="badge b-sell">이탈</span></div><div class="s">7곳 동시 지분 축소</div></div><div class="r"><div class="pct down">−152.3%p</div><div class="cnt">7곳</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">오</span><div class="info"><div class="n">오늘이엔엠</div><div class="s">8곳 매도</div></div><div class="r"><div class="pct down">−108.2%p</div><div class="cnt">8곳</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">이</span><div class="info"><div class="n">이큐셀</div><div class="s">지분 정리</div></div><div class="r"><div class="pct down">−84.6%p</div><div class="cnt">2곳</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">4</span><span class="logo-sq">푸</span><div class="info"><div class="n">푸드나무</div><div class="s">보유 축소</div></div><div class="r"><div class="pct down">−84.1%p</div><div class="cnt">3곳</div></div></a>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>🗺️ 큰손 지도 <span class="hint">업종별 보유 집중도</span></h3>
+        <div class="maprow"><span class="sec">반도체</span><div class="mbar"><i style="width:100%"></i></div><span class="mv"><b>65%</b> 59종목·줄이는중</span></div>
+        <div class="maprow"><span class="sec">금융</span><div class="mbar"><i style="width:22%"></i></div><span class="mv"><b>6.9%</b> 29종목·담는중</span></div>
+        <div class="maprow"><span class="sec">바이오</span><div class="mbar"><i style="width:16%"></i></div><span class="mv"><b>4.5%</b> 34종목·줄이는중</span></div>
+        <div class="maprow"><span class="sec">자동차</span><div class="mbar"><i style="width:14%"></i></div><span class="mv"><b>4.0%</b> 14종목</span></div>
+        <div class="maprow"><span class="sec">방산</span><div class="mbar"><i style="width:11%"></i></div><span class="mv"><b>3.0%</b> 11종목·줄이는중</span></div>
+      </div>
+      <div class="card">
+        <h3>🔄 테마 로테이션 <span class="hint">최근 3개월 지분율 변화</span></h3>
+        <div class="rot-row"><span class="tn up">▲ 리츠</span><div class="rot-bar"><i class="up" style="width:90%;background:var(--up)"></i></div><span class="rot-val up">+9.0</span></div>
+        <div class="rot-row"><span class="tn up">▲ 2차전지</span><div class="rot-bar"><i style="width:70%;background:var(--up)"></i></div><span class="rot-val up">+7.0</span></div>
+        <div class="rot-row"><span class="tn up">▲ 전력기기</span><div class="rot-bar"><i style="width:51%;background:var(--up)"></i></div><span class="rot-val up">+5.1</span></div>
+        <div class="rot-row"><span class="tn down">▼ 반도체</span><div class="rot-bar"><i style="width:100%;background:var(--down)"></i></div><span class="rot-val down">−10.5</span></div>
+        <div class="rot-row"><span class="tn down">▼ 바이오</span><div class="rot-bar"><i style="width:14%;background:var(--down)"></i></div><span class="rot-val down">−1.4</span></div>
+      </div>
+    </div>
+
+    <div class="card ai-note">
+      <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 큰손 해설</h3>
+      <div style="display:flex;gap:12px">
+        <svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
+        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">
+          큰손들은 <b style="color:var(--txt)">반도체·바이오에서 돈을 빼고</b> 리츠·2차전지·전력기기로 옮기는 중이에요. 특히 <b style="color:var(--txt)">LSK아이로봇에 7곳이 한꺼번에</b> 신규 진입한 건 흔치 않은 강한 신호. 다만 대량보유 공시는 실제 매매보다 <b style="color:var(--txt)">며칠 늦게</b> 도착하니 후속 공시로 확인이 필요해요.
+          <div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 국민연금 ============ -->
+  <div class="panel" data-panel="nps">
+    <div class="panel-intro">🏛️ <b>국민연금공단</b>이 지분 5% 이상 보유·변동한 종목을 DART 대량보유 공시로 추적합니다. 국내 최대 큰손이라 방향 전환이 시장에 미치는 영향이 큽니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">보유 종목 수</div><div class="v">312</div><div class="s up">▲ 이번달 +6</div></div>
+      <div class="statcard"><div class="k">이번달 순매수</div><div class="v up">+1.8조</div><div class="s up">▲ 7거래일 순매수</div></div>
+      <div class="statcard"><div class="k">신규 5% 진입</div><div class="v">4</div><div class="s">롯데관광개발 외</div></div>
+      <div class="statcard"><div class="k">5% 이탈</div><div class="v down">2</div><div class="s down">▼ 지분 축소</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>◇ 연기금 일별 순매매 <span class="hint">뉴스 교차검증 · 참고용</span></h3>
+      <div class="daystrip">
+        <div class="daycard"><div class="dd">7/22</div><div class="dv up">+1,000억</div><span class="src ok">출처 2건</span></div>
+        <div class="daycard"><div class="dd">7/21</div><div class="dv up">+2,283억</div><span class="src">단일 기사</span></div>
+        <div class="daycard"><div class="dd">7/20</div><div class="dv up">+744억</div><span class="src ok">출처 3건</span></div>
+        <div class="daycard"><div class="dd">7/15</div><div class="dv up">+589억</div><span class="src">상충·참고</span></div>
+        <div class="daycard"><div class="dd">7/14</div><div class="dv up">+868억</div><span class="src ok">출처 4건</span></div>
+        <div class="daycard"><div class="dd">7/13</div><div class="dv down">−662억</div><span class="src ok">출처 3건</span></div>
+        <div class="daycard"><div class="dd">7/10</div><div class="dv up">+917억</div><span class="src ok">출처 2건</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ 연기금 순매매는 거래소 잠정치가 아니라 뉴스 교차검증 기반 추정 — 출처 일치 건수로 신뢰도를 표기합니다.</div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 국민연금이 담은 종목 <span class="hint">지분율 확대 %p</span></h3>
+        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">대</span><div class="info"><div class="n">대웅제약</div><div class="s">7/22 지분 확대 공시</div></div><div class="r"><div class="pct up">+10.10%p</div><div class="cnt">→ 12.4%</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">롯</span><div class="info"><div class="n">롯데관광개발 <span class="badge b-new">신규</span></div><div class="s">신규 5% 진입</div></div><div class="r"><div class="pct up">+10.01%p</div><div class="cnt">→ 10.0%</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">현</span><div class="info"><div class="n">현대로템</div><div class="s">방산 비중 확대</div></div><div class="r"><div class="pct up">+1.82%p</div><div class="cnt">→ 8.1%</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">4</span><span class="logo-sq">한</span><div class="info"><div class="n">한화오션</div><div class="s">조선 담기</div></div><div class="r"><div class="pct up">+1.20%p</div><div class="cnt">→ 6.3%</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ 국민연금이 판 종목 <span class="hint">지분율 축소 %p</span></h3>
+        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">삼</span><div class="info"><div class="n">삼성전자</div><div class="s">비중 소폭 축소</div></div><div class="r"><div class="pct down">−0.42%p</div><div class="cnt">→ 7.3%</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">셀</span><div class="info"><div class="n">셀트리온</div><div class="s">바이오 차익실현</div></div><div class="r"><div class="pct down">−1.10%p</div><div class="cnt">→ 6.8%</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">에</span><div class="info"><div class="n">에코프로비엠 <span class="badge b-sell">이탈</span></div><div class="s">5% 미만으로 축소</div></div><div class="r"><div class="pct down">−0.95%p</div><div class="cnt">→ 4.9%</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">4</span><span class="logo-sq">카</span><div class="info"><div class="n">카카오</div><div class="s">플랫폼 비중 조정</div></div><div class="r"><div class="pct down">−0.60%p</div><div class="cnt">→ 7.9%</div></div></a>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>🥧 국민연금 섹터 배분 <span class="hint">추정 · 보유액 기준</span></h3>
+        <div class="alloc">
+          <svg class="donut" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--card-2)" stroke-width="7"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#434955" stroke-width="7" stroke-dasharray="34 66" stroke-dashoffset="25"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#5c626d" stroke-width="7" stroke-dasharray="18 82" stroke-dashoffset="91"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#7d838f" stroke-width="7" stroke-dasharray="14 86" stroke-dashoffset="73"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#9aa0ab" stroke-width="7" stroke-dasharray="12 88" stroke-dashoffset="59"/>
+          </svg>
+          <div class="legend">
+            <div class="lg-row"><span class="lg-dot" style="background:#434955"></span><span class="ln">반도체·IT</span><span class="lv">34%</span></div>
+            <div class="lg-row"><span class="lg-dot" style="background:#5c626d"></span><span class="ln">금융</span><span class="lv">18%</span></div>
+            <div class="lg-row"><span class="lg-dot" style="background:#7d838f"></span><span class="ln">바이오·헬스케어</span><span class="lv">14%</span></div>
+            <div class="lg-row"><span class="lg-dot" style="background:#9aa0ab"></span><span class="ln">자동차·부품</span><span class="lv">12%</span></div>
+            <div class="lg-row"><span class="lg-dot" style="background:var(--card-2)"></span><span class="ln">기타</span><span class="lv">22%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>⏱️ 국민연금 최근 공시 <span class="hint">대량보유 변동</span></h3>
+        <div class="tl">
+          <div class="tl-item"><div class="t">7/22</div><div class="d"><b>대웅제약</b> 지분 +10.10%p 확대 (2.3% → 12.4%)</div></div>
+          <div class="tl-item"><div class="t">7/22</div><div class="d"><b>롯데관광개발</b> 신규 5% 진입 (0% → 10.0%)</div></div>
+          <div class="tl-item"><div class="t">7/19</div><div class="d"><b>셀트리온</b> 지분 −1.10%p 축소 — 바이오 차익실현</div></div>
+          <div class="tl-item"><div class="t">7/18</div><div class="d"><b>에코프로비엠</b> 5% 미만으로 이탈 신고</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>⚖️ 국민연금 vs 큰손 평균 <span class="hint">섹터 오버/언더웨이트</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:10px">큰손 131곳 평균 대비 국민연금이 <b class="up">더 담은(오버)</b> · <b class="down">덜 담은(언더)</b> 섹터</div>
+        <div class="ow-row"><span class="on up">반도체</span><div class="ow-track"><span class="ow-mid"></span><i class="up" style="left:50%;width:46%;background:var(--up)"></i></div><span class="ow-val up">+41.2%p</span></div>
+        <div class="ow-row"><span class="on up">금융</span><div class="ow-track"><span class="ow-mid"></span><i class="up" style="left:50%;width:6%;background:var(--up)"></i></div><span class="ow-val up">+1.8%p</span></div>
+        <div class="ow-row"><span class="on up">지주</span><div class="ow-track"><span class="ow-mid"></span><i class="up" style="left:50%;width:5%;background:var(--up)"></i></div><span class="ow-val up">+1.5%p</span></div>
+        <div class="ow-row"><span class="on down">바이오</span><div class="ow-track"><span class="ow-mid"></span><i class="down" style="right:50%;width:20%;background:var(--down)"></i></div><span class="ow-val down">−13.5%p</span></div>
+        <div class="ow-row"><span class="on down">리츠</span><div class="ow-track"><span class="ow-mid"></span><i class="down" style="right:50%;width:9%;background:var(--down)"></i></div><span class="ow-val down">−6.0%p</span></div>
+        <div class="ow-row"><span class="on down">방산</span><div class="ow-track"><span class="ow-mid"></span><i class="down" style="right:50%;width:7%;background:var(--down)"></i></div><span class="ow-val down">−4.7%p</span></div>
+      </div>
+      <div class="card">
+        <h3>📊 최근 지분 변동 <span class="hint">줄임 / 늘림 · 금액·%p</span></h3>
+        <div style="font-size:12px;font-weight:800;color:var(--down);margin-bottom:4px">▼ 줄임</div>
+        <div class="kv"><span class="k">효성중공업 <span class="sub" style="font-size:11px;color:var(--txt-3)">오늘</span></span><span class="v down">≈2,502억</span></div>
+        <div class="kv"><span class="k">삼성전기 <span class="sub" style="font-size:11px;color:var(--txt-3)">공시 7/01</span></span><span class="v down">−1.05%p · 78.3만주</span></div>
+        <div class="kv"><span class="k">NAVER</span><span class="v down">−1.02%p · 175만주</span></div>
+        <div style="font-size:12px;font-weight:800;color:var(--up);margin:12px 0 4px">▲ 늘림</div>
+        <div class="kv"><span class="k">SK스퀘어</span><span class="v up">+1.13%p · 149만주</span></div>
+        <div class="kv"><span class="k">삼성SDI</span><span class="v up">+1.10%p · 88.1만주</span></div>
+        <div class="kv"><span class="k">롯데쇼핑 <span class="sub" style="font-size:11px;color:var(--txt-3)">즉시공시</span></span><span class="v up">+2.19%p</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 운용사 ============ -->
+  <div class="panel" data-panel="fund">
+    <div class="panel-intro">📦 자산운용사의 <b>액티브 ETF 1CU 구성(PDF)</b> 변화로 편입·제외를 추적합니다. 47개 펀드의 담고 판 종목을 집계 — 운용사는 실제 매매보다 공시가 빠른 편이라 선행 신호로 활용됩니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">추적 펀드</div><div class="v">47</div><div class="s">액티브 ETF</div></div>
+      <div class="statcard"><div class="k">오늘 편입</div><div class="v up">21</div><div class="s up">▲ 종목</div></div>
+      <div class="statcard"><div class="k">오늘 제외</div><div class="v down">24</div><div class="s down">▼ 종목</div></div>
+      <div class="statcard"><div class="k">최다 편입</div><div class="v" style="font-size:18px">SK하이닉스</div><div class="s">25개 펀드</div></div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 여러 펀드가 담은 종목 <span class="hint">7/22 매매</span></h3>
+        <a class="srow" href="stock.html"><span class="logo-sq">삼</span><div class="info"><div class="n">삼성전기</div><div class="s">AI인프라·반도체소재 등</div></div><div class="r"><div class="pct up">4곳</div><div class="cnt">펀드 매수</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">동</span><div class="info"><div class="n">동진쎄미켐</div><div class="s">반도체 소부장</div></div><div class="r"><div class="pct up">3곳</div><div class="cnt">펀드 매수</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">SK</span><div class="info"><div class="n">SK하이닉스</div><div class="s">HBM 대장주</div></div><div class="r"><div class="pct up">2곳</div><div class="cnt">펀드 매수</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ 여러 펀드가 판 종목 <span class="hint">7/22 매매</span></h3>
+        <a class="srow" href="stock.html"><span class="logo-sq">에</span><div class="info"><div class="n">에이피알</div><div class="s">뷰티 디바이스</div></div><div class="r"><div class="pct down">3곳</div><div class="cnt">펀드 매도</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">F</span><div class="info"><div class="n">F&amp;F</div><div class="s">패션</div></div><div class="r"><div class="pct down">2곳</div><div class="cnt">펀드 매도</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">한</span><div class="info"><div class="n">한미약품</div><div class="s">제약</div></div><div class="r"><div class="pct down">2곳</div><div class="cnt">펀드 매도</div></div></a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📋 펀드별 편입·제외 상세 <span class="hint">1CU 구성 변화</span></h3>
+      <table class="tbl">
+        <thead><tr><th>펀드명</th><th>신규 편입</th><th>제외</th><th class="r">순변화</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">TIGER AI인프라액티브</td><td class="up">삼성전기, 동진쎄미켐</td><td class="down">에이피알</td><td class="r up">+1</td></tr>
+          <tr><td class="nm">KODEX 반도체핵심소재액티브</td><td class="up">삼성전기, 하나머티리얼즈</td><td class="down">원익머트리얼즈</td><td class="r up">+1</td></tr>
+          <tr><td class="nm">ACE 배당성장액티브</td><td class="up">삼성전기</td><td class="down">F&amp;F, 한미약품</td><td class="r down">−1</td></tr>
+          <tr><td class="nm">SOL 미국AI소프트웨어액티브</td><td class="up">SK하이닉스</td><td class="down">에이피알</td><td class="r">0</td></tr>
+          <tr><td class="nm">TIMEFOLIO K바이오액티브</td><td class="up">유한양행</td><td class="down">한미약품, F&amp;F</td><td class="r down">−1</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>🏆 47개 펀드 통합 비중 <span class="hint">순자산 가중</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">47개 펀드를 하나로 합쳤을 때 이 종목이 차지하는 비중 — 작은 펀드의 착시가 없어요</div>
+        <table class="tbl">
+          <thead><tr><th>종목</th><th>보유 펀드</th><th class="r">통합 비중</th></tr></thead>
+          <tbody>
+            <tr><td class="nm">SK하이닉스</td><td class="sub">25개 펀드</td><td class="r"><b>11.58%</b></td></tr>
+            <tr><td class="nm">삼성전자</td><td class="sub">26개 펀드</td><td class="r"><b>10.73%</b></td></tr>
+            <tr><td class="nm">SK스퀘어</td><td class="sub">16개 펀드</td><td class="r"><b>2.39%</b></td></tr>
+            <tr><td class="nm">KB금융</td><td class="sub">14개 펀드</td><td class="r"><b>1.54%</b></td></tr>
+            <tr><td class="nm">현대차</td><td class="sub">19개 펀드</td><td class="r"><b>1.30%</b></td></tr>
+            <tr><td class="nm">알테오젠</td><td class="sub">8개 펀드</td><td class="r"><b>1.10%</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>📡 종목 컨센서스 <span class="hint">25거래일 누적 ▲/▼ 횟수</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">여러 펀드가 <b class="up">사는(순+)</b> · <b class="down">파는(순−)</b> 방향으로 얼마나 몰렸나</div>
+        <div class="rot-row"><span class="tn up" style="width:88px">제주반도체</span><div class="rot-bar"><i style="width:80%;background:var(--up)"></i></div><span class="rot-val up">+12회</span></div>
+        <div class="rot-row"><span class="tn up" style="width:88px">파마리서치</span><div class="rot-bar"><i style="width:73%;background:var(--up)"></i></div><span class="rot-val up">+11회</span></div>
+        <div class="rot-row"><span class="tn up" style="width:88px">엘앤에프</span><div class="rot-bar"><i style="width:66%;background:var(--up)"></i></div><span class="rot-val up">+10회</span></div>
+        <div class="rot-row"><span class="tn down" style="width:88px">SK하이닉스</span><div class="rot-bar"><i style="width:100%;background:var(--down)"></i></div><span class="rot-val down">−16회</span></div>
+        <div class="rot-row"><span class="tn down" style="width:88px">SK스퀘어</span><div class="rot-bar"><i style="width:88%;background:var(--down)"></i></div><span class="rot-val down">−14회</span></div>
+        <div class="rot-row"><span class="tn down" style="width:88px">두산테스나</span><div class="rot-bar"><i style="width:81%;background:var(--down)"></i></div><span class="rot-val down">−13회</span></div>
+        <div style="font-size:11px;color:var(--txt-3);margin-top:8px">※ 펀드-일 횟수 (수량 아님) — 하루치보다 기간 누적이 진짜 신호예요</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 세력 (5%룰) ============ -->
+  <div class="panel" data-panel="rule5">
+    <div class="panel-intro">📑 <b>대량보유(5%룰) 공시</b> — 개인·투자조합·기관이 지분 5% 이상을 신규 취득하거나 1%p 이상 변동하면 5일 내 신고 의무가 있습니다. 여러 큰손이 <b>같은 종목에 겹치면</b> 강한 수급 신호입니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">오늘 신규 5%</div><div class="v up">9</div><div class="s up">▲ 종목</div></div>
+      <div class="statcard"><div class="k">지분 확대</div><div class="v up">12</div><div class="s">종목</div></div>
+      <div class="statcard"><div class="k">지분 축소</div><div class="v down">12</div><div class="s">종목</div></div>
+      <div class="statcard"><div class="k">최다 겹침</div><div class="v" style="font-size:18px">LSK아이로봇</div><div class="s">7곳 동시</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>🏦 세력별 핵심 지분 <span class="hint">기관 클릭 = 보유 종목·섹터</span></h3>
+      <div class="inst-cats" id="instCats">
+        <button class="on" data-cat="all">전체 <span class="c">225</span></button>
+        <button data-cat="dom">국내 기관 <span class="c">140</span></button>
+        <button data-cat="for">외국인 <span class="c">58</span></button>
+        <button data-cat="big5">5% 큰손 <span class="c">27</span></button>
+      </div>
+      <input class="inst-search" id="instSearch" placeholder="🔍 기관·운용사·큰손 이름 검색">
+      <div class="inst-grid" id="instGrid"></div>
+      <div class="inst-more"><button class="heat-more" id="instMore" style="background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:11px 22px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)">＋ 더 보기</button></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>🎯 겹침 신호 <span class="hint">여러 큰손이 같은 종목</span></h3>
+      <table class="tbl">
+        <thead><tr><th>종목</th><th>겹친 큰손 수</th><th class="hide">유형</th><th class="r">지분율 변화</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">LSK아이로봇 <span class="pill b-new">신규</span></td><td>7곳</td><td class="hide sub">투자조합·자산운용</td><td class="r up">+96.3%p</td></tr>
+          <tr><td class="nm">아틀라스링크</td><td>5곳</td><td class="hide sub">사모펀드</td><td class="r up">+103.5%p</td></tr>
+          <tr><td class="nm">청보</td><td>5곳</td><td class="hide sub">개인·투자조합</td><td class="r up">+41.2%p</td></tr>
+          <tr><td class="nm">한울앤제주</td><td>4곳</td><td class="hide sub">투자조합</td><td class="r up">+38.7%p</td></tr>
+          <tr><td class="nm">매드업</td><td>4곳</td><td class="hide sub">벤처·PE</td><td class="r up">+29.5%p</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>📄 대량보유 공시 원장 <span class="hint">7/22 접수</span></h3>
+      <table class="tbl">
+        <thead><tr><th>종목</th><th>보유자</th><th class="hide">사유</th><th class="r">지분율</th><th class="r">변동</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">LSK아이로봇</td><td>OO투자조합 1호</td><td class="hide sub">신규 취득</td><td class="r">6.8%</td><td class="r up">신규</td></tr>
+          <tr><td class="nm">대웅제약</td><td>국민연금공단</td><td class="hide sub">추가 취득</td><td class="r">12.4%</td><td class="r up">+10.1%p</td></tr>
+          <tr><td class="nm">엑시큐어하이트론</td><td>OO자산운용</td><td class="hide sub">장내 매도</td><td class="r">3.1%</td><td class="r down">−7.2%p</td></tr>
+          <tr><td class="nm">피노</td><td>개인 (김OO)</td><td class="hide sub">보유목적 변경</td><td class="r">4.9%</td><td class="r down">−5.5%p</td></tr>
+          <tr><td class="nm">엘앤에프</td><td>OO PE 2호</td><td class="hide sub">추가 취득</td><td class="r">7.2%</td><td class="r up">+1.4%p</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ 공직자 ============ -->
+  <div class="panel" data-panel="gov">
+    <div class="panel-intro">🏛️ <b>국회의원·고위공직자 주식 거래</b>는 공직자윤리법에 따라 공개됩니다. 공개 자료 기준이라 <b>실제 거래보다 시차</b>가 있고, 정책·입법과의 연관은 해석의 영역입니다.</div>
+    <div class="warn">⚠️ 개인을 특정하지 않고 <b>종목별 보유 인원으로 집계</b>합니다. 분기 단위 신고라 현재는 이미 변동됐을 수 있고, 보유자는 가족 합산 1인 기준입니다. 아래는 <b>샘플 데이터</b>이며 매수·매도 추천이 아닙니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">공개 대상</div><div class="v">1,804</div><div class="s">명</div></div>
+      <div class="statcard"><div class="k">보유 종목</div><div class="v">2,806</div><div class="s">개</div></div>
+      <div class="statcard"><div class="k">합산 평가액</div><div class="v">933억</div><div class="s">국장 750억·미장 323억</div></div>
+      <div class="statcard"><div class="k">순매수 1위</div><div class="v" style="font-size:18px">엔비디아</div><div class="s up">+173명</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>🏅 공직자 보유 지수 TOP <span class="hint">종목별 보유 인원·방향</span></h3>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>종목</th><th class="r">보유 인원</th><th class="r">순매수</th><th class="hide r">지수</th></tr></thead>
+        <tbody>
+          <tr><td class="sub">1</td><td class="nm">삼성전자</td><td class="r">500명</td><td class="r down">−83명</td><td class="hide r"><b>80</b></td></tr>
+          <tr><td class="sub">2</td><td class="nm">테슬라 <span class="pill" style="background:var(--card-2);color:var(--txt-3)">미장</span></td><td class="r">403명</td><td class="r up">+122명</td><td class="hide r"><b>83</b></td></tr>
+          <tr><td class="sub">3</td><td class="nm">엔비디아 <span class="pill" style="background:var(--card-2);color:var(--txt-3)">미장</span></td><td class="r">387명</td><td class="r up">+173명</td><td class="hide r"><b>81</b></td></tr>
+          <tr><td class="sub">4</td><td class="nm">카카오</td><td class="r">276명</td><td class="r down">−24명</td><td class="hide r"><b>44</b></td></tr>
+          <tr><td class="sub">5</td><td class="nm">현대차</td><td class="r">170명</td><td class="r up">+14명</td><td class="hide r"><b>47</b></td></tr>
+          <tr><td class="sub">6</td><td class="nm">SK하이닉스</td><td class="r">102명</td><td class="r up">+11명</td><td class="hide r"><b>37</b></td></tr>
+          <tr><td class="sub">7</td><td class="nm">한화오션</td><td class="r">88명</td><td class="r up">+37명</td><td class="hide r"><b>33</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 새로 담는 중 <span class="hint">보유 인원 증가</span></h3>
+        <a class="srow" href="stock.html"><span class="logo-sq">엔</span><div class="info"><div class="n">엔비디아 <span class="badge b-buy">미장</span></div><div class="s">공직자 유입</div></div><div class="r"><div class="pct up">+233명</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">테</span><div class="info"><div class="n">테슬라 <span class="badge b-buy">미장</span></div><div class="s">공직자 유입</div></div><div class="r"><div class="pct up">+201명</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">현</span><div class="info"><div class="n">현대차</div><div class="s">방산·자동차 선호</div></div><div class="r"><div class="pct up">+64명</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">한</span><div class="info"><div class="n">한화오션</div><div class="s">조선 강세</div></div><div class="r"><div class="pct up">+54명</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ 줄이는·던지는 중 <span class="hint">보유 인원 감소</span></h3>
+        <a class="srow" href="stock.html"><span class="logo-sq">삼</span><div class="info"><div class="n">삼성전자</div><div class="s">공직자 이탈</div></div><div class="r"><div class="pct down">−197명</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">카</span><div class="info"><div class="n">카카오</div><div class="s">플랫폼 매도</div></div><div class="r"><div class="pct down">−84명</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">N</span><div class="info"><div class="n">NAVER</div><div class="s">플랫폼 매도</div></div><div class="r"><div class="pct down">−35명</div></div></a>
+        <a class="srow" href="stock.html"><span class="logo-sq">한</span><div class="info"><div class="n">한국전력</div><div class="s">유틸 매도</div></div><div class="r"><div class="pct down">−34명</div></div></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 외국인 ============ -->
+  <div class="panel" data-panel="foreign">
+    <div class="panel-intro">🌐 <b>외국인</b>은 국내 증시 시총의 약 30%를 보유한 최대 수급 주체입니다. 거래소가 집계하는 <b>순매수·보유비중</b>으로 자금 방향을 추적합니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">오늘 순매수</div><div class="v up">+1.6조</div><div class="s up">▲ 3거래일 연속</div></div>
+      <div class="statcard"><div class="k">코스피 보유비중</div><div class="v">31.2%</div><div class="s up">▲ +0.3%p</div></div>
+      <div class="statcard"><div class="k">최다 순매수</div><div class="v" style="font-size:18px">삼성전자</div><div class="s">+1.2조</div></div>
+      <div class="statcard"><div class="k">최다 순매도</div><div class="v" style="font-size:18px;color:var(--down)">LG엔솔</div><div class="s down">−2,100억</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>📈 외국인 순매수 추이 <span class="hint">최근 10거래일 (조원)</span></h3>
+      <svg viewBox="0 0 700 160" style="width:100%">
+        <line x1="0" y1="90" x2="700" y2="90" stroke="var(--line-2)" stroke-width="1"/>
+        <g>
+          <rect x="20" y="90" width="50" height="26" rx="3" fill="#c46b74"/>
+          <rect x="90" y="70" width="50" height="20" rx="3" fill="#1fa15c"/>
+          <rect x="160" y="90" width="50" height="14" rx="3" fill="#c46b74"/>
+          <rect x="230" y="58" width="50" height="32" rx="3" fill="#1fa15c"/>
+          <rect x="300" y="50" width="50" height="40" rx="3" fill="#1fa15c"/>
+          <rect x="370" y="90" width="50" height="10" rx="3" fill="#c46b74"/>
+          <rect x="440" y="44" width="50" height="46" rx="3" fill="#148f4f"/>
+          <rect x="510" y="34" width="50" height="56" rx="3" fill="#148f4f"/>
+          <rect x="580" y="26" width="50" height="64" rx="3" fill="#148f4f"/>
+          <rect x="650" y="40" width="40" height="50" rx="3" fill="#148f4f"/>
+        </g>
+      </svg>
+      <div style="font-size:12px;color:var(--txt-3);margin-top:6px">최근 4거래일 연속 순매수 확대 — 반도체 대형주 집중 유입</div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 외국인 순매수 상위 <span class="hint">오늘</span></h3>
+        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">삼</span><div class="info"><div class="n">삼성전자</div><div class="s">3거래일 연속</div></div><div class="r"><div class="pct up">+1.2조</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">SK</span><div class="info"><div class="n">SK하이닉스</div><div class="s">HBM 기대</div></div><div class="r"><div class="pct up">+4,800억</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">한</span><div class="info"><div class="n">한화오션</div><div class="s">조선 강세</div></div><div class="r"><div class="pct up">+1,100억</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ 외국인 순매도 상위 <span class="hint">오늘</span></h3>
+        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">LG</span><div class="info"><div class="n">LG에너지솔루션</div><div class="s">2차전지 약세</div></div><div class="r"><div class="pct down">−2,100억</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">삼</span><div class="info"><div class="n">삼성SDI</div><div class="s">차익실현</div></div><div class="r"><div class="pct down">−890억</div></div></a>
+        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">셀</span><div class="info"><div class="n">셀트리온</div><div class="s">바이오 매도</div></div><div class="r"><div class="pct down">−540억</div></div></a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🌐 외국인 보유비중 상위 <span class="hint">시총 대비 · %p 변화</span></h3>
+      <div class="maprow"><span class="sec" style="width:88px">KB금융</span><div class="mbar"><i style="width:74%"></i></div><span class="mv"><b>74.1%</b> ▲+0.4%p</span></div>
+      <div class="maprow"><span class="sec" style="width:88px">삼성전자</span><div class="mbar"><i style="width:51%"></i></div><span class="mv"><b>51.4%</b> ▲+0.3%p</span></div>
+      <div class="maprow"><span class="sec" style="width:88px">SK하이닉스</span><div class="mbar"><i style="width:54%"></i></div><span class="mv"><b>54.2%</b> ▲+0.6%p</span></div>
+      <div class="maprow"><span class="sec" style="width:88px">네이버</span><div class="mbar"><i style="width:48%"></i></div><span class="mv"><b>48.3%</b> ▼−0.2%p</span></div>
+      <div class="maprow"><span class="sec" style="width:88px">현대차</span><div class="mbar"><i style="width:29%"></i></div><span class="mv"><b>29.1%</b> ▲+0.1%p</span></div>
+    </div>
+  </div>
+
+  <div class="disc">
+    데이터 출처: DART 전자공시(대량보유 5%룰·임원 특정증권) · 공직자윤리위원회 공개자료 · 한국거래소 투자자별 매매 · 공공데이터포털 · 분석은 RICHFLOW 자체 산출물.
+    5%룰·13F는 공시 시점 스냅샷이며 실제 매매보다 후행합니다. 공직자 거래는 공개 자료 기준으로 시차가 있으며 정책 연관은 해석의 영역입니다.
+    본 페이지의 모든 정보는 정보 제공용이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.
+  </div>
+
+</div>
+
+<!-- institution modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modal">
+    <div class="mh">
+      <div class="av" id="mAv">국</div>
+      <div class="t"><h4 id="mName">기관명</h4><div class="s" id="mCat">국내 기관</div></div>
+      <button class="close" id="mClose">✕</button>
+    </div>
+    <div class="mstat">
+      <div><div class="k">보유 종목</div><div class="v" id="mCount">0</div></div>
+      <div><div class="k">최근 30일</div><div class="v" id="mTrend">담는중</div></div>
+      <div><div class="k">주력 섹터</div><div class="v" id="mSector" style="font-size:14px">반도체</div></div>
+    </div>
+    <h5>📌 주요 보유 종목 (지분율 5%+)</h5>
+    <div id="mHoldings"></div>
+    <div style="font-size:11px;color:var(--txt-3);margin-top:14px;line-height:1.5">
+      DART 대량보유(5%룰) 공시 기준 스냅샷 · 실제 매매보다 후행 · 정보 제공용이며 투자권유 아님 · <b style="color:var(--brand)">샘플 데이터</b>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs=document.getElementById('subtabs');
+  const panels=document.querySelectorAll('.panel');
+  tabs.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{
+      tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      panels.forEach(p=>p.classList.toggle('on',p.dataset.panel===b.dataset.p));
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+  });
+
+  /* ===== 세력별 핵심 지분: 기관 디렉토리 ===== */
+  const INSTS=[
+    // 국내 기관
+    ['국민연금공단',377,'dom'],['한국증권금융',112,'dom'],['미래에셋자산운용',65,'dom'],['삼성자산운용',64,'dom'],
+    ['상상인저축은행',60,'dom'],['더블유자산운용',55,'dom'],['브이아이피자산운용',54,'dom'],['KB증권',43,'dom'],
+    ['하우자산운용',37,'dom'],['수성자산운용',36,'dom'],['한국산업은행',26,'dom'],['베어링자산운용',23,'dom'],
+    ['KB자산운용',20,'dom'],['타이거자산운용',19,'dom'],['오라이언자산운용',18,'dom'],['이지스자산운용',14,'dom'],
+    ['한국투자파트너스',14,'dom'],['미래에셋증권',13,'dom'],['NH투자증권',13,'dom'],['대신증권',10,'dom'],
+    ['삼성증권',10,'dom'],['코람코자산운용',10,'dom'],['트러스톤자산운용',9,'dom'],['타임폴리오자산운용',9,'dom'],
+    ['신한투자증권',8,'dom'],['키움증권',8,'dom'],['한국투자신탁운용',8,'dom'],['한화자산운용',6,'dom'],
+    ['삼성액티브자산운용',5,'dom'],['라이프자산운용',7,'dom'],['신영증권',7,'dom'],['메리츠증권',7,'dom'],
+    // 외국인
+    ['피델리티매니지먼트',32,'for'],['티로우프라이스',2,'for'],['인베스코에셋',2,'for'],['밸리기포드오버시즈',2,'for'],
+    ['블랙록펀드어드바이저스',18,'for'],['뱅가드그룹',15,'for'],['노르웨이중앙은행',12,'for'],['캐피탈그룹',9,'for'],
+    ['템플턴자산운용',6,'for'],['JP모건에셋',5,'for'],['UBS자산운용',4,'for'],['트릴리온럭그룹',1,'for'],
+    // 5% 큰손 (개인·사업회사·투자조합)
+    ['SK',7,'big5'],['에스엠',7,'big5'],['삼성전자',7,'big5'],['현대자동차',6,'big5'],['삼성물산',6,'big5'],
+    ['HLB',6,'big5'],['한화',5,'big5'],['광동제약',5,'big5'],['휴림로봇',5,'big5'],['CJ',4,'big5'],
+    ['두산',4,'big5'],['한화에어로스페이스',4,'big5'],['LG전자',4,'big5'],['기아',4,'big5'],['원익홀딩스',4,'big5']
+  ];
+  const STOCKS=['삼성전자','SK하이닉스','삼성전기','현대차','기아','NAVER','카카오','셀트리온','LG에너지솔루션',
+    '한화오션','두산에너빌리티','LS','현대로템','에코프로비엠','KB금융','하이브','알테오젠','레인보우로보틱스',
+    'HLB','대웅제약','유한양행','한미반도체','동진쎄미켐','고려아연'];
+  const SECTORS=['반도체','2차전지','바이오','금융','조선','전력기기','플랫폼','자동차'];
+  const catLabel={dom:'국내 기관',for:'외국인',big5:'5% 큰손'};
+
+  function seed(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+  function holdingsOf(inst){
+    const s=seed(inst[0]);const n=Math.min(6,Math.max(3,(inst[1]%5)+3));const out=[];const used=new Set();
+    for(let i=0;i<n;i++){let idx=(s+i*13)%STOCKS.length;while(used.has(idx))idx=(idx+1)%STOCKS.length;used.add(idx);
+      const pct=(5+((s>>>(i*3))%13)+(i===0?4:0));out.push([STOCKS[idx],pct])}
+    return out.sort((a,b)=>b[1]-a[1]);
+  }
+
+  const grid=document.getElementById('instGrid');
+  let curCat='all',curQ='',limit=24;
+  function render(){
+    const filtered=INSTS.filter(x=>(curCat==='all'||x[2]===curCat)&&(!curQ||x[0].includes(curQ)));
+    grid.innerHTML=filtered.slice(0,limit).map((x,i)=>
+      `<div class="inst" data-i="${INSTS.indexOf(x)}"><span class="av">${x[0][0]}</span><span class="nm">${x[0]}</span><span class="c">${x[1]}</span></div>`
+    ).join('');
+    document.getElementById('instMore').style.display=filtered.length>limit?'inline-block':'none';
+    grid.querySelectorAll('.inst').forEach(el=>el.onclick=()=>openModal(INSTS[+el.dataset.i]));
+  }
+  document.getElementById('instCats').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{document.querySelectorAll('#instCats button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');curCat=b.dataset.cat;limit=24;render();};
+  });
+  document.getElementById('instSearch').oninput=e=>{curQ=e.target.value.trim();limit=24;render();};
+  document.getElementById('instMore').onclick=()=>{limit+=24;render();};
+
+  function openModal(inst){
+    document.getElementById('mAv').textContent=inst[0][0];
+    document.getElementById('mName').textContent=inst[0];
+    document.getElementById('mCat').textContent=catLabel[inst[2]];
+    document.getElementById('mCount').textContent=inst[1];
+    const s=seed(inst[0]);
+    document.getElementById('mTrend').textContent=(s%2)?'담는중':'줄이는중';
+    document.getElementById('mTrend').style.color=(s%2)?'var(--up)':'var(--down)';
+    document.getElementById('mSector').textContent=SECTORS[s%SECTORS.length];
+    const hs=holdingsOf(inst);const max=hs[0][1];
+    document.getElementById('mHoldings').innerHTML=hs.map(h=>
+      `<div class="mhold"><span class="hn">${h[0]}</span><div class="hbar"><i style="width:${h[1]/max*100}%"></i></div><span class="hp">${h[1].toFixed(2)}%</span></div>`
+    ).join('');
+    document.getElementById('modalBg').classList.add('on');
+  }
+  document.getElementById('mClose').onclick=()=>document.getElementById('modalBg').classList.remove('on');
+  document.getElementById('modalBg').onclick=e=>{if(e.target.id==='modalBg')document.getElementById('modalBg').classList.remove('on')};
+  render();
+</script>
+</body>
+</html>

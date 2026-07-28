@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>큰손 수급 · 미장 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--radius:20px;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.mono{font-variant-numeric:tabular-nums}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .logo .bot{width:34px;height:34px}
+  .mkbadge{font-size:11px;font-weight:800;color:#fff;background:var(--brand);padding:3px 9px;border-radius:7px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .statusbar{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--amber);background:rgba(192,127,36,.12);padding:4px 11px;border-radius:20px;margin-top:10px}
+  .subtabs{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
+  .subtabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .subtabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .panel{display:none;padding-bottom:10px}.panel.on{display:block}
+  .panel-intro{font-size:13.5px;color:var(--txt-2);margin:18px 0;line-height:1.6;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow-sm)}
+  .panel-intro b{color:var(--txt)}
+  .band{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:16px;margin:20px 0}
+  .statcards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+  .statcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+  .statcard .k{font-size:12px;color:var(--txt-2);font-weight:600;margin-bottom:6px}
+  .statcard .v{font-size:23px;font-weight:800;letter-spacing:-.02em}.statcard .s{font-size:11px;font-weight:700;margin-top:3px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+  .flowbar{height:12px;border-radius:6px;overflow:hidden;display:flex;margin:8px 0 8px}
+  .flowbar .in{background:var(--up)}.flowbar .out{background:var(--down)}
+  .flow-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--txt-2);font-weight:600}
+  .flow-note{font-size:12.5px;color:var(--txt-2);margin-top:12px;line-height:1.55}.flow-note b{color:var(--txt)}
+  .kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .kv:last-child{border:none}.kv .k{color:var(--txt-2);font-weight:600}.kv .v{font-weight:800}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .srow{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:11px;cursor:pointer}
+  .srow:hover{background:var(--card-2)}
+  .srow .rk{width:20px;font-weight:800;color:var(--txt-3);font-size:13px}
+  .srow .logo-sq{width:34px;height:34px;border-radius:10px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .srow .info{flex:1;min-width:0}.srow .info .n{font-size:14px;font-weight:700}.srow .info .s{font-size:11px;color:var(--txt-3);margin-top:1px}
+  .srow .r{text-align:right}.srow .r .pct{font-weight:800;font-size:14px}.srow .r .cnt{font-size:11px;color:var(--txt-3);font-weight:600}
+  .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+  .b-new{color:var(--brand);background:var(--card-2)}.b-buy{color:var(--up);background:var(--up-bg)}.b-sell{color:var(--down);background:var(--down-bg)}
+  .ai-note{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2)}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl th{text-align:left;font-size:11px;color:var(--txt-3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+  .tbl th.r,.tbl td.r{text-align:right}
+  .tbl td{padding:11px 10px;border-bottom:1px solid var(--line)}.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:var(--card-2)}
+  .tbl .nm{font-weight:700}.tbl .sub{font-size:11px;color:var(--txt-3)}
+  .pill{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px}
+  /* SEC feed */
+  .sec-feed{display:flex;flex-direction:column}
+  .sec-item{display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--line);cursor:pointer}
+  .sec-item:last-child{border:none}.sec-item:hover{background:var(--card-2)}
+  .sec-item .tk{font-weight:800;font-size:14px;width:70px}
+  .sec-item .ty{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;background:var(--card-2);color:var(--txt-2)}
+  .sec-item .ty.major{background:var(--down-bg);color:var(--down)}
+  .sec-item .ds{flex:1;font-size:12.5px;color:var(--txt-2)}
+  .sec-item .tm{font-size:11px;color:var(--txt-3);font-weight:600}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--up);animation:pulse 1.6s infinite;display:inline-block}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  /* directory */
+  .inst-cats{display:flex;gap:8px;margin:6px 0 12px;flex-wrap:wrap}
+  .inst-cats button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:9px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:8px}
+  .inst-cats button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .inst-cats button .c{font-size:11px;font-weight:800;opacity:.85}
+  .inst-search{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 15px;font-family:inherit;font-size:13px;color:var(--txt);outline:none;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+  .inst-more{text-align:center;margin-top:12px}
+  .inst-more button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:11px 22px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .inst.hide{display:none}
+  .inst-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:6px}
+  .inst{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;box-shadow:var(--shadow-sm);transition:.12s}
+  .inst:hover{border-color:var(--line-2);transform:translateY(-1px)}
+  .inst .av{width:34px;height:34px;border-radius:10px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .inst .nm{flex:1;min-width:0}.inst .nm .n{font-size:12.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inst .nm .p{font-size:10.5px;color:var(--txt-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inst .c{font-size:13px;font-weight:800;color:var(--brand-2);flex-shrink:0}
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(20,24,30,.5);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--card);border:1px solid var(--line-2);border-radius:20px;max-width:540px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.32);padding:24px}
+  .modal .mh{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+  .modal .mh .av{width:48px;height:48px;border-radius:13px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .modal .mh .t h4{font-size:17px;font-weight:800}.modal .mh .t .s{font-size:12px;color:var(--txt-3);font-weight:600;margin-top:2px}
+  .modal .close{margin-left:auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card-2);cursor:pointer;font-size:15px;color:var(--txt-2)}
+  .modal .mstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+  .modal .mstat div{background:var(--card-2);border-radius:11px;padding:11px;text-align:center}
+  .modal .mstat .k{font-size:11px;color:var(--txt-3);font-weight:600}.modal .mstat .v{font-size:16px;font-weight:800;margin-top:3px}
+  .modal h5{font-size:12px;font-weight:800;color:var(--txt-2);margin:14px 0 8px}
+  .mhold{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .mhold:last-child{border:none}.mhold .hn{flex:1;font-weight:700}.mhold .hp{font-weight:800}
+  .mhold .hbar{width:70px;height:6px;border-radius:3px;background:var(--card-2);overflow:hidden}.mhold .hbar i{display:block;height:100%;background:var(--brand)}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:900px){.band,.cols,.statcards{grid-template-columns:1fr}nav.menu,.search{display:none}.statcards{grid-template-columns:1fr 1fr}.tbl .hide{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <span class="mkbadge">🇺🇸 미장</span>
+  <nav class="menu"><a href="whale-us.html" class="on">큰손 수급</a><a href="leaders-us.html">대표주</a><a href="idea-us.html">커넥션</a><a href="forecast-us.html">확률 통계</a><a href="research.html">리서치</a><a href="theme-us.html">테마·흐름</a><a href="screener-us.html">종목탐색</a><a href="calendar-us.html">캘린더</a></nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="종목·투자자 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>🐋 큰손 수급 <span class="mkbadge" style="font-size:14px">🇺🇸 US</span></h1>
+    <p>ARK·헤지펀드·내부자·의회·SEC 공시로 미국 큰손이 지금 뭘 사고 파는지 추적합니다.</p>
+    <div class="statusbar"><span class="live-dot"></span>🇺🇸 프리마켓 진행 중 · 개장 5시간 6분 전 · 15분 지연</div>
+    <div class="subtabs" id="subtabs">
+      <button class="on" data-p="all">종합</button>
+      <button data-p="ark">ARK 데일리</button>
+      <button data-p="f13">거물 13F</button>
+      <button data-p="insider">내부자</button>
+      <button data-p="congress">의회</button>
+      <button data-p="sec">SEC 공시</button>
+    </div>
+  </section>
+
+  <!-- 종합 -->
+  <div class="panel on" data-panel="all">
+    <div class="band">
+      <div class="card">
+        <h3>미국 큰손 수급 방향 <span class="hint">13F·최근 분기</span></h3>
+        <div class="flowbar"><i class="in" style="width:58%"></i><i class="out" style="width:42%"></i></div>
+        <div class="flow-legend"><span class="up">매수 58%</span><span class="down">매도 42%</span></div>
+        <div class="flow-note">기관은 <b class="up">AI·반도체</b>를 담고 <b>전기차·소비재</b>를 줄이는 중. ARK는 로봇·우주로 로테이션.</div>
+      </div>
+      <div class="card">
+        <h3>오늘의 큰손 <span class="hint">7/22</span></h3>
+        <div class="kv"><span class="k">ARK 순매수</span><span class="v up">ACHR · PRME</span></div>
+        <div class="kv"><span class="k">ARK 순매도</span><span class="v down">HOOD · IRDM</span></div>
+        <div class="kv"><span class="k">내부자</span><span class="v down">매도 우위 (14/1)</span></div>
+        <div class="kv"><span class="k">공매도 과열</span><span class="v down">COIN (DTC 3.0d)</span></div>
+      </div>
+      <div class="card">
+        <h3>주목 종목 TOP <span class="hint">겹침</span></h3>
+        <div class="kv"><span class="k">① SpaceX</span><span class="v up">ARK·13F 겹침</span></div>
+        <div class="kv"><span class="k">② Archer (ACHR)</span><span class="v up">ARK 신규</span></div>
+        <div class="kv"><span class="k">③ Lumentum</span><span class="v up">운용사 2곳</span></div>
+        <div class="kv"><span class="k">④ NVIDIA</span><span class="v up">통합비중 1위</span></div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 미국 큰손이 담은 종목 <span class="hint">ARK+13F 종합</span></h3>
+        <a class="srow" href="stock-us.html"><span class="rk">1</span><span class="logo-sq">SPX</span><div class="info"><div class="n">SpaceX <span class="badge b-buy">겹침</span></div><div class="s">ARK·헤지펀드 동시 매수</div></div><div class="r"><div class="pct up">+매집</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="rk">2</span><span class="logo-sq">ACHR</span><div class="info"><div class="n">Archer Aviation <span class="badge b-new">신규</span></div><div class="s">ARK 6거래일 연속</div></div><div class="r"><div class="pct up">ARK 신규</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="rk">3</span><span class="logo-sq">NVDA</span><div class="info"><div class="n">NVIDIA</div><div class="s">액티브 ETF 22곳 · 통합 5.03%</div></div><div class="r"><div class="pct up">22곳</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="rk">4</span><span class="logo-sq">MSTR</span><div class="info"><div class="n">MicroStrategy</div><div class="s">내부자(CEO) 매수</div></div><div class="r"><div class="pct up">내부자</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ 미국 큰손이 비운 종목 <span class="hint">ARK+13F 종합</span></h3>
+        <a class="srow" href="stock-us.html"><span class="rk">1</span><span class="logo-sq">ARM</span><div class="info"><div class="n">ARM Holdings <span class="badge b-sell">이탈</span></div><div class="s">운용사 4곳 동시 매도</div></div><div class="r"><div class="pct down">4곳</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="rk">2</span><span class="logo-sq">GOOGL</span><div class="info"><div class="n">Alphabet</div><div class="s">Appaloosa(테퍼) −69%</div></div><div class="r"><div class="pct down">−69%</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="rk">3</span><span class="logo-sq">HOOD</span><div class="info"><div class="n">Robinhood</div><div class="s">ARK 축소</div></div><div class="r"><div class="pct down">ARK ▼</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="rk">4</span><span class="logo-sq">AMD</span><div class="info"><div class="n">AMD</div><div class="s">운용사 3곳 매도</div></div><div class="r"><div class="pct down">3곳</div></div></a>
+      </div>
+    </div>
+
+    <div class="card ai-note">
+      <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 미국 큰손 해설</h3>
+      <div style="display:flex;gap:12px">
+        <svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
+        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">캐시 우드의 <b style="color:var(--txt)">ARK</b>는 로봇(ACHR)·유전자(PRME)를 담고 로빈후드를 덜어냈어요. 헤지펀드 거물 <b style="color:var(--txt)">테퍼(Appaloosa)</b>는 알파벳을 크게 줄였고, <b style="color:var(--txt)">MicroStrategy</b> 내부자(CEO)는 매수했습니다. 공매도는 <b style="color:var(--txt)">COIN</b>이 과열(숏 스퀴즈 연료). 13F는 분기 후행이라 시차에 유의하세요.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARK 데일리 -->
+  <div class="panel" data-panel="ark">
+    <div class="panel-intro">🚀 <b>ARK Invest(캐시 우드)</b>의 액티브 ETF는 <b>매일 장 마감 후 보유 내역을 공개</b>합니다. 어제 담고 판 종목을 그대로 추적 — 미국에서 가장 투명한 큰손이에요.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">ARK ETF</div><div class="v">6</div><div class="s">ARKK·ARKW·ARKG 등</div></div>
+      <div class="statcard"><div class="k">오늘 매수</div><div class="v up">8</div><div class="s up">▲ 종목</div></div>
+      <div class="statcard"><div class="k">오늘 매도</div><div class="v down">11</div><div class="s down">▼ 종목</div></div>
+      <div class="statcard"><div class="k">최다 비중</div><div class="v" style="font-size:16px">TSLA</div><div class="s">ARKK 9.2%</div></div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>▲ ARK가 담은 종목 <span class="hint">7/22 매매</span></h3>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">ACHR</span><div class="info"><div class="n">Archer Aviation</div><div class="s">ARKK·ARKQ · 6일 연속</div></div><div class="r"><div class="pct up">+124K주</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">PRME</span><div class="info"><div class="n">Prime Medicine</div><div class="s">ARKG</div></div><div class="r"><div class="pct up">+88K주</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">TSLA</span><div class="info"><div class="n">Tesla</div><div class="s">ARKK 비중 유지·소폭 추가</div></div><div class="r"><div class="pct up">+12K주</div></div></a>
+      </div>
+      <div class="card">
+        <h3>▼ ARK가 판 종목 <span class="hint">7/22 매매</span></h3>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">HOOD</span><div class="info"><div class="n">Robinhood</div><div class="s">ARKK · 차익실현</div></div><div class="r"><div class="pct down">−92K주</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">IRDM</span><div class="info"><div class="n">Iridium</div><div class="s">ARKX 축소</div></div><div class="r"><div class="pct down">−45K주</div></div></a>
+        <a class="srow" href="stock-us.html"><span class="logo-sq">COIN</span><div class="info"><div class="n">Coinbase</div><div class="s">ARKW 비중 축소</div></div><div class="r"><div class="pct down">−30K주</div></div></a>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📊 ARK 통합 보유 비중 TOP <span class="hint">전 ETF 합산</span></h3>
+      <table class="tbl">
+        <thead><tr><th>종목</th><th class="hide">테마</th><th class="r">보유 ETF</th><th class="r">통합 비중</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">Tesla (TSLA)</td><td class="hide sub">전기차·로봇</td><td class="r">4개</td><td class="r"><b>9.2%</b></td></tr>
+          <tr><td class="nm">Coinbase (COIN)</td><td class="hide sub">크립토</td><td class="r">3개</td><td class="r"><b>6.1%</b></td></tr>
+          <tr><td class="nm">Roku (ROKU)</td><td class="hide sub">스트리밍</td><td class="r">2개</td><td class="r"><b>4.4%</b></td></tr>
+          <tr><td class="nm">Palantir (PLTR)</td><td class="hide sub">AI</td><td class="r">3개</td><td class="r"><b>3.8%</b></td></tr>
+          <tr><td class="nm">Archer (ACHR)</td><td class="hide sub">eVTOL</td><td class="r">2개</td><td class="r"><b>2.9%</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 거물 13F -->
+  <div class="panel" data-panel="f13">
+    <div class="panel-intro">🏛️ <b>13F 공시</b> — 운용자산 1억달러 이상 기관은 분기마다 미국 주식 보유를 SEC에 신고합니다. <b>뱅가드·블랙록</b> 같은 초대형 운용사부터 <b>버핏·달리오·버리</b> 같은 전설적 투자자, <b>노르웨이 국부펀드·국민연금</b>까지 — 누가 뭘 들고 있는지 추적합니다. 단, 분기 후행 데이터입니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">추적 기관</div><div class="v">86</div><div class="s">운용사·헤지펀드·연기금</div></div>
+      <div class="statcard"><div class="k">이번 분기 순매수</div><div class="v up">반도체·AI</div><div class="s up">▲</div></div>
+      <div class="statcard"><div class="k">순매도</div><div class="v down">빅테크·소비재</div><div class="s down">▼</div></div>
+      <div class="statcard"><div class="k">최다 겹침</div><div class="v" style="font-size:16px">NVIDIA</div><div class="s">62곳 보유</div></div>
+    </div>
+    <div class="card">
+      <h3>🏛️ 기관·거물 디렉토리 <span class="hint">클릭 = 보유 종목·섹터</span></h3>
+      <div class="inst-cats" id="instCats">
+        <button class="on" data-cat="all">전체 <span class="c">86</span></button>
+        <button data-cat="am">자산운용사 <span class="c">24</span></button>
+        <button data-cat="hf">헤지펀드 <span class="c">38</span></button>
+        <button data-cat="pf">연기금·국부펀드 <span class="c">14</span></button>
+        <button data-cat="bk">은행·보험 <span class="c">10</span></button>
+      </div>
+      <input class="inst-search" id="instSearch" placeholder="🔍 기관·운용사·투자자 이름 검색 (예: Vanguard, 버핏)">
+      <div class="inst-grid" id="instGrid"></div>
+      <div class="inst-more"><button id="instMore">＋ 더 보기</button></div>
+    </div>
+  </div>
+
+  <!-- 내부자 -->
+  <div class="panel" data-panel="insider">
+    <div class="panel-intro">👔 <b>내부자 거래(SEC Form 4)</b> — 기업 임원·이사·10% 주주가 자사주를 사고팔면 2일 내 신고 의무가 있습니다. <b>CEO의 대량 매수</b>는 강한 신호로 봅니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">오늘 신고</div><div class="v">142</div><div class="s">건</div></div>
+      <div class="statcard"><div class="k">매수/매도</div><div class="v"><span class="up">38</span> / <span class="down">104</span></div><div class="s down">▼ 매도 우위</div></div>
+      <div class="statcard"><div class="k">최대 매수</div><div class="v" style="font-size:16px">MSTR</div><div class="s up">CEO $8M</div></div>
+      <div class="statcard"><div class="k">최대 매도</div><div class="v" style="font-size:16px">NVDA</div><div class="s down">CEO $42M</div></div>
+    </div>
+    <div class="card">
+      <h3>📄 최근 내부자 거래 <span class="hint">Form 4</span></h3>
+      <table class="tbl">
+        <thead><tr><th>종목</th><th>내부자</th><th class="hide">직책</th><th>구분</th><th class="r">금액</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">MSTR</td><td>Michael Saylor</td><td class="hide sub">Exec. Chairman</td><td><span class="pill b-buy">매수</span></td><td class="r up">+$8.2M</td></tr>
+          <tr><td class="nm">PLTR</td><td>내부자 3인</td><td class="hide sub">Directors</td><td><span class="pill b-buy">매수</span></td><td class="r up">+$3.1M</td></tr>
+          <tr><td class="nm">NVDA</td><td>Jensen Huang</td><td class="hide sub">CEO</td><td><span class="pill b-sell">매도</span></td><td class="r down">−$42M</td></tr>
+          <tr><td class="nm">META</td><td>Mark Zuckerberg</td><td class="hide sub">CEO</td><td><span class="pill b-sell">매도</span></td><td class="r down">−$28M</td></tr>
+          <tr><td class="nm">AMZN</td><td>Andy Jassy</td><td class="hide sub">CEO</td><td><span class="pill b-sell">매도</span></td><td class="r down">−$12M</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ CEO 정기 매도(10b5-1 자동매도)는 신호가 약하고, <b>계획 외 대량 매수</b>가 강한 신호입니다.</div>
+    </div>
+  </div>
+
+  <!-- 의회 -->
+  <div class="panel" data-panel="congress">
+    <div class="panel-intro">🏛️ <b>미 의회 의원 거래(STOCK Act)</b> — 의원과 배우자는 주식 거래를 45일 내 공개해야 합니다. 개인을 특정하지 않고 <b>종목별 거래 의원 수</b>로 집계합니다.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">이달 신고</div><div class="v">210</div><div class="s">건</div></div>
+      <div class="statcard"><div class="k">매수 최다</div><div class="v" style="font-size:16px">NVDA</div><div class="s up">+18명</div></div>
+      <div class="statcard"><div class="k">매도 최다</div><div class="v" style="font-size:16px">AAPL</div><div class="s down">−9명</div></div>
+      <div class="statcard"><div class="k">인기 섹터</div><div class="v" style="font-size:16px">반도체·방산</div><div class="s up">▲</div></div>
+    </div>
+    <div class="card">
+      <h3>🏅 의회 거래 지수 TOP <span class="hint">종목별 거래 의원 수 · 익명 집계</span></h3>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>종목</th><th class="r">보유 의원</th><th class="r">순매수</th></tr></thead>
+        <tbody>
+          <tr><td class="sub">1</td><td class="nm">NVIDIA</td><td class="r">42명</td><td class="r up">+18명</td></tr>
+          <tr><td class="sub">2</td><td class="nm">Microsoft</td><td class="r">38명</td><td class="r up">+7명</td></tr>
+          <tr><td class="sub">3</td><td class="nm">Apple</td><td class="r">51명</td><td class="r down">−9명</td></tr>
+          <tr><td class="sub">4</td><td class="nm">Lockheed Martin</td><td class="r">19명</td><td class="r up">+11명</td></tr>
+          <tr><td class="sub">5</td><td class="nm">Palantir</td><td class="r">14명</td><td class="r up">+8명</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SEC 공시 -->
+  <div class="panel" data-panel="sec">
+    <div class="panel-intro">📡 <b>SEC EDGAR 실시간 공시</b> — 8-K(중대사건), 13D/G(5%+ 대량보유), Form 4(내부자)를 실시간으로 모읍니다. 탭하면 원문·AI 요약을 볼 수 있어요.</div>
+    <div class="card">
+      <h3><span class="live-dot"></span> 방금 올라온 공시 <span class="hint">3분마다 갱신</span></h3>
+      <div class="sec-feed">
+        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$TSLA</span><span class="ty major">8-K</span><span class="ds">주요 경영진 변동 · 신규 이사 선임</span><span class="tm">방금</span></div>
+        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$GOOGL</span><span class="ty major">8-K</span><span class="ds">분기 실적 관련 중대공시</span><span class="tm">2분 전</span></div>
+        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$MSTR</span><span class="ty">Form 4</span><span class="ds">내부자(Saylor) 자사주 매수 신고</span><span class="tm">8분 전</span></div>
+        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$NVDA</span><span class="ty">Form 4</span><span class="ds">내부자(CEO) 계획 매도 신고</span><span class="tm">12분 전</span></div>
+        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$ACHR</span><span class="ty">SC 13D</span><span class="ds">기관 5% 이상 대량보유 신규 신고</span><span class="tm">21분 전</span></div>
+        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$COIN</span><span class="ty">8-K</span><span class="ds">신규 상품·파트너십 발표</span><span class="tm">34분 전</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disc">데이터 출처: SEC EDGAR(13F·Form 4·8-K·13D) · ARK Invest 일일 공개 · Capitol Trades(의회) · FINRA(공매도) · FRED · 분석은 RICHFLOW 자체 산출물. 13F는 분기 후행 스냅샷, 내부자·의원 거래는 공개 자료 기준 시차가 있습니다. 정보 제공용이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<!-- 13F modal -->
+<div class="modal-bg" id="modalBg"><div class="modal">
+  <div class="mh"><div class="av" id="mAv">B</div><div class="t"><h4 id="mName">투자자</h4><div class="s" id="mSub">헤지펀드</div></div><button class="close" id="mClose">✕</button></div>
+  <div class="mstat"><div><div class="k">보유 종목</div><div class="v" id="mCount">0</div></div><div><div class="k">최근 분기</div><div class="v" id="mTrend">매수</div></div><div><div class="k">집중 섹터</div><div class="v" id="mSector" style="font-size:14px">반도체</div></div></div>
+  <h5>📌 주요 보유 종목 (13F 기준)</h5><div id="mHoldings"></div>
+  <div style="font-size:11px;color:var(--txt-3);margin-top:14px">13F 분기 공시 스냅샷 · 실제 매매보다 후행 · 정보 제공용 · <b style="color:var(--brand)">샘플 데이터</b></div>
+</div></div>
+
+<script>
+  // tabs
+  const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    panels.forEach(p=>p.classList.toggle('on',p.dataset.panel===b.dataset.p));window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  // 13F directory — [이름, 운용자/설명, 보유종목수, 분류]
+  const INV=[
+    // 자산운용사 (24)
+    ['Vanguard Group','세계 최대 인덱스 운용사',4120,'am'],['BlackRock','아이셰어즈 ETF',4380,'am'],
+    ['State Street','SPDR 운용',3210,'am'],['Fidelity (FMR)','액티브 대형사',2840,'am'],
+    ['Capital Group','아메리칸 펀드',1690,'am'],['T. Rowe Price','액티브 성장주',1520,'am'],
+    ['Wellington Mgmt','기관 전문 운용',2210,'am'],['Invesco','QQQ 운용',1980,'am'],
+    ['Geode Capital','인덱스 운용',3050,'am'],['Northern Trust','신탁·운용',2140,'am'],
+    ['Franklin Templeton','글로벌 운용',1330,'am'],['Dimensional (DFA)','팩터 투자',2670,'am'],
+    ['AllianceBernstein','액티브 운용',1180,'am'],['Janus Henderson','성장주 운용',890,'am'],
+    ['Nuveen','TIAA 계열',1240,'am'],['Charles Schwab IM','인덱스·ETF',1560,'am'],
+    ['ARK Invest','캐시 우드',38,'am'],['Baillie Gifford','성장주 장기투자',210,'am'],
+    ['Amundi','유럽 최대 운용사',1420,'am'],['Legal & General','영국 운용사',1680,'am'],
+    ['Schroders','영국 운용사',760,'am'],['Eaton Vance','채권·액티브',680,'am'],
+    ['Federated Hermes','액티브 운용',540,'am'],['Neuberger Berman','독립 운용사',720,'am'],
+    // 헤지펀드 (38)
+    ['Berkshire Hathaway','워런 버핏',45,'hf'],['Bridgewater','레이 달리오',121,'hf'],
+    ['Citadel','켄 그리핀',184,'hf'],['Millennium','이스라엘 잉글랜더',290,'hf'],
+    ['Renaissance Tech','짐 사이먼스',221,'hf'],['Two Sigma','존 오버덱',310,'hf'],
+    ['D.E. Shaw','데이비드 쇼',280,'hf'],['AQR Capital','클리프 애스니스',195,'hf'],
+    ['Point72','스티브 코헨',162,'hf'],['Elliott Mgmt','폴 싱어',54,'hf'],
+    ['Appaloosa','데이비드 테퍼',32,'hf'],['Pershing Square','빌 애크먼',9,'hf'],
+    ['Scion Asset','마이클 버리',7,'hf'],['Third Point','댄 로엡',41,'hf'],
+    ['Tiger Global','체이스 콜먼',36,'hf'],['Soros Fund','조지 소로스',54,'hf'],
+    ['Baupost','세스 클라만',28,'hf'],['Duquesne','스탠 드러켄밀러',42,'hf'],
+    ['Coatue','필립 라폰트',61,'hf'],['Greenlight','데이비드 아인혼',25,'hf'],
+    ['Icahn Enterprises','칼 아이칸',18,'hf'],['Lone Pine','스티브 만델',33,'hf'],
+    ['Viking Global','앤드리아스 할보르센',47,'hf'],['Maverick Capital','리 에인슬리',72,'hf'],
+    ['Marshall Wace','영국 헤지펀드',420,'hf'],['Man Group','퀀트·멀티전략',380,'hf'],
+    ['Balyasny','멀티매니저',310,'hf'],['ExodusPoint','멀티전략',240,'hf'],
+    ['Bluecrest','매크로',95,'hf'],['Brevan Howard','글로벌 매크로',88,'hf'],
+    ['Whale Rock','테크 전문',48,'hf'],['Altimeter','브래드 거스트너',29,'hf'],
+    ['Light Street','테크 롱숏',31,'hf'],['Sculptor','멀티전략',140,'hf'],
+    ['Farallon','이벤트 드리븐',110,'hf'],['Hudson Bay','멀티전략',260,'hf'],
+    ['Jane Street','퀀트·마켓메이킹',520,'hf'],['Susquehanna','옵션 마켓메이킹',610,'hf'],
+    // 연기금·국부펀드 (14)
+    ['Norges Bank','노르웨이 국부펀드',1420,'pf'],['GIC','싱가포르 국부펀드',480,'pf'],
+    ['Temasek','싱가포르 투자청',180,'pf'],['ADIA','아부다비 투자청',240,'pf'],
+    ['PIF','사우디 국부펀드',95,'pf'],['CPPIB','캐나다 연금',390,'pf'],
+    ['CalPERS','캘리포니아 공무원연금',1180,'pf'],['CalSTRS','캘리포니아 교직원연금',960,'pf'],
+    ['New York State CRF','뉴욕주 연금',1240,'pf'],['Texas Teachers','텍사스 교직원',680,'pf'],
+    ['국민연금공단(NPS)','한국 국민연금',420,'pf'],['GPIF','일본 공적연금',560,'pf'],
+    ['Ontario Teachers','온타리오 교직원',310,'pf'],['APG','네덜란드 연금',740,'pf'],
+    // 은행·보험 (10)
+    ['JPMorgan AM','JP모건 자산운용',2180,'bk'],['Goldman Sachs AM','골드만삭스',1940,'bk'],
+    ['Morgan Stanley IM','모건스탠리',1720,'bk'],['UBS Asset Mgmt','UBS',1380,'bk'],
+    ['BNY Mellon','뱅크오브뉴욕',1560,'bk'],['Wells Fargo AM','웰스파고',890,'bk'],
+    ['Deutsche Bank (DWS)','도이체방크',920,'bk'],['HSBC Global AM','HSBC',680,'bk'],
+    ['Prudential Financial','보험·운용',740,'bk'],['MetLife IM','메트라이프',520,'bk']
+  ];
+  const CATL={am:'자산운용사',hf:'헤지펀드',pf:'연기금·국부펀드',bk:'은행·보험'};
+  const STK=[['NVIDIA','NVDA'],['Apple','AAPL'],['Microsoft','MSFT'],['Amazon','AMZN'],['Alphabet','GOOGL'],['Meta','META'],['Tesla','TSLA'],['Palantir','PLTR'],['Broadcom','AVGO'],['Berkshire','BRK.B'],['Coinbase','COIN'],['Eli Lilly','LLY'],['Visa','V'],['JPMorgan','JPM'],['Exxon','XOM'],['Micron','MU']];
+  const SEC=['반도체','빅테크','AI','금융','에너지','헬스케어','소비재','크립토'];
+  function seed(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+  function holdingsOf(inv){const s=seed(inv[0]);const n=Math.min(6,Math.max(4,(inv[2]%4)+4));const out=[];const used=new Set();
+    for(let i=0;i<n;i++){let idx=(s+i*11)%STK.length;while(used.has(idx))idx=(idx+1)%STK.length;used.add(idx);
+      const pct=(6+((s>>>(i*3))%22)+(i===0?8:0));out.push([STK[idx],pct])}
+    return out.sort((a,b)=>b[1]-a[1]);}
+  const grid=document.getElementById('instGrid');
+  let curCat='all',curQ='',limit=24;
+  function renderGrid(){
+    const filtered=INV.filter(x=>(curCat==='all'||x[3]===curCat)&&(!curQ||x[0].toLowerCase().includes(curQ.toLowerCase())||x[1].includes(curQ)));
+    grid.innerHTML=filtered.slice(0,limit).map(x=>
+      `<div class="inst" data-i="${INV.indexOf(x)}"><span class="av">${x[0][0]}</span><span class="nm"><div class="n">${x[0]}</div><div class="p">${x[1]}</div></span><span class="c">${x[2]>=1000?(x[2]/1000).toFixed(1)+'k':x[2]}</span></div>`
+    ).join('')||`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--txt-3);font-size:13px">검색 결과가 없어요</div>`;
+    document.getElementById('instMore').style.display=filtered.length>limit?'inline-block':'none';
+    grid.querySelectorAll('.inst').forEach(el=>el.onclick=()=>openModal(INV[+el.dataset.i]));
+  }
+  document.getElementById('instCats').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{document.querySelectorAll('#instCats button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');curCat=b.dataset.cat;limit=24;renderGrid();};
+  });
+  document.getElementById('instSearch').oninput=e=>{curQ=e.target.value.trim();limit=24;renderGrid();};
+  document.getElementById('instMore').onclick=()=>{limit+=24;renderGrid();};
+  renderGrid();
+  function openModal(inv){
+    document.getElementById('mAv').textContent=inv[0][0];
+    document.getElementById('mName').textContent=inv[0];
+    document.getElementById('mSub').textContent=inv[1]+' · '+CATL[inv[3]]+' · 13F';
+    document.getElementById('mCount').textContent=inv[2]>=1000?(inv[2]/1000).toFixed(1)+'k':inv[2];
+    const s=seed(inv[0]);
+    document.getElementById('mTrend').textContent=(s%2)?'순매수':'순매도';
+    document.getElementById('mTrend').style.color=(s%2)?'var(--up)':'var(--down)';
+    document.getElementById('mSector').textContent=SEC[s%SEC.length];
+    const hs=holdingsOf(inv);const max=hs[0][1];
+    document.getElementById('mHoldings').innerHTML=hs.map(h=>`<div class="mhold"><span class="hn">${h[0][0]} <span style="color:var(--txt-3);font-weight:600;font-size:11px">${h[0][1]}</span></span><div class="hbar"><i style="width:${h[1]/max*100}%"></i></div><span class="hp">${h[1].toFixed(1)}%</span></div>`).join('');
+    document.getElementById('modalBg').classList.add('on');
+  }
+  document.getElementById('mClose').onclick=()=>document.getElementById('modalBg').classList.remove('on');
+  document.getElementById('modalBg').onclick=e=>{if(e.target.id==='modalBg')document.getElementById('modalBg').classList.remove('on')};
+</script>
+</body>
+</html>

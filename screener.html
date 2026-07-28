@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>종목탐색 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1300px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.mono{font-variant-numeric:tabular-nums}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px;max-width:1300px;margin:0 auto;padding:0 20px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:24px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .presets{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+  .preset{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:9px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .preset.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  /* layout */
+  .layout{display:grid;grid-template-columns:250px 1fr;gap:20px;align-items:start;padding-bottom:20px}
+  .filters{position:sticky;top:80px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);max-height:calc(100vh - 100px);overflow-y:auto}
+  .fgroup{margin-bottom:16px}
+  .fgroup:last-of-type{margin-bottom:0}
+  .fgroup .fl{font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:8px;letter-spacing:.02em}
+  .chips{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12px;font-weight:600;padding:6px 10px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .fbtns{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+  .btn{flex:1;background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-weight:700;font-size:12.5px;padding:9px;border-radius:10px;cursor:pointer;font-family:inherit}
+  .btn.pri{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .saved{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+  .saved a{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--txt-2);padding:7px 8px;border-radius:9px;font-weight:600}
+  .saved a:hover{background:var(--card-2);color:var(--txt)}
+  /* result */
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+  .sm{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;box-shadow:var(--shadow-sm)}
+  .sm .k{font-size:11px;color:var(--txt-3);font-weight:600}.sm .v{font-size:19px;font-weight:800;margin-top:3px}
+  .rhead{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .rhead h2{font-size:15px;font-weight:800}.rhead .cnt{font-size:13px;color:var(--txt-3);font-weight:600}
+  .rhead .exp{margin-left:auto;font-size:12px;color:var(--txt-2);font-weight:700;background:var(--card);border:1px solid var(--line);padding:7px 12px;border-radius:10px;cursor:pointer}
+  .tblwrap{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow-x:auto;box-shadow:var(--shadow-sm)}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:800px}
+  .tbl th{text-align:right;font-size:11px;color:var(--txt-3);font-weight:700;padding:12px 12px;border-bottom:1px solid var(--line);cursor:pointer;white-space:nowrap;user-select:none}
+  .tbl th:nth-child(2){text-align:left}.tbl th.chk{width:34px;text-align:center;cursor:default}
+  .tbl th:hover:not(.chk){color:var(--txt)}.tbl th .ar{color:var(--brand);font-size:10px}
+  .tbl td{padding:12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  .tbl td:nth-child(2){text-align:left}.tbl td.chk{text-align:center}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tbody tr:hover td{background:var(--card-2)}
+  .tbl .nm{font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer}
+  .tbl .lg{width:30px;height:30px;border-radius:9px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .tbl .code{font-size:11px;color:var(--txt-3);font-weight:500}
+  .sig{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+  .sig.buy{color:var(--up);background:var(--up-bg)}.sig.hot{color:var(--amber);background:rgba(192,127,36,.12)}
+  input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
+  /* compare bar */
+  .cmpbar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--brand);color:#fff;border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,.3);z-index:80;transition:transform .2s;font-size:13px;font-weight:700}
+  .cmpbar.on{transform:translateX(-50%) translateY(0)}
+  .cmpbar button{background:#fff;color:var(--brand);border:none;font-weight:800;font-size:13px;padding:8px 16px;border-radius:10px;cursor:pointer;font-family:inherit}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 60px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}.filters{position:static;max-height:none}.summary{grid-template-columns:1fr 1fr}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <nav class="menu"><a href="whale.html">큰손 수급</a><a href="leaders.html">대표주</a><a href="idea.html">커넥션</a><a href="forecast.html">확률 통계</a><a href="research.html">리서치</a><a href="theme.html">테마·흐름</a><a href="screener.html" class="on">종목탐색</a><a href="calendar.html">캘린더</a></nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="종목 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>🔍 종목탐색</h1>
+    <p>조건을 걸어 원하는 종목을 찾아보세요. 큰손 매집·급등·저평가 등 프리셋과 세부 필터를 제공합니다.</p>
+  </section>
+
+  <div class="presets" id="presets">
+    <button class="preset on">전체</button>
+    <button class="preset">🐋 큰손 매집</button>
+    <button class="preset">🔥 급등주</button>
+    <button class="preset">💎 저PER 가치주</button>
+    <button class="preset">💵 고배당</button>
+    <button class="preset">📈 신고가 근접</button>
+    <button class="preset">🏆 고ROE 우량</button>
+  </div>
+
+  <div class="layout">
+    <!-- FILTER SIDEBAR -->
+    <aside class="filters">
+      <div class="fgroup"><div class="fl">시장</div><div class="chips"><span class="chip on">전체</span><span class="chip">코스피</span><span class="chip">코스닥</span></div></div>
+      <div class="fgroup"><div class="fl">섹터</div><div class="chips"><span class="chip on">전체</span><span class="chip">반도체</span><span class="chip">2차전지</span><span class="chip">바이오</span><span class="chip">조선</span><span class="chip">금융</span><span class="chip">전력</span></div></div>
+      <div class="fgroup"><div class="fl">시가총액</div><div class="chips"><span class="chip on">전체</span><span class="chip">대형</span><span class="chip">중형</span><span class="chip">소형</span></div></div>
+      <div class="fgroup"><div class="fl">등락률</div><div class="chips"><span class="chip on">전체</span><span class="chip">+5%↑</span><span class="chip">상승</span><span class="chip">하락</span></div></div>
+      <div class="fgroup"><div class="fl">PER</div><div class="chips"><span class="chip on">전체</span><span class="chip">10↓</span><span class="chip">10~20</span><span class="chip">20↑</span></div></div>
+      <div class="fgroup"><div class="fl">ROE</div><div class="chips"><span class="chip on">전체</span><span class="chip">10%↑</span><span class="chip">15%↑</span></div></div>
+      <div class="fgroup"><div class="fl">배당수익률</div><div class="chips"><span class="chip on">전체</span><span class="chip">2%↑</span><span class="chip">4%↑</span></div></div>
+      <div class="fgroup"><div class="fl">큰손 신호</div><div class="chips"><span class="chip">국민연금 매수</span><span class="chip">외국인 순매수</span><span class="chip">5% 신규</span></div></div>
+      <div class="fgroup"><div class="fl">기술적</div><div class="chips"><span class="chip">골든크로스</span><span class="chip">신고가</span><span class="chip">거래량 급증</span></div></div>
+      <div class="fbtns"><button class="btn">초기화</button><button class="btn pri">적용</button></div>
+      <div class="saved">
+        <div class="fl" style="font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:8px">💾 저장된 스크리너</div>
+        <a>⭐ 내 반도체 저PER</a>
+        <a>⭐ 큰손+고배당 조합</a>
+        <a>⭐ 실적시즌 서프라이즈</a>
+      </div>
+    </aside>
+
+    <!-- RESULTS -->
+    <div>
+      <div class="summary">
+        <div class="sm"><div class="k">검색된 종목</div><div class="v">20</div></div>
+        <div class="sm"><div class="k">평균 등락률</div><div class="v up">+2.4%</div></div>
+        <div class="sm"><div class="k">평균 PER</div><div class="v">16.8배</div></div>
+        <div class="sm"><div class="k">큰손 신호 종목</div><div class="v">11</div></div>
+      </div>
+
+      <div class="rhead">
+        <h2>탐색 결과</h2><span class="cnt" id="cnt">20종목</span>
+        <span class="exp">⬇ CSV 내보내기</span>
+      </div>
+      <div class="tblwrap">
+        <table class="tbl" id="tbl">
+          <thead><tr>
+            <th class="chk"></th>
+            <th data-k="1">종목</th>
+            <th data-k="3" data-num>현재가</th>
+            <th data-k="4" data-num>등락률</th>
+            <th data-k="6" data-num>시총</th>
+            <th data-k="7" data-num>PER</th>
+            <th data-k="8" data-num>ROE</th>
+            <th data-k="9" data-num>배당</th>
+            <th data-k="10" data-num>거래대금</th>
+            <th>큰손 신호</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+
+      <div class="disc">데이터 출처: 한국거래소 · DART · 공공데이터포털 · 자체 산출물. 알고리즘 자동 선별이며 특정 종목의 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+    </div>
+  </div>
+</div>
+
+<div class="cmpbar" id="cmpbar"><span id="cmpText">0개 선택</span><button onclick="location.href='stock.html'">종목 비교하기 →</button></div>
+
+<script>
+  // [logo, name, code, price, chg, up, mcap, per, roe, div, value, signal, sigtype]
+  const ROWS=[
+    ['SK','SK하이닉스','000660','1,898,000','+3.7%',1,'1,382조','9.8배','21.4%','1.1%','6.7조','외국인 순매수','buy'],
+    ['삼','삼성전자','005930','267,750','+2.8%',1,'1,598조','14.2배','9.8%','1.9%','3.6조','외국인 순매수','buy'],
+    ['이','SK이터닉스','475150','80,600','+30.0%',1,'2.1조','흑전','5.2%','0%','1.4조','거래량 급증','hot'],
+    ['삼','삼성전기','009150','1,447,000','+7.6%',1,'10.8조','18.5배','11.2%','1.2%','8,460억','운용사 매수','buy'],
+    ['한','한화오션','042660','78,300','+8.1%',1,'23.7조','32배','8.1%','0%','6,200억','국민연금 매수','buy'],
+    ['두','두산에너빌리티','034020','41,200','+5.2%',1,'26.4조','28배','6.9%','0.4%','5,100억','5% 신규','buy'],
+    ['현','현대로템','064350','98,500','+3.1%',1,'10.7조','22배','14.3%','0.6%','3,800억','국민연금 매수','buy'],
+    ['LG','LG에너지솔루션','373220','312,000','-2.1%',0,'730조','45배','4.2%','0.3%','4,900억','',''],
+    ['에','에코프로비엠','247540','118,000','-2.4%',0,'11.5조','38배','5.1%','0%','2,100억','',''],
+    ['LS','LS','006260','182,000','+5.0%',1,'5.9조','12배','13.8%','2.1%','1,900억','5% 신규','buy'],
+    ['한','한미반도체','042700','168,000','+5.1%',1,'16.3조','24배','19.2%','0.5%','3,200억','외국인 순매수','buy'],
+    ['현','현대차','005380','241,000','+1.2%',1,'50.5조','5.1배','12.4%','4.8%','2,800억','고배당','buy'],
+    ['기','기아','000270','118,500','+1.9%',1,'47.2조','4.3배','15.1%','5.2%','1,700억','고배당','buy'],
+    ['KB','KB금융','105560','92,400','+1.1%',1,'36.8조','6.2배','10.9%','4.5%','1,500억','고배당','buy'],
+    ['N','NAVER','035420','218,000','+2.4%',1,'34.9조','19배','8.7%','0.9%','1,300억','',''],
+    ['카','카카오','035720','48,900','+1.5%',1,'21.7조','41배','2.1%','0.3%','980억','',''],
+    ['셀','셀트리온','068270','189,000','+0.6%',1,'41.2조','36배','7.4%','0.5%','1,100억','',''],
+    ['알','알테오젠','196170','412,000','+3.4%',1,'22.0조','52배','16.8%','0%','1,600억','운용사 매수','buy'],
+    ['레','레인보우로보틱스','277810','198,000','+4.1%',1,'3.8조','흑전','4.9%','0%','890억','거래량 급증','hot'],
+    ['고','고려아연','010130','1,124,000','+2.6%',1,'23.3조','16배','9.2%','2.8%','760억','',''],
+  ];
+  let sortK=10, sortDir=-1;
+  function num(v){return parseFloat(String(v).replace(/[^0-9.\-]/g,''))||0;}
+  function render(){
+    const rows=[...ROWS].sort((a,b)=>{
+      const av=num(a[sortK]),bv=num(b[sortK]);return (av-bv)*sortDir;
+    });
+    document.getElementById('rows').innerHTML=rows.map(r=>{
+      const col=r[5]?'up':'down';
+      const sig=r[12]?`<span class="sig ${r[12]}">${r[11]}</span>`:'<span style="color:var(--txt-3)">—</span>';
+      return `<tr>
+        <td class="chk"><input type="checkbox" class="rc"></td>
+        <td><div class="nm" onclick="location.href='stock.html'"><span class="lg">${r[0]}</span><div>${r[1]}<div class="code">${r[2]}</div></div></div></td>
+        <td class="mono">${r[3]}</td><td class="mono ${col}">${r[4]}</td>
+        <td class="mono">${r[6]}</td><td>${r[7]}</td><td class="mono">${r[8]}</td><td class="mono">${r[9]}</td><td class="mono">${r[10]}</td>
+        <td>${sig}</td></tr>`;
+    }).join('');
+    bindChecks();
+  }
+  document.querySelectorAll('#tbl th[data-k]').forEach(th=>{
+    th.onclick=()=>{
+      const k=+th.dataset.k;
+      if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=th.hasAttribute('data-num')?-1:1;}
+      document.querySelectorAll('#tbl th .ar').forEach(a=>a.remove());
+      const ar=document.createElement('span');ar.className='ar';ar.textContent=sortDir<0?' ▾':' ▴';th.appendChild(ar);
+      render();
+    };
+  });
+  function bindChecks(){
+    const cmpbar=document.getElementById('cmpbar');
+    document.querySelectorAll('.rc').forEach(c=>c.onchange=()=>{
+      const n=document.querySelectorAll('.rc:checked').length;
+      document.getElementById('cmpText').textContent=n+'개 선택';
+      cmpbar.classList.toggle('on',n>=2);
+    });
+  }
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+  document.querySelectorAll('.preset').forEach(p=>p.onclick=()=>{document.querySelectorAll('.preset').forEach(x=>x.classList.remove('on'));p.classList.add('on');});
+  render();
+</script>
+</body>
+</html>

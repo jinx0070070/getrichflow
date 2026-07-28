@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>종목탐색 · 미장 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1300px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.mono{font-variant-numeric:tabular-nums}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px;max-width:1300px;margin:0 auto;padding:0 20px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  .mkbadge{font-size:11px;font-weight:800;color:#fff;background:var(--brand);padding:3px 9px;border-radius:7px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:24px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .presets{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+  .preset{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:9px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .preset.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .layout{display:grid;grid-template-columns:250px 1fr;gap:20px;align-items:start;padding-bottom:20px}
+  .filters{position:sticky;top:80px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);max-height:calc(100vh - 100px);overflow-y:auto}
+  .fgroup{margin-bottom:16px}.fgroup:last-of-type{margin-bottom:0}
+  .fgroup .fl{font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:8px;letter-spacing:.02em}
+  .chips{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12px;font-weight:600;padding:6px 10px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .fbtns{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+  .btn{flex:1;background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-weight:700;font-size:12.5px;padding:9px;border-radius:10px;cursor:pointer;font-family:inherit}
+  .btn.pri{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .saved{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+  .saved a{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--txt-2);padding:7px 8px;border-radius:9px;font-weight:600}
+  .saved a:hover{background:var(--card-2);color:var(--txt)}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+  .sm{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;box-shadow:var(--shadow-sm)}
+  .sm .k{font-size:11px;color:var(--txt-3);font-weight:600}.sm .v{font-size:19px;font-weight:800;margin-top:3px}
+  .rhead{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .rhead h2{font-size:15px;font-weight:800}.rhead .cnt{font-size:13px;color:var(--txt-3);font-weight:600}
+  .rhead .exp{margin-left:auto;font-size:12px;color:var(--txt-2);font-weight:700;background:var(--card);border:1px solid var(--line);padding:7px 12px;border-radius:10px;cursor:pointer}
+  .tblwrap{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow-x:auto;box-shadow:var(--shadow-sm)}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:820px}
+  .tbl th{text-align:right;font-size:11px;color:var(--txt-3);font-weight:700;padding:12px 12px;border-bottom:1px solid var(--line);cursor:pointer;white-space:nowrap;user-select:none}
+  .tbl th:nth-child(2){text-align:left}.tbl th.chk{width:34px;text-align:center;cursor:default}
+  .tbl th:hover:not(.chk){color:var(--txt)}.tbl th .ar{color:var(--brand);font-size:10px}
+  .tbl td{padding:12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  .tbl td:nth-child(2){text-align:left}.tbl td.chk{text-align:center}
+  .tbl tr:last-child td{border-bottom:none}.tbl tbody tr:hover td{background:var(--card-2)}
+  .tbl .nm{font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer}
+  .tbl .lg{width:30px;height:30px;border-radius:9px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--brand);flex-shrink:0}
+  .tbl .code{font-size:11px;color:var(--txt-3);font-weight:500}
+  .sig{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+  .sig.buy{color:var(--up);background:var(--up-bg)}.sig.hot{color:var(--amber);background:rgba(192,127,36,.12)}
+  input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
+  .cmpbar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--brand);color:#fff;border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,.3);z-index:80;transition:transform .2s;font-size:13px;font-weight:700}
+  .cmpbar.on{transform:translateX(-50%) translateY(0)}
+  .cmpbar button{background:#fff;color:var(--brand);border:none;font-weight:800;font-size:13px;padding:8px 16px;border-radius:10px;cursor:pointer;font-family:inherit}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 60px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}.filters{position:static;max-height:none}.summary{grid-template-columns:1fr 1fr}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <span class="mkbadge">🇺🇸 미장</span>
+  <nav class="menu"><a href="whale-us.html">큰손 수급</a><a href="leaders-us.html">대표주</a><a href="idea-us.html">커넥션</a><a href="forecast-us.html">확률 통계</a><a href="research.html">리서치</a><a href="theme-us.html">테마·흐름</a><a href="screener-us.html" class="on">종목탐색</a><a href="calendar-us.html">캘린더</a></nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="Ticker 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>🔍 종목탐색 <span class="mkbadge" style="font-size:14px">🇺🇸 US</span></h1>
+    <p>공매도·13F 매집·어닝 서프라이즈·ARK 보유 등 미국식 조건으로 종목을 발굴하세요.</p>
+  </section>
+
+  <div class="presets" id="presets">
+    <button class="preset on">전체</button>
+    <button class="preset">🐋 13F 매집</button>
+    <button class="preset">🔥 어닝 서프라이즈</button>
+    <button class="preset">📉 숏스퀴즈 후보</button>
+    <button class="preset">🚀 ARK 보유</button>
+    <button class="preset">💎 매그니피센트 7</button>
+    <button class="preset">📈 52주 신고가</button>
+  </div>
+
+  <div class="layout">
+    <aside class="filters">
+      <div class="fgroup"><div class="fl">거래소</div><div class="chips"><span class="chip on">전체</span><span class="chip">NASDAQ</span><span class="chip">NYSE</span></div></div>
+      <div class="fgroup"><div class="fl">섹터</div><div class="chips"><span class="chip on">전체</span><span class="chip">반도체</span><span class="chip">빅테크</span><span class="chip">AI SW</span><span class="chip">전기차</span><span class="chip">금융</span><span class="chip">헬스케어</span></div></div>
+      <div class="fgroup"><div class="fl">시가총액</div><div class="chips"><span class="chip on">전체</span><span class="chip">메가($200B+)</span><span class="chip">대형</span><span class="chip">중소형</span></div></div>
+      <div class="fgroup"><div class="fl">등락률</div><div class="chips"><span class="chip on">전체</span><span class="chip">+5%↑</span><span class="chip">상승</span><span class="chip">하락</span></div></div>
+      <div class="fgroup"><div class="fl">P/E</div><div class="chips"><span class="chip on">전체</span><span class="chip">20↓</span><span class="chip">20~40</span><span class="chip">40↑</span></div></div>
+      <div class="fgroup"><div class="fl">공매도율(SI)</div><div class="chips"><span class="chip on">전체</span><span class="chip">10%↑</span><span class="chip">20%↑ (스퀴즈)</span></div></div>
+      <div class="fgroup"><div class="fl">13F·큰손</div><div class="chips"><span class="chip">기관 매집</span><span class="chip">ARK 보유</span><span class="chip">내부자 매수</span><span class="chip">의회 매수</span></div></div>
+      <div class="fgroup"><div class="fl">실적</div><div class="chips"><span class="chip">어닝 서프라이즈</span><span class="chip">가이던스 상향</span></div></div>
+      <div class="fgroup"><div class="fl">기술적</div><div class="chips"><span class="chip">골든크로스</span><span class="chip">52주 신고가</span><span class="chip">거래량 급증</span></div></div>
+      <div class="fbtns"><button class="btn">초기화</button><button class="btn pri">적용</button></div>
+      <div class="saved">
+        <div class="fl" style="font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:8px">💾 저장된 스크리너</div>
+        <a>⭐ AI 반도체 모멘텀</a>
+        <a>⭐ 숏스퀴즈 워치리스트</a>
+        <a>⭐ 13F+내부자 겹침</a>
+      </div>
+    </aside>
+
+    <div>
+      <div class="summary">
+        <div class="sm"><div class="k">검색된 종목</div><div class="v">18</div></div>
+        <div class="sm"><div class="k">평균 등락률</div><div class="v up">+1.8%</div></div>
+        <div class="sm"><div class="k">평균 P/E</div><div class="v">34.2</div></div>
+        <div class="sm"><div class="k">13F 매집 종목</div><div class="v">9</div></div>
+      </div>
+      <div class="rhead"><h2>탐색 결과</h2><span class="cnt">18종목</span><span class="exp">⬇ CSV 내보내기</span></div>
+      <div class="tblwrap">
+        <table class="tbl" id="tbl">
+          <thead><tr>
+            <th class="chk"></th><th data-k="1">종목</th><th data-k="3" data-num>현재가</th><th data-k="4" data-num>등락률</th>
+            <th data-k="6" data-num>시총</th><th data-k="7" data-num>P/E</th><th data-k="8" data-num>공매도</th><th>큰손 신호</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="disc">데이터 출처: 미국 거래소 시세 · SEC EDGAR(13F·Form 4) · FINRA(공매도) · 자체 산출물. 알고리즘 자동 선별이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+    </div>
+  </div>
+</div>
+
+<div class="cmpbar" id="cmpbar"><span id="cmpText">0개 선택</span><button onclick="location.href='stock-us.html'">종목 비교하기 →</button></div>
+
+<script>
+  // [logo,name,code,price,chg,up,mcap,pe,shortInt,signal,sigtype]
+  const ROWS=[
+    ['NVDA','NVIDIA','NASDAQ','$182.40','+2.2%',1,'$4.48T','52.4','1.1%','13F 매집','buy'],
+    ['MSFT','Microsoft','NASDAQ','$398.20','-2.1%',0,'$2.96T','32.1','0.6%','의회 매수','buy'],
+    ['AAPL','Apple','NASDAQ','$232.10','+0.6%',1,'$3.54T','29.4','0.7%','','' ],
+    ['AMD','AMD','NASDAQ','$168.00','+3.4%',1,'$272B','42.1','2.4%','13F 매집','buy'],
+    ['PLTR','Palantir','NASDAQ','$142.00','+6.0%',1,'$328B','198','3.1%','ARK 보유','buy'],
+    ['TSLA','Tesla','NASDAQ','$377.00','-4.1%',0,'$1.21T','78.2','3.8%','ARK 보유','buy'],
+    ['AVGO','Broadcom','NASDAQ','$396.00','+1.1%',1,'$1.85T','38.6','1.2%','13F 매집','buy'],
+    ['COIN','Coinbase','NASDAQ','$318.00','+4.2%',1,'$78B','44.0','22.4%','숏스퀴즈','hot'],
+    ['MSTR','MicroStrategy','NASDAQ','$412.00','+7.1%',1,'$96B','흑전','18.9%','내부자 매수','buy'],
+    ['ACHR','Archer Aviation','NYSE','$12.40','+9.2%',1,'$6.8B','적자','14.2%','ARK 신규','hot'],
+    ['META','Meta','NASDAQ','$612.00','-0.9%',0,'$1.55T','27.8','1.0%','','' ],
+    ['GOOGL','Alphabet','NASDAQ','$198.00','+1.8%',1,'$2.42T','24.1','0.8%','','' ],
+    ['LLY','Eli Lilly','NYSE','$842.00','+1.4%',1,'$798B','62.3','0.9%','13F 매집','buy'],
+    ['LMT','Lockheed Martin','NYSE','$512.00','+0.8%',1,'$121B','18.2','1.1%','의회 매수','buy'],
+    ['MU','Micron','NASDAQ','$138.00','-0.8%',0,'$153B','18.6','4.1%','','' ],
+    ['HOOD','Robinhood','NASDAQ','$44.20','-2.4%',0,'$39B','36.0','6.2%','ARK 매도','' ],
+    ['SMCI','Super Micro','NASDAQ','$52.00','+5.8%',1,'$31B','22.4','24.1%','숏스퀴즈','hot'],
+    ['RIVN','Rivian','NASDAQ','$18.20','-2.2%',0,'$18B','적자','19.8%','','' ],
+  ];
+  let sortK=6, sortDir=-1;
+  function num(v){return parseFloat(String(v).replace(/[^0-9.\-]/g,''))||0;}
+  function render(){
+    const rows=[...ROWS].sort((a,b)=>(num(a[sortK])-num(b[sortK]))*sortDir);
+    document.getElementById('rows').innerHTML=rows.map(r=>{
+      const col=r[5]?'up':'down';
+      const sig=r[10]?`<span class="sig ${r[10]}">${r[9]}</span>`:'<span style="color:var(--txt-3)">—</span>';
+      return `<tr>
+        <td class="chk"><input type="checkbox" class="rc"></td>
+        <td><div class="nm" onclick="location.href='stock-us.html'"><span class="lg">${r[0]}</span><div>${r[1]}<div class="code">${r[2]}</div></div></div></td>
+        <td class="mono">${r[3]}</td><td class="mono ${col}">${r[4]}</td>
+        <td class="mono">${r[6]}</td><td>${r[7]}</td><td class="mono">${r[8]}</td><td>${sig}</td></tr>`;
+    }).join('');
+    document.querySelectorAll('.rc').forEach(c=>c.onchange=()=>{const n=document.querySelectorAll('.rc:checked').length;document.getElementById('cmpText').textContent=n+'개 선택';document.getElementById('cmpbar').classList.toggle('on',n>=2);});
+  }
+  document.querySelectorAll('#tbl th[data-k]').forEach(th=>th.onclick=()=>{
+    const k=+th.dataset.k;if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=th.hasAttribute('data-num')?-1:1;}
+    document.querySelectorAll('#tbl th .ar').forEach(a=>a.remove());
+    const ar=document.createElement('span');ar.className='ar';ar.textContent=sortDir<0?' ▾':' ▴';th.appendChild(ar);render();
+  });
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+  document.querySelectorAll('.preset').forEach(p=>p.onclick=()=>{document.querySelectorAll('.preset').forEach(x=>x.classList.remove('on'));p.classList.add('on');});
+  render();
+</script>
+</body>
+</html>

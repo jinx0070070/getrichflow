@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커넥션 · 미장 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--amber-bg:rgba(192,127,36,.12);
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:12px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  .mkbadge{font-size:11px;font-weight:800;color:#fff;background:var(--brand);padding:3px 9px;border-radius:7px}
+  nav.menu{display:flex;gap:2px;margin-left:4px;flex-wrap:wrap}
+  nav.menu a{color:var(--txt-2);font-size:13.5px;font-weight:500;padding:8px 11px;border-radius:9px;white-space:nowrap}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:150px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 4px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .phead .meta{font-size:12px;color:var(--txt-3);font-weight:600;margin-top:8px}
+  .filters{display:flex;gap:6px;margin:18px 0;flex-wrap:wrap}
+  .filters button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .filters button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .summary{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2);border-radius:16px;padding:20px;margin-bottom:20px}
+  .summary .h{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;margin-bottom:12px}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
+  .summary .counts{margin-left:auto;display:flex;gap:8px}
+  .cbadge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px}
+  .cbadge.pos{color:var(--up);background:var(--up-bg)}.cbadge.warn{color:var(--amber);background:var(--amber-bg)}
+  .summary p{font-size:13.5px;color:var(--txt-2);line-height:1.7}.summary p b{color:var(--txt)}
+  .ideas{display:flex;flex-direction:column;gap:16px}
+  .idea{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+  .idea .top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .tag{font-size:10px;font-weight:800;padding:3px 9px;border-radius:6px;background:var(--card-2);color:var(--txt-2);border:1px solid var(--line)}
+  .tag.cat{color:var(--brand);font-weight:800}
+  .conf{margin-left:auto;font-size:11px;font-weight:800;padding:3px 10px;border-radius:7px}
+  .conf.high{color:var(--up);background:var(--up-bg)}.conf.mid{color:var(--amber);background:var(--amber-bg)}.conf.low{color:var(--txt-3);background:var(--card-2)}
+  .idea h3{font-size:17px;font-weight:800;line-height:1.4;margin-bottom:14px}
+  .sect{margin-top:14px}
+  .sect .sl{font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:7px;letter-spacing:.02em}
+  .stocks{display:flex;gap:6px;flex-wrap:wrap}
+  .stk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;background:var(--card-2);border:1px solid var(--line);padding:6px 12px;border-radius:20px;color:var(--txt-2);cursor:pointer}
+  .stk:hover{color:var(--txt);border-color:var(--line-2)}
+  .stk.second{background:transparent;border-style:dashed}
+  .warnbox{display:flex;gap:9px;align-items:flex-start;background:var(--amber-bg);border:1px solid rgba(192,127,36,.25);border-radius:11px;padding:11px 13px;font-size:12.5px;color:var(--txt-2);line-height:1.5;margin-top:10px}
+  .warnbox b{color:var(--amber)}
+  .why{font-size:13.5px;color:var(--txt-2);line-height:1.7;background:var(--card-2);border-radius:12px;padding:14px 16px;margin-top:12px}
+  .why b{color:var(--txt)}.why .src{display:block;font-size:11px;color:var(--txt-3);margin-top:8px;font-weight:600}
+  .scen{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .sc{background:var(--card-2);border-radius:11px;padding:12px 14px;font-size:12.5px;color:var(--txt-2);line-height:1.5;display:flex;gap:9px}
+  .sc .n{width:20px;height:20px;border-radius:6px;background:var(--brand);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .watch{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .wp{font-size:12px;font-weight:600;color:var(--txt-2);background:var(--card-2);border:1px solid var(--line);border-radius:9px;padding:7px 12px;display:flex;align-items:center;gap:6px}
+  .chain{background:var(--card);border:1px solid var(--line-2);border-radius:16px;padding:20px;margin-top:20px;box-shadow:var(--shadow-sm)}
+  .chain h3{font-size:14px;font-weight:800;margin-bottom:6px}.chain .s{font-size:12px;color:var(--txt-3);margin-bottom:12px}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:900px){.scen{grid-template-columns:1fr}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <span class="mkbadge">🇺🇸</span>
+  <nav class="menu">
+    <a href="whale-us.html">큰손 수급</a><a href="leaders-us.html">대표주</a><a href="idea-us.html" class="on">커넥션</a><a href="forecast-us.html">확률 통계</a>
+    <a href="research.html">리서치</a><a href="theme-us.html">테마·흐름</a><a href="screener-us.html">종목탐색</a><a href="calendar-us.html">캘린더</a>
+  </nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="Ticker"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>💡 커넥션 <span class="mkbadge" style="font-size:14px">🇺🇸 US</span></h1>
+    <p>미국 뉴스가 <b style="color:var(--txt)">어떤 종목과 연결되는지</b> AI가 엮어드려요.</p>
+    <div class="meta">07/24 08:11 ET 갱신 · 하루 2회 · 뉴스 + SEC 공시 + 옵션 수급 교차분석</div>
+  </section>
+
+  <div class="filters" id="filters">
+    <button class="on">전체</button><button>매크로</button><button>기술</button><button>정책</button><button>산업</button>
+  </div>
+
+  <div class="summary">
+    <div class="h"><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 종합 의견
+      <span class="counts"><span class="cbadge pos">긍정 2</span><span class="cbadge warn">주의 2</span></span>
+    </div>
+    <p>연준의 <b>9월 인하 기대</b>가 위험자산 선호를 지지하는 가운데, <b>AI 자본지출</b>이 빅테크 실적의 핵심 변수로 남아 있습니다. 다만 관세·무역 정책과 밸류에이션 부담은 계속 주시할 필요가 있어요.</p>
+  </div>
+
+  <div class="ideas" id="ideas"></div>
+
+  <div class="chain">
+    <h3>🔗 다음은 이런 흐름 어때요?</h3>
+    <div class="s">눌러서 꼬리물기 — 관련 종목으로 계속 이어집니다</div>
+    <div class="stocks">
+      <span class="stk" onclick="location.href='stock-us.html'">NVDA</span>
+      <span class="stk" onclick="location.href='stock-us.html'">AVGO</span>
+      <span class="stk" onclick="location.href='stock-us.html'">VST</span>
+      <span class="stk" onclick="location.href='stock-us.html'">CEG</span>
+      <span class="stk" onclick="location.href='stock-us.html'">GEV</span>
+    </div>
+  </div>
+
+  <div class="disc">AI가 공개 데이터(뉴스·SEC 공시·수급)로 생성한 <b>정보 제공용 아이디어</b>입니다. 매수·매도 권유나 투자자문이 아니며 사실과 다를 수 있습니다. 데이터 출처: 뉴스 API · SEC EDGAR · FRED · 자체 산출물. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<script>
+  const IDEAS=[
+    {cat:'매크로',conf:'high',confL:'확신도 높음',src:'Reuters · FRED',
+     title:'FOMC 금리 동결 유력, 9월 인하 기대 재부각',
+     stocks:['JPM','BAC','XLF','IWM'],
+     warn:'인플레 재반등 시 인하 지연 — 장기금리 급등 리스크',
+     why:'6월 CPI 둔화로 시장은 <b>9월 인하</b>를 다시 가격에 반영하고 있습니다. 금리 인하 기대는 <b>중소형주(러셀2000)</b>와 금융·리츠에 우호적이며, 성장주 밸류에이션 부담도 완화시킵니다.',
+     scen:['9월 인하 확정 → 중소형·리츠 반등 폭 확대','인하 지연 → 빅테크 쏠림 심화'],
+     second:['VNQ','TLT'],
+     watch:['7/30 FOMC 점도표','8/1 고용보고서(NFP)']},
+    {cat:'기술',conf:'high',confL:'확신도 높음',src:'Bloomberg · SEC',
+     title:'엔비디아 블랙웰 공급 완판, AI 반도체 수요 재확인',
+     stocks:['NVDA','AVGO','AMD','TSM'],
+     warn:'AI 자본지출 피크아웃 논쟁 — 빅테크 가이던스 하향 시 조정',
+     why:'블랙웰 물량이 <b>4분기까지 완판</b>되며 AI 인프라 수요가 재확인됐습니다. 13F에서도 기관 <b>18곳이 신규·확대</b> 보유했고, 옵션 시장은 콜 매수 우위(P/C 0.62)입니다.',
+     scen:['데이터센터 증설 지속 → 반도체 밸류체인 실적 상향','자본지출 둔화 → 고밸류 종목 우선 조정'],
+     second:['MU','VRT'],
+     watch:['8/27 엔비디아 실적','빅테크 CapEx 가이던스']},
+    {cat:'산업',conf:'mid',confL:'확신도 중간',src:'WSJ · EIA',
+     title:'AI 데이터센터 전력 수요 급증, 전력·원자력주 재평가',
+     stocks:['VST','CEG','GEV','NRG'],
+     warn:'규제·인허가 지연 리스크 — 실제 증설까지 수년 소요',
+     why:'데이터센터 전력 소비가 급증하며 <b>발전·송배전</b> 인프라가 구조적 수혜 구간에 진입했습니다. 원자력 PPA 계약이 잇따르며 유틸리티가 성장주처럼 재평가받는 중입니다.',
+     scen:['전력 PPA 확대 → 발전사 장기 실적 가시성','전력망 병목 → 송배전·변압기 수요 급증'],
+     second:['ETN','PWR'],
+     watch:['신규 원자력 PPA 체결','전력망 투자 법안']},
+    {cat:'정책',conf:'low',confL:'확신도 낮음',src:'USTR · Reuters',
+     title:'USTR 무역법 301조 관세 확대 검토',
+     stocks:['미국 소비재 전반','WMT','TGT'],
+     warn:'수입 원가 상승 → 소비재 마진 압박 가능',
+     why:'미국이 추가 관세를 검토하며 <b>글로벌 공급망</b> 재편 압력이 커지고 있습니다. 수입 비중이 높은 소매·소비재는 원가 부담이, 반대로 리쇼어링 관련주는 반사 수혜가 예상됩니다.',
+     scen:['관세 확대 → 수입 의존 소비재 마진 압박','리쇼어링 가속 → 미국 내 제조·산업재 수혜'],
+     second:['CAT','DE'],
+     watch:['USTR 공식 발표','소매업체 가이던스']}
+  ];
+  function render(cat){
+    const list=cat==='전체'?IDEAS:IDEAS.filter(i=>i.cat===cat);
+    document.getElementById('ideas').innerHTML=list.map(i=>`
+      <div class="idea">
+        <div class="top"><span class="tag cat">${i.cat}</span><span class="tag">뉴스 연계</span><span class="conf ${i.conf}">${i.confL}</span></div>
+        <h3>${i.title}</h3>
+        <div class="sect"><div class="sl">📈 이 소식에 영향받는 종목</div>
+          <div class="stocks">${i.stocks.map(s=>`<span class="stk" onclick="location.href='stock-us.html'">${s}</span>`).join('')}</div></div>
+        <div class="warnbox">⚠️ <span><b>주의</b> — ${i.warn}</span></div>
+        <div class="why">${i.why}<span class="src">근거 · 출처: ${i.src}</span></div>
+        <div class="sect"><div class="sl">🔀 시나리오</div>
+          <div class="scen">${i.scen.map((s,n)=>`<div class="sc"><span class="n">${n+1}</span><span>${s}</span></div>`).join('')}</div></div>
+        <div class="sect"><div class="sl">🔗 2차 관련주</div>
+          <div class="stocks">${i.second.map(s=>`<span class="stk second" onclick="location.href='stock-us.html'">${s}</span>`).join('')}</div></div>
+        <div class="sect"><div class="sl">👀 관전 포인트</div>
+          <div class="watch">${i.watch.map(w=>`<span class="wp">◈ ${w}</span>`).join('')}</div></div>
+      </div>`).join('');
+  }
+  render('전체');
+  document.getElementById('filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(b.textContent.trim());
+  });
+</script>
+</body>
+</html>

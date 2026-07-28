@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캘린더 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.bot{display:block}.mono{font-variant-numeric:tabular-nums}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px;max-width:1280px;margin:0 auto;padding:0 20px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:24px 0 6px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em}
+  .viewtoggle{display:flex;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:3px;box-shadow:var(--shadow-sm)}
+  .viewtoggle button{background:none;border:none;color:var(--txt-3);font-size:13px;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .viewtoggle button.on{background:var(--brand);color:#fff}
+  .wk{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}
+  .wk button{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--line);cursor:pointer;font-size:14px;box-shadow:var(--shadow-sm)}
+  .subtabs{display:flex;gap:6px;margin:18px 0;flex-wrap:wrap}
+  .subtabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .subtabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--txt-2);font-weight:600;margin-bottom:16px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:3px}
+  .d-earn{background:var(--brand)}.d-econ{background:var(--amber)}.d-div{background:var(--up)}.d-ipo{background:var(--brand-2)}
+
+  .layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  /* week grid */
+  .week{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .day{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 11px;min-height:230px;box-shadow:var(--shadow-sm)}
+  .day.today{border-color:var(--brand);border-width:2px}
+  .day .dh{display:flex;align-items:baseline;gap:6px;margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .day .dh .wd{font-size:12px;font-weight:700;color:var(--txt-3)}.day .dh .dd{font-size:18px;font-weight:800}
+  .day.today .dh .dd{color:var(--brand)}.day .dh .badge{margin-left:auto;font-size:10px;font-weight:800;background:var(--card-2);color:var(--txt-3);padding:2px 7px;border-radius:6px}
+  .ev{display:flex;gap:8px;padding:7px 0;font-size:12px;cursor:pointer}
+  .ev:hover .en{color:var(--brand)}
+  .ev .dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;margin-top:4px}
+  .ev .en{font-weight:700;line-height:1.35}.ev .et{font-size:10px;color:var(--txt-3);font-weight:600;margin-top:1px}
+  /* month grid */
+  .month{display:none;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:var(--shadow-sm)}
+  .month.on{display:block}
+  .mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .mwd{text-align:center;font-size:11px;font-weight:700;color:var(--txt-3);padding:6px 0}
+  .mcell{min-height:80px;border:1px solid var(--line);border-radius:10px;padding:7px;font-size:12px}
+  .mcell.off{opacity:.4}.mcell.today{border-color:var(--brand);border-width:2px}
+  .mcell .dn{font-weight:800;font-size:13px;margin-bottom:4px}
+  .mdots{display:flex;gap:3px;flex-wrap:wrap}
+  .mdots i{width:7px;height:7px;border-radius:2px}
+  .mcell .mlab{font-size:10px;color:var(--txt-2);font-weight:600;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* sidebar */
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+  .today-ev{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .today-ev:last-child{border:none}
+  .today-ev .tm{font-size:12px;font-weight:800;color:var(--brand);width:44px;flex-shrink:0}
+  .today-ev .info .n{font-size:13px;font-weight:700}.today-ev .info .s{font-size:11px;color:var(--txt-3);margin-top:2px}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:right;font-size:10px;color:var(--txt-3);font-weight:700;padding:6px 6px;border-bottom:1px solid var(--line)}
+  .tbl th:first-child{text-align:left}
+  .tbl td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right}.tbl td:first-child{text-align:left;font-weight:700}
+  .tbl tr:last-child td{border-bottom:none}
+  .ipo-row{padding:11px 0;border-bottom:1px solid var(--line)}.ipo-row:last-child{border:none}
+  .ipo-row .n{font-weight:800;font-size:13px;display:flex;justify-content:space-between}
+  .ipo-row .n .band{color:var(--brand);font-weight:700}
+  .ipo-row .s{font-size:11px;color:var(--txt-3);margin-top:3px;display:flex;justify-content:space-between}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static}.week{grid-template-columns:1fr}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <nav class="menu"><a href="whale.html">큰손 수급</a><a href="leaders.html">대표주</a><a href="idea.html">커넥션</a><a href="forecast.html">확률 통계</a><a href="research.html">리서치</a><a href="theme.html">테마·흐름</a><a href="screener.html">종목탐색</a><a href="calendar.html" class="on">캘린더</a></nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="종목 일정 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>📅 캘린더</h1>
+    <div class="viewtoggle" id="viewToggle"><button class="on" data-v="week">주간</button><button data-v="month">월간</button></div>
+    <div class="wk"><button>‹</button><span id="range">2026.07.20 – 07.24</span><button>›</button></div>
+  </section>
+
+  <div class="subtabs" id="subtabs">
+    <button class="on">전체</button><button>실적발표</button><button>경제지표</button><button>배당락</button><button>IPO</button>
+  </div>
+  <div class="legend">
+    <span><i class="d-earn" style="background:var(--brand)"></i>실적발표</span>
+    <span><i class="d-econ" style="background:var(--amber)"></i>경제지표</span>
+    <span><i class="d-div" style="background:var(--up)"></i>배당락</span>
+    <span><i class="d-ipo" style="background:var(--brand-2)"></i>IPO·공모</span>
+  </div>
+
+  <div class="layout">
+    <div>
+      <!-- WEEK VIEW -->
+      <div class="week" id="weekView">
+        <div class="day">
+          <div class="dh"><span class="wd">월</span><span class="dd">20</span><span class="badge">2</span></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-econ"></span><div><div class="en">미국 6월 CPI</div><div class="et">경제지표 · 22:30</div></div></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-earn"></span><div><div class="en">LG에너지솔루션</div><div class="et">실적 · 15:30</div></div></div>
+        </div>
+        <div class="day">
+          <div class="dh"><span class="wd">화</span><span class="dd">21</span><span class="badge">2</span></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-earn"></span><div><div class="en">부광약품</div><div class="et">실적 · 15:00</div></div></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-ipo"></span><div><div class="en">OO바이오 수요예측</div><div class="et">IPO · 종일</div></div></div>
+        </div>
+        <div class="day today">
+          <div class="dh"><span class="wd">수</span><span class="dd">23</span><span class="badge">3</span></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-earn"></span><div><div class="en">현대자동차</div><div class="et">실적 · 14:10 · 컨센 3.8조</div></div></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-earn"></span><div><div class="en">삼성E&A</div><div class="et">실적 · 14:00</div></div></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-earn"></span><div><div class="en">OCI홀딩스</div><div class="et">실적 · 15:30</div></div></div>
+        </div>
+        <div class="day">
+          <div class="dh"><span class="wd">목</span><span class="dd">24</span><span class="badge">2</span></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-econ"></span><div><div class="en">한국은행 금리 결정</div><div class="et">경제지표 · 10:00</div></div></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-earn"></span><div><div class="en">SK하이닉스</div><div class="et">실적 · 장전 · 컨센 7.2조</div></div></div>
+        </div>
+        <div class="day">
+          <div class="dh"><span class="wd">금</span><span class="dd">25</span><span class="badge">2</span></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-div"></span><div><div class="en">삼성전자 반기배당락</div><div class="et">배당락 · 종일</div></div></div>
+          <div class="ev" onclick="location.href='stock.html'"><span class="dot d-econ"></span><div><div class="en">미국 2Q GDP</div><div class="et">경제지표 · 21:30</div></div></div>
+        </div>
+      </div>
+
+      <!-- MONTH VIEW -->
+      <div class="month" id="monthView">
+        <div class="mgrid" id="mgrid"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="side">
+      <div class="card">
+        <h3>📌 오늘의 일정 <span class="hint">7/23 (수)</span></h3>
+        <div class="today-ev"><span class="tm">14:00</span><div class="info"><div class="n">삼성E&A 실적</div><div class="s">2Q 영업이익 컨센 1,850억</div></div></div>
+        <div class="today-ev"><span class="tm">14:10</span><div class="info"><div class="n">현대자동차 실적</div><div class="s">영업이익 컨센 3.8조 · 전년비 +6%</div></div></div>
+        <div class="today-ev"><span class="tm">15:30</span><div class="info"><div class="n">OCI홀딩스 실적</div><div class="s">폴리실리콘 업황 주목</div></div></div>
+      </div>
+
+      <div class="card">
+        <h3>📊 이번주 실적 컨센서스 <span class="hint">영업이익</span></h3>
+        <table class="tbl">
+          <thead><tr><th>종목</th><th>예상</th><th>전년비</th></tr></thead>
+          <tbody>
+            <tr><td>현대차</td><td class="mono">3.8조</td><td class="up">+6%</td></tr>
+            <tr><td>SK하이닉스</td><td class="mono">7.2조</td><td class="up">+142%</td></tr>
+            <tr><td>LG엔솔</td><td class="mono">2,400억</td><td class="down">−38%</td></tr>
+            <tr><td>OCI홀딩스</td><td class="mono">980억</td><td class="down">−12%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>🎯 IPO 청약 일정 <span class="hint">공모가밴드</span></h3>
+        <div class="ipo-row"><div class="n"><span>OO바이오</span><span class="band">18,000~22,000</span></div><div class="s"><span>청약 7/24~25</span><span>경쟁률 예상 800:1</span></div></div>
+        <div class="ipo-row"><div class="n"><span>OO로보틱스</span><span class="band">32,000~38,000</span></div><div class="s"><span>청약 7/28~29</span><span>수요예측 진행중</span></div></div>
+        <div class="ipo-row"><div class="n"><span>OO에너지</span><span class="band">미정</span></div><div class="s"><span>상장예심 통과</span><span>8월 예정</span></div></div>
+      </div>
+
+      <div class="card">
+        <h3>💵 배당락 임박 <span class="hint">7일 이내</span></h3>
+        <div class="today-ev"><span class="tm up">7/25</span><div class="info"><div class="n">삼성전자 반기배당</div><div class="s">주당 361원 · 수익률 0.1%</div></div></div>
+        <div class="today-ev"><span class="tm up">7/29</span><div class="info"><div class="n">현대차 중간배당</div><div class="s">주당 3,000원 · 수익률 1.2%</div></div></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="disc">데이터 출처: 한국거래소 KIND · DART · FRED/경제지표 · 자체 취합. 일정·시간·컨센서스는 변경될 수 있으며 정보 제공용입니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<script>
+  // month view build
+  const evMap={3:['d-earn','d-econ'],8:['d-earn'],10:['d-div'],14:['d-econ','d-earn'],15:['d-earn','d-earn','d-earn'],16:['d-econ','d-earn'],17:['d-div','d-econ'],22:['d-ipo'],23:['d-earn','d-earn'],24:['d-econ']};
+  const labelMap={15:'현대차 외 3',16:'한은 금리',17:'삼성 배당락',3:'LG엔솔',23:'MS·메타(미)'};
+  const mgrid=document.getElementById('mgrid');
+  ['일','월','화','수','목','금','토'].forEach(w=>{const d=document.createElement('div');d.className='mwd';d.textContent=w;mgrid.appendChild(d);});
+  // July 2026: 1일=수(offset 3). show 35 cells
+  const firstOffset=3, days=31, today=23;
+  for(let i=0;i<35;i++){
+    const dn=i-firstOffset+1;const cell=document.createElement('div');
+    cell.className='mcell'+((dn<1||dn>days)?' off':'')+(dn===today?' today':'');
+    if(dn>=1&&dn<=days){
+      const dots=evMap[dn]||[];
+      cell.innerHTML=`<div class="dn">${dn}</div><div class="mdots">${dots.map(d=>`<i class="${d}" style="background:${d==='d-earn'?'#434955':d==='d-econ'?'#c07f24':d==='d-div'?'#1f9d57':'#5c626d'}"></i>`).join('')}</div>${labelMap[dn]?`<div class="mlab">${labelMap[dn]}</div>`:''}`;
+      cell.style.cursor='pointer';cell.onclick=()=>location.href='stock.html';
+    }
+    mgrid.appendChild(cell);
+  }
+  document.getElementById('viewToggle').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('#viewToggle button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    const month=b.dataset.v==='month';
+    document.getElementById('weekView').style.display=month?'none':'grid';
+    document.getElementById('monthView').classList.toggle('on',month);
+    document.getElementById('range').textContent=month?'2026.07 (7월)':'2026.07.20 – 07.24';
+  });
+  const tabs=document.getElementById('subtabs');
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+</script>
+</body>
+</html>

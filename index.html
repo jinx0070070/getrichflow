@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RICHFLOW · 큰손 추적 · AI 리서치 · 실시간 시황</title>
+<style>
+  :root{
+    /* soft-robot greyscale theme */
+    --bg:#e5e6ea;
+    --bg-2:#dcdee3;
+    --card:#f4f5f7;
+    --card-2:#e9ebef;
+    --line:#d3d6dd;
+    --line-2:#c1c5ce;
+    --txt:#1b1e24;
+    --txt-2:#474d58;
+    --txt-3:#5c6470;
+    --brand:#434955;      /* robot slate (darkened for readable text) */
+    --brand-2:#5c626d;
+    --up:#1f9d57;
+    --up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;
+    --down-bg:rgba(216,69,90,.11);
+    --amber:#c07f24;
+    --radius:20px;
+    --shadow:0 10px 30px rgba(60,66,80,.12);
+    --shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1100px 560px at 88% -12%, rgba(124,131,143,.14), transparent 60%),
+      var(--bg);
+    color:var(--txt);
+    font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;
+    letter-spacing:-.01em;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)} .down{color:var(--down)}
+  .mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+  /* mascot */
+  .bot{display:block}
+
+  /* ===== Top ticker strip ===== */
+  .ticker{background:var(--bg-2);border-bottom:1px solid var(--line);overflow:hidden;height:38px}
+  .ticker-track{display:flex;gap:34px;align-items:center;height:38px;white-space:nowrap;
+    animation:scroll 40s linear infinite;padding-left:20px}
+  .ticker:hover .ticker-track{animation-play-state:paused}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .tk{display:inline-flex;gap:8px;align-items:center;font-size:13px;color:var(--txt-2)}
+  .tk b{color:var(--txt);font-weight:600}
+
+  /* ===== Nav ===== */
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);
+    backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:20px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em;color:var(--txt)}
+  .logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  .market-switch{display:flex;gap:2px;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:3px;box-shadow:var(--shadow-sm)}
+  .market-switch button{background:none;border:none;color:var(--txt-2);font-size:13px;font-weight:600;
+    padding:6px 12px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .market-switch button.on{background:var(--brand);color:#fff}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a:hover{color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .btn-login{background:var(--brand);color:#fff;font-weight:700;font-size:13px;border:none;
+    padding:9px 16px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+
+  /* ===== Hero band ===== */
+  .hero{padding:26px 0 8px}
+  .hero-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+  .index-card{background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:22px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .index-row{display:flex;gap:26px;flex-wrap:wrap}
+  .idx .name{font-size:13px;color:var(--txt-2);margin-bottom:5px}
+  .idx .val{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .idx .chg{font-size:13px;font-weight:600;margin-top:2px}
+  .spark{position:absolute;right:0;bottom:0;opacity:.6;width:55%;height:70px}
+  .live-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    color:var(--up);background:var(--up-bg);padding:4px 9px;border-radius:20px;margin-bottom:16px}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--up);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* AI 시황 brief */
+  .brief{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-sm)}
+  .brief h3{font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);
+    color:#fff;padding:3px 8px;border-radius:7px;letter-spacing:.02em;display:inline-flex;align-items:center;gap:5px}
+  .ai-chip .bot{width:13px;height:13px}
+  .brief ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .brief li{font-size:13px;color:var(--txt-2);padding-left:16px;position:relative;line-height:1.55}
+  .brief li:before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:2px;
+    background:var(--brand)}
+  .brief li b{color:var(--txt)}
+  .brief .foot{margin-top:14px;font-size:11px;color:var(--txt-3);display:flex;justify-content:space-between}
+
+  /* ===== Section titles ===== */
+  .sec{padding:22px 0}
+  .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .sec-head h2{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .sec-head .more{margin-left:auto;font-size:13px;color:var(--txt-2);font-weight:600}
+  .sec-head .more:hover{color:var(--brand)}
+  .tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);padding:3px;border-radius:11px;box-shadow:var(--shadow-sm)}
+  .tabs button{background:none;border:none;color:var(--txt-3);font-size:12px;font-weight:600;
+    padding:5px 11px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .tabs button.on{background:var(--card-2);color:var(--txt)}
+
+  /* ===== Main layout ===== */
+  .main-grid{display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+
+  /* Article feed */
+  .feed{display:flex;flex-direction:column;gap:12px}
+  .art{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px;cursor:pointer;transition:.15s;position:relative;box-shadow:var(--shadow-sm)}
+  .art:hover{border-color:var(--line-2);transform:translateY(-2px);box-shadow:var(--shadow)}
+  .art .thumb{width:74px;height:74px;border-radius:14px;flex-shrink:0;
+    background:var(--card-2);display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:800;color:var(--brand);border:1px solid var(--line)}
+  .art .body{flex:1;min-width:0}
+  .art .cat{display:inline-flex;gap:7px;align-items:center;font-size:11px;color:var(--txt-3);margin-bottom:6px}
+  .art .cat .tag{color:var(--brand);font-weight:700}
+  .art h4{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:6px}
+  .art p{font-size:12.5px;color:var(--txt-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .art .badge-new{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;color:var(--amber)}
+
+  /* Sidebar cards */
+  .side{display:flex;flex-direction:column;gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+
+  /* 큰손 flow bar */
+  .flowbar{height:10px;border-radius:6px;overflow:hidden;display:flex;margin:8px 0 6px}
+  .flowbar .in{background:var(--up)} .flowbar .out{background:var(--down)}
+  .flow-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--txt-2)}
+  .flow-note{font-size:12px;color:var(--txt-2);margin-top:10px;line-height:1.5}
+  .flow-note b{color:var(--txt)}
+
+  /* whale list */
+  .wlist{display:flex;flex-direction:column;gap:2px}
+  .wrow{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:9px;font-size:13px}
+  .wrow:hover{background:var(--card-2)}
+  .wrow .rank{width:18px;color:var(--txt-3);font-weight:700;font-size:12px}
+  .wrow .nm{flex:1;font-weight:600}
+  .wrow .pct{font-weight:700;font-size:12px}
+
+  /* stock rank */
+  .srow{display:flex;align-items:center;gap:10px;padding:9px 6px;border-radius:9px}
+  .srow:hover{background:var(--card-2)}
+  .srow .logo-sq{width:30px;height:30px;border-radius:9px;background:var(--card-2);display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--txt-2);border:1px solid var(--line)}
+  .srow .info{flex:1;min-width:0}
+  .srow .info .n{font-size:13px;font-weight:600}
+  .srow .info .c{font-size:11px;color:var(--txt-3)}
+  .srow .px{text-align:right}
+  .srow .px .p{font-size:13px;font-weight:700}
+  .srow .px .r{font-size:11px;font-weight:600}
+
+  /* heatmap (sidebar mini - legacy) */
+  .heat{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+  .heat div{aspect-ratio:1.4;border-radius:9px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;font-size:10px;font-weight:700;color:#fff;padding:2px;text-align:center;cursor:pointer}
+  .heat div small{font-size:9px;opacity:.9;font-weight:600}
+
+  /* sector heatmap (full width) */
+  .heat-legend{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--txt-3);font-weight:600}
+  .heat-legend .scale{width:180px;height:9px;border-radius:5px;
+    background:linear-gradient(90deg,#a63a47,#b44f5b,#c46b74,#8b919b,#4bab77,#1fa15c,#148f4f)}
+  .heatboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:12px;margin-top:4px}
+  .sector{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 13px;box-shadow:var(--shadow-sm)}
+  .slabel{font-size:12px;font-weight:800;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center}
+  .slabel span{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px}
+  .stiles{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:38px;gap:3px}
+  .htile{border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:#fff;font-size:9px;font-weight:700;text-align:center;padding:2px;overflow:hidden;cursor:pointer;
+    line-height:1.15;transition:transform .12s}
+  .htile:hover{transform:scale(1.05)}
+  .htile b{font-size:9px;font-weight:800;opacity:.95}
+  .htile.big{grid-column:span 2;grid-row:span 2;font-size:12.5px;border-radius:9px}
+  .htile.big b{font-size:13px}
+  .htile.wide{grid-column:span 2}
+  .u3{background:#148f4f}.u2{background:#1fa15c}.u1{background:#4bab77}
+  .fl{background:#8b919b}.d1{background:#c46b74}.d2{background:#b44f5b}.d3{background:#a63a47}
+  .sec-hidden{display:none}
+  .heat-more{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;
+    padding:11px 22px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .heat-more:hover{color:var(--txt);border-color:var(--line-2)}
+
+  /* theme flow */
+  .theme-row{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px}
+  .theme-row .tn{flex:1;font-weight:600}
+  .theme-row .tv{font-weight:700;font-size:12px}
+  .theme-bar{height:6px;border-radius:3px;background:var(--card-2);overflow:hidden;flex:1.4;max-width:120px}
+  .theme-bar i{display:block;height:100%}
+
+  /* calendar */
+  .cal-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .cal-row:last-child{border:none}
+  .cal-row .d{color:var(--txt-3);width:52px;flex-shrink:0;font-weight:600}
+  .cal-row .e{flex:1}
+  .cal-row .e b{font-weight:600}
+  .cal-row .t{color:var(--brand);font-weight:700;font-size:11px}
+
+  /* ===== AI terminal CTA ===== */
+  .terminal{margin:28px 0;background:linear-gradient(135deg,#eff0f3,#e2e4e9);
+    border:1px solid var(--line-2);border-radius:26px;padding:36px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+  .terminal .in{position:relative;display:flex;align-items:center;gap:30px;flex-wrap:wrap}
+  .terminal .txt{flex:1;min-width:280px}
+  .terminal .mascot-big{width:78px;height:78px;margin-bottom:14px}
+  .terminal h2{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:8px}
+  .terminal p{color:var(--txt-2);font-size:14px;max-width:440px}
+  .prompt-box{flex:1;min-width:300px;background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:18px;font-size:13px;box-shadow:var(--shadow-sm)}
+  .prompt-box .q{color:var(--txt);margin-bottom:12px;display:flex;gap:8px;font-weight:600}
+  .prompt-box .q:before{content:"›";color:var(--brand);font-weight:800}
+  .prompt-box .a{color:var(--txt-2);line-height:1.6;padding-left:16px;border-left:2px solid var(--brand);
+    font-size:12.5px;display:flex;gap:10px}
+  .prompt-box .a .bot{width:26px;height:26px;flex-shrink:0}
+  .terminal .cta{margin-top:18px;background:var(--brand);color:#fff;border:none;font-weight:700;
+    font-size:14px;padding:12px 22px;border-radius:13px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);margin-top:30px;padding:26px 0 50px;color:var(--txt-3);font-size:12px}
+  .foot-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .foot-links{display:flex;gap:18px}
+  .foot-links a:hover{color:var(--txt-2)}
+  .disc{margin-top:14px;font-size:11px;line-height:1.6;color:#9aa0ab;max-width:760px}
+
+  @media(max-width:900px){
+    .hero-grid,.main-grid{grid-template-columns:1fr}
+    .search{display:none}
+    nav.menu{display:none}
+    .heat{grid-template-columns:repeat(4,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Reusable mascot SVG (symbol) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mascot" viewBox="0 0 100 100">
+    <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/>
+    <rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+    <!-- side ears -->
+    <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/>
+    <rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/>
+    <!-- face panel -->
+    <rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+    <!-- eyebrows -->
+    <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <!-- eyes -->
+    <circle cx="39" cy="50" r="9.5" fill="#fff"/>
+    <circle cx="61" cy="50" r="9.5" fill="#fff"/>
+    <circle cx="41" cy="52" r="5" fill="#1c1f24"/>
+    <circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+    <!-- mouth -->
+    <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <!-- neck / stand -->
+    <rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+  </symbol>
+</svg>
+
+<!-- ticker -->
+<div class="ticker">
+  <div class="ticker-track" id="tk"></div>
+</div>
+
+<!-- nav -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <div class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></div>
+    <div class="market-switch">
+      <button class="on">🇰🇷 국장</button>
+      <button>🇺🇸 미장</button>
+      <button>₿ 코인</button>
+    </div>
+    <nav class="menu">
+      <a href="whale.html" id="navWhale">큰손 수급</a>
+      <a href="leaders.html" id="navLeaders">대표주</a>
+      <a href="idea.html" id="navIdea">커넥션</a>
+      <a href="forecast.html" id="navForecast">확률 통계</a>
+      <a href="research.html">리서치</a>
+      <a href="theme.html" id="navTheme">테마·흐름</a>
+      <a href="screener.html" id="navScreener">종목탐색</a>
+      <a href="calendar.html" id="navCal">캘린더</a>
+    </nav>
+    <div class="nav-right">
+      <div class="search">🔍<input placeholder="종목·테마 검색"></div>
+      <button class="btn-login">로그인</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="index-card">
+        <div class="live-badge"><span class="live-dot"></span>LIVE · 장중 · 15분 갱신</div>
+        <div class="index-row" id="indexRow">
+          <div class="idx">
+            <div class="name">코스피</div>
+            <div class="val mono">7,052.31</div>
+            <div class="chg up mono">▲ 254.1 (+3.74%)</div>
+          </div>
+          <div class="idx">
+            <div class="name">코스닥</div>
+            <div class="val mono">788.42</div>
+            <div class="chg up mono">▲ 36.6 (+4.87%)</div>
+          </div>
+          <div class="idx">
+            <div class="name">원/달러</div>
+            <div class="val mono">1,467.5</div>
+            <div class="chg down mono">▼ 9.2 (-0.62%)</div>
+          </div>
+        </div>
+        <svg class="spark" viewBox="0 0 300 70" preserveAspectRatio="none">
+          <polyline fill="none" stroke="#1f9d57" stroke-width="2"
+            points="0,55 25,50 50,52 75,40 100,44 125,30 150,34 175,20 200,26 225,14 250,18 275,8 300,10"/>
+          <polygon fill="url(#g)" points="0,55 25,50 50,52 75,40 100,44 125,30 150,34 175,20 200,26 225,14 250,18 275,8 300,10 300,70 0,70"/>
+          <defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#1f9d57" stop-opacity=".25"/><stop offset="1" stop-color="#1f9d57" stop-opacity="0"/>
+          </linearGradient></defs>
+        </svg>
+      </div>
+
+      <div class="brief">
+        <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 시황 브리핑 <span class="hint" style="margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500">14:58 기준</span></h3>
+        <ul id="briefList">
+          <li>코스피 <b>+4.28%</b> 급등 — 외국인 <b class="up">1.97조</b>·기관 <b class="up">2,373억</b> 순매수 주도</li>
+          <li>대형 반도체·AI 강세, <b>SK이터닉스·폴라리스AI</b> +30%대 급등이 지수 견인</li>
+          <li>미 6월 CPI 둔화(-0.4%)로 원·달러 하락, <b>위험자산 선호</b> 강화</li>
+          <li>관전 포인트: 한은 <b>7월 금리 결정</b> + 코스닥 사이드카 재발 여부</li>
+        </ul>
+        <div class="foot"><span>출처: 뉴스 교차검증 · 자동 집계</span><span>투자권유 아님</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 큰손 브리핑 (nabakai) full-width -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 id="whaleTitle">🐋 오늘의 큰손 흐름</h2>
+      <span id="whaleSub" style="font-size:12px;color:var(--txt-3)">7/22 공시 기준 · 최근 24거래일 누적</span>
+      <a class="more" href="whale.html" id="whaleMore">큰손 수급 전체 →</a>
+    </div>
+    <div id="whaleCards" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div class="card">
+        <h3>수급 방향 <span class="hint">유입/유출 추정</span></h3>
+        <div class="flowbar"><i class="in" style="width:34%"></i><i class="out" style="width:66%"></i></div>
+        <div class="flow-legend"><span class="up">유입 34% · 36.6조</span><span class="down">유출 66% · 71.9조</span></div>
+        <div class="flow-note">큰손들은 지금 <b class="down">파는 쪽</b>이에요. 주로 파는 곳은 <b>바이오·반도체</b>, 담는 곳은 <b>플랫폼·전력기기</b>.</div>
+      </div>
+      <div class="card">
+        <h3>가장 눈에 띄는 종목 <span class="hint">3곳 겹침</span></h3>
+        <div class="wlist">
+          <div class="wrow"><span class="rank">1</span><span class="nm">LS</span><span class="pct up">+5.0%p</span></div>
+          <div class="wrow"><span class="rank">2</span><span class="nm">CJ</span><span class="pct up">+3.2%p</span></div>
+          <div class="wrow"><span class="rank">3</span><span class="nm">HD현대건설기계</span><span class="pct up">+2.8%p</span></div>
+        </div>
+        <div class="flow-note" style="margin-top:8px">국민연금·운용사·기관 <b>동시 매수</b> 감지</div>
+      </div>
+      <div class="card">
+        <h3>운용사 액티브 ETF <span class="hint">47개 펀드</span></h3>
+        <div class="wlist">
+          <div class="wrow"><span class="nm">▲ 삼성전기</span><span class="pct up">4개 펀드 매수</span></div>
+          <div class="wrow"><span class="nm">▲ 동진쎄미켐</span><span class="pct up">3개 펀드 매수</span></div>
+          <div class="wrow"><span class="nm">▼ 에이피알</span><span class="pct down">3개 펀드 매도</span></div>
+        </div>
+        <div class="flow-note" style="margin-top:8px">자금이 <b>의료기기</b>로 이동 중 — 반도체에서 빼는 흐름</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTOR HEATMAP (full width) -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>🗺️ 산업별 히트맵</h2>
+      <span style="font-size:12px;color:var(--txt-3)">오후 02:53 · 시총 비례 · 타일 클릭 = 종목 허브</span>
+      <div class="heat-legend" style="margin-left:auto"><span>-3%</span><div class="scale"></div><span>+3%</span></div>
+    </div>
+    <div class="heatboard" id="heatboard">
+
+      <div class="sector">
+        <div class="slabel">반도체 <span class="u2" style="color:#fff">+3.4%</span></div>
+        <div class="stiles">
+          <a class="htile big u2" href="stock.html">삼성전자<b>+2.8%</b></a>
+          <a class="htile wide u3" href="stock.html">SK하이닉스<b>+3.7%</b></a>
+          <a class="htile u3" href="stock.html">삼성전기<b>+7.6%</b></a>
+          <a class="htile u3" href="stock.html">한미반도체<b>+5.1%</b></a>
+          <a class="htile u1" href="stock.html">DB하이텍<b>+1.2%</b></a>
+          <a class="htile d1" href="stock.html">리노공업<b>-0.8%</b></a>
+          <a class="htile u2" href="stock.html">원익IPS<b>+2.1%</b></a>
+          <a class="htile u2" href="stock.html">이오테크닉스<b>+1.9%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">반도체 소부장 <span class="u1" style="color:#fff">+1.2%</span></div>
+        <div class="stiles">
+          <a class="htile wide u3" href="stock.html">동진쎄미켐<b>+4.2%</b></a>
+          <a class="htile wide u1" href="stock.html">솔브레인<b>+1.1%</b></a>
+          <a class="htile u2" href="stock.html">하나머티리얼즈<b>+2.0%</b></a>
+          <a class="htile u1" href="stock.html">넥스틴<b>+0.5%</b></a>
+          <a class="htile d1" href="stock.html">원익머트리얼즈<b>-1.2%</b></a>
+          <a class="htile fl" href="stock.html">티씨케이<b>-0.3%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">2차전지 <span class="d2" style="color:#fff">-1.9%</span></div>
+        <div class="stiles">
+          <a class="htile big d2" href="stock.html">LG에너지솔루션<b>-2.1%</b></a>
+          <a class="htile wide d1" href="stock.html">삼성SDI<b>-1.4%</b></a>
+          <a class="htile d2" href="stock.html">포스코퓨처엠<b>-1.8%</b></a>
+          <a class="htile d2" href="stock.html">에코프로비엠<b>-2.4%</b></a>
+          <a class="htile u1" href="stock.html">엘앤에프<b>+0.3%</b></a>
+          <a class="htile d1" href="stock.html">SKC<b>-0.6%</b></a>
+          <a class="htile d3" href="stock.html">에코프로<b>-3.1%</b></a>
+          <a class="htile d1" href="stock.html">나노신소재<b>-1.0%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">자동차 <span class="u1" style="color:#fff">+1.3%</span></div>
+        <div class="stiles">
+          <a class="htile big u1" href="stock.html">현대차<b>+1.2%</b></a>
+          <a class="htile wide u2" href="stock.html">기아<b>+1.9%</b></a>
+          <a class="htile u1" href="stock.html">현대모비스<b>+0.9%</b></a>
+          <a class="htile d1" href="stock.html">HL만도<b>-1.1%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">바이오·제약 <span class="u1" style="color:#fff">+0.7%</span></div>
+        <div class="stiles">
+          <a class="htile big u1" href="stock.html">삼성바이오<b>+0.9%</b></a>
+          <a class="htile wide u1" href="stock.html">셀트리온<b>+0.6%</b></a>
+          <a class="htile u2" href="stock.html">유한양행<b>+1.4%</b></a>
+          <a class="htile d1" href="stock.html">한미약품<b>-1.0%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">금융 <span class="u1" style="color:#fff">+1.0%</span></div>
+        <div class="stiles">
+          <a class="htile wide u1" href="stock.html">KB금융<b>+1.1%</b></a>
+          <a class="htile wide u1" href="stock.html">신한지주<b>+0.8%</b></a>
+          <a class="htile u2" href="stock.html">하나금융<b>+1.3%</b></a>
+          <a class="htile u1" href="stock.html">삼성생명<b>+0.5%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">인터넷·플랫폼 <span class="u2" style="color:#fff">+2.4%</span></div>
+        <div class="stiles">
+          <a class="htile big u2" href="stock.html">NAVER<b>+2.4%</b></a>
+          <a class="htile wide u2" href="stock.html">카카오<b>+1.5%</b></a>
+          <a class="htile u3" href="stock.html">크래프톤<b>+3.2%</b></a>
+          <a class="htile u1" href="stock.html">넷마블<b>+0.7%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">조선 <span class="u3" style="color:#fff">+3.9%</span></div>
+        <div class="stiles">
+          <a class="htile big u3" href="stock.html">한화오션<b>+8.1%</b></a>
+          <a class="htile wide u3" href="stock.html">HD한국조선<b>+4.1%</b></a>
+          <a class="htile u2" href="stock.html">삼성중공업<b>+2.2%</b></a>
+          <a class="htile u2" href="stock.html">HD현대중공업<b>+3.0%</b></a>
+          <a class="htile u2" href="stock.html">HD현대미포<b>+1.8%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">방산 <span class="u1" style="color:#fff">+1.1%</span></div>
+        <div class="stiles">
+          <a class="htile big d1" href="stock.html">한화에어로<b>-0.7%</b></a>
+          <a class="htile wide u2" href="stock.html">LIG넥스원<b>+2.4%</b></a>
+          <a class="htile u3" href="stock.html">현대로템<b>+3.1%</b></a>
+          <a class="htile d1" href="stock.html">한국항공우주<b>-0.5%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">전력·에너지 <span class="u3" style="color:#fff">+4.2%</span></div>
+        <div class="stiles">
+          <a class="htile big u3" href="stock.html">두산에너빌리티<b>+5.2%</b></a>
+          <a class="htile wide u1" href="stock.html">한국전력<b>+1.2%</b></a>
+          <a class="htile u3" href="stock.html">HD현대일렉<b>+6.1%</b></a>
+          <a class="htile u3" href="stock.html">LS ELECTRIC<b>+4.0%</b></a>
+          <a class="htile u2" href="stock.html">제룡전기<b>+2.8%</b></a>
+          <a class="htile u3" href="stock.html">SK이터닉스<b>+30%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">로봇·SI <span class="u3" style="color:#fff">+2.8%</span></div>
+        <div class="stiles">
+          <a class="htile big u3" href="stock.html">레인보우로보틱스<b>+4.1%</b></a>
+          <a class="htile wide u3" href="stock.html">두산로보틱스<b>+3.2%</b></a>
+          <a class="htile u1" href="stock.html">삼성SDS<b>+0.9%</b></a>
+          <a class="htile u2" href="stock.html">현대오토에버<b>+1.5%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">화장품·소비재 <span class="u2" style="color:#fff">+1.8%</span></div>
+        <div class="stiles">
+          <a class="htile big u2" href="stock.html">아모레퍼시픽<b>+2.1%</b></a>
+          <a class="htile wide u2" href="stock.html">LG생활건강<b>+1.4%</b></a>
+          <a class="htile u2" href="stock.html">한국콜마<b>+3.0%</b></a>
+          <a class="htile u2" href="stock.html">코스맥스<b>+2.4%</b></a>
+          <a class="htile u1" href="stock.html">달바글로벌<b>+1.0%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">엔터·미디어 <span class="u1" style="color:#fff">+1.1%</span></div>
+        <div class="stiles">
+          <a class="htile big u2" href="stock.html">하이브<b>+1.8%</b></a>
+          <a class="htile u2" href="stock.html">에스엠<b>+1.4%</b></a>
+          <a class="htile u1" href="stock.html">JYP Ent<b>+0.9%</b></a>
+          <a class="htile u1" href="stock.html">YG엔터<b>+0.6%</b></a>
+          <a class="htile d1" href="stock.html">CJ ENM<b>-0.8%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">철강·화학 <span class="u1" style="color:#fff">+0.8%</span></div>
+        <div class="stiles">
+          <a class="htile big u1" href="stock.html">POSCO홀딩스<b>+1.0%</b></a>
+          <a class="htile wide u2" href="stock.html">고려아연<b>+2.6%</b></a>
+          <a class="htile u1" href="stock.html">현대제철<b>+0.8%</b></a>
+          <a class="htile d1" href="stock.html">롯데케미칼<b>-1.2%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">건설·유통 <span class="u1" style="color:#fff">+0.5%</span></div>
+        <div class="stiles">
+          <a class="htile big u1" href="stock.html">삼성물산<b>+0.9%</b></a>
+          <a class="htile u1" href="stock.html">현대건설<b>+1.2%</b></a>
+          <a class="htile d1" href="stock.html">GS건설<b>-0.6%</b></a>
+          <a class="htile u1" href="stock.html">이마트<b>+0.3%</b></a>
+          <a class="htile u1" href="stock.html">CJ제일제당<b>+0.7%</b></a>
+          <a class="htile u1" href="stock.html">오리온<b>+0.5%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">통신 <span class="u1" style="color:#fff">+0.4%</span></div>
+        <div class="stiles">
+          <a class="htile wide u1" href="stock.html">SK텔레콤<b>+0.5%</b></a>
+          <a class="htile wide u1" href="stock.html">KT<b>+0.6%</b></a>
+          <a class="htile u1" href="stock.html">LG유플러스<b>+0.2%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">지주 <span class="u2" style="color:#fff">+2.5%</span></div>
+        <div class="stiles">
+          <a class="htile big u3" href="stock.html">LS<b>+5.0%</b></a>
+          <a class="htile u3" href="stock.html">CJ<b>+3.2%</b></a>
+          <a class="htile u1" href="stock.html">SK<b>+1.1%</b></a>
+          <a class="htile u2" href="stock.html">두산<b>+2.0%</b></a>
+          <a class="htile u2" href="stock.html">한화<b>+1.3%</b></a>
+        </div>
+      </div>
+
+      <div class="sector">
+        <div class="slabel">리츠 <span class="u1" style="color:#fff">+0.9%</span></div>
+        <div class="stiles">
+          <a class="htile wide u1" href="stock.html">SK리츠<b>+1.2%</b></a>
+          <a class="htile u2" href="stock.html">한화리츠<b>+1.3%</b></a>
+          <a class="htile u1" href="stock.html">롯데리츠<b>+0.6%</b></a>
+          <a class="htile u1" href="stock.html">ESR켄달<b>+0.4%</b></a>
+        </div>
+      </div>
+
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="heat-more" id="heatMoreBtn">＋ 전체 산업 보기</button>
+    </div>
+  </section>
+
+  <!-- MAIN GRID: feed + sidebar -->
+  <div class="main-grid">
+    <!-- LEFT: article feed (bullstory) -->
+    <section class="sec" id="feed" style="padding-top:6px">
+      <div class="sec-head">
+        <h2>리서치 · 아티클</h2>
+        <div class="tabs">
+          <button class="on">추천순</button><button>최신순</button><button>인기순</button>
+        </div>
+      </div>
+      <div class="feed" id="articleFeed">
+        <div class="art">
+          <span class="badge-new">NEW</span>
+          <div class="thumb">MS</div>
+          <div class="body">
+            <div class="cat"><span class="tag">종목분석</span> · 7분 전</div>
+            <h4>마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다</h4>
+            <p>1900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화, OpenAI 의존 리스크가 겹치며 52주 고점 대비 약 30% 하락. 7월 29일 실적이 분수령.</p>
+          </div>
+        </div>
+        <div class="art">
+          <div class="thumb">₿</div>
+          <div class="body">
+            <div class="cat"><span class="tag">거시·정책</span> · 29분 전</div>
+            <h4>클래리티 액트, 통과되면 진짜 뭐가 바뀌나 — 지금 봐야 할 것</h4>
+            <p>미국이 코인 시장 규칙을 통째로 다시 쓰는 중. "통과되면 내 자산은 어떻게 되냐"에 제대로 답하는 정리.</p>
+          </div>
+        </div>
+        <div class="art">
+          <div class="thumb">TSLA</div>
+          <div class="body">
+            <div class="cat"><span class="tag">선물·지수</span> · 7시간 전</div>
+            <h4>나스닥 100 선물, 2만9000선까지 밀렸다 — 테슬라·알파벳 실적 쇼크의 여파</h4>
+            <p>NQ 29,086.75, 52주 고점 대비 -6.07%. 애프터마켓 급락과 풋옵션 우세 속 변동성 확대.</p>
+          </div>
+        </div>
+        <div class="art">
+          <div class="thumb">AVGO</div>
+          <div class="body">
+            <div class="cat"><span class="tag">종목분석</span> · 7시간 전</div>
+            <h4>브로드컴 주가 전망: 396달러대에서 반등, 관건은 9월 실적</h4>
+            <p>52주 고점 대비 20% 낮은 396.81달러에서 반등. 월가 목표주가 평균 509.82달러. 9월 2일 실적이 관건.</p>
+          </div>
+        </div>
+        <div class="art">
+          <div class="thumb">ETF</div>
+          <div class="body">
+            <div class="cat"><span class="tag">ETF·배당</span> · 8시간 전</div>
+            <h4>SCHD 월배당 아니라 분기배당이다 — 2026년 지급일정과 수익률 총정리</h4>
+            <p>3·6·9·12월 분기배당, TTM 배당수익률 약 3.19%. 월배당 원하면 국내 상장 미국배당다우존스 ETF가 대안.</p>
+          </div>
+        </div>
+        <div style="text-align:center;padding:14px"><a class="more" href="research.html" style="font-size:13px;color:var(--brand);font-weight:600">피드에서 더 보기 →</a></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: sidebar -->
+    <aside class="side" style="margin-top:34px">
+
+      <div class="card">
+        <h3 id="todayTitle">🔥 오늘의 종목 <span class="hint">거래대금</span></h3>
+        <div id="todayStocks">
+          <a class="srow" href="stock.html"><div class="logo-sq">SK</div><div class="info"><div class="n">SK하이닉스</div><div class="c">000660 · 6.7조</div></div><div class="px"><div class="p mono">1,898,000</div><div class="r up mono">▲3.7%</div></div></a>
+          <a class="srow" href="stock.html"><div class="logo-sq">삼</div><div class="info"><div class="n">삼성전자</div><div class="c">005930 · 3.6조</div></div><div class="px"><div class="p mono">267,750</div><div class="r up mono">▲2.8%</div></div></a>
+          <a class="srow" href="stock.html"><div class="logo-sq">이</div><div class="info"><div class="n">SK이터닉스</div><div class="c">475150 · 1.4조</div></div><div class="px"><div class="p mono">80,600</div><div class="r up mono">▲30.0%</div></div></a>
+          <a class="srow" href="stock.html"><div class="logo-sq">삼</div><div class="info"><div class="n">삼성전기</div><div class="c">009150 · 8,460억</div></div><div class="px"><div class="p mono">1,447,000</div><div class="r up mono">▲7.6%</div></div></a>
+        </div>
+      </div>
+
+      <div class="card" id="sideTheme">
+        <h3>💠 테마 자금 흐름 <span class="hint">7/22 종가</span></h3>
+        <div class="theme-row"><span class="tn">반도체</span><div class="theme-bar"><i style="width:100%;background:var(--up)"></i></div><span class="tv up">+2,021억</span></div>
+        <div class="theme-row"><span class="tn">금융</span><div class="theme-bar"><i style="width:40%;background:var(--up)"></i></div><span class="tv up">+485억</span></div>
+        <div class="theme-row"><span class="tn">조선</span><div class="theme-bar"><i style="width:28%;background:var(--up)"></i></div><span class="tv up">+326억</span></div>
+        <div class="theme-row"><span class="tn">방산</span><div class="theme-bar"><i style="width:20%;background:var(--down)"></i></div><span class="tv down">−227억</span></div>
+        <div class="theme-row"><span class="tn">2차전지</span><div class="theme-bar"><i style="width:18%;background:var(--down)"></i></div><span class="tv down">−206억</span></div>
+      </div>
+
+      <div class="card" id="sideSector">
+        <h3>🏭 섹터 등락 순위 <span class="hint">업종 지수</span></h3>
+        <div class="theme-row"><span class="tn">조선·방산</span><div class="theme-bar"><i style="width:100%;background:var(--up)"></i></div><span class="tv up">+3.4%</span></div>
+        <div class="theme-row"><span class="tn">반도체</span><div class="theme-bar"><i style="width:98%;background:var(--up)"></i></div><span class="tv up">+3.4%</span></div>
+        <div class="theme-row"><span class="tn">인터넷</span><div class="theme-bar"><i style="width:70%;background:var(--up)"></i></div><span class="tv up">+2.4%</span></div>
+        <div class="theme-row"><span class="tn">자동차</span><div class="theme-bar"><i style="width:38%;background:var(--up)"></i></div><span class="tv up">+1.3%</span></div>
+        <div class="theme-row"><span class="tn">바이오</span><div class="theme-bar"><i style="width:20%;background:var(--up)"></i></div><span class="tv up">+0.7%</span></div>
+        <div class="theme-row"><span class="tn">2차전지</span><div class="theme-bar"><i style="width:56%;background:var(--down)"></i></div><span class="tv down">−1.9%</span></div>
+      </div>
+
+      <div class="card" id="sideCal">
+        <h3>📅 경제 캘린더 <span class="hint">실적·지표</span></h3>
+        <div class="cal-row"><span class="d">07/23</span><span class="e"><b>현대자동차</b> 2Q 실적</span><span class="t">14:10</span></div>
+        <div class="cal-row"><span class="d">07/23</span><span class="e"><b>삼성E&A</b> 실적발표</span><span class="t">14:00</span></div>
+        <div class="cal-row"><span class="d">07/24</span><span class="e"><b>한은</b> 기준금리 결정</span><span class="t">10:00</span></div>
+        <div class="cal-row"><span class="d">07/29</span><span class="e"><b>MS·메타</b> 분기 실적 (미)</span><span class="t">밤</span></div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- AI TERMINAL CTA -->
+  <section class="terminal">
+    <div class="in">
+      <div class="txt">
+        <svg class="bot mascot-big"><use href="#mascot"/></svg>
+        <h2>물어보면, 다 찾아드려요.</h2>
+        <p>종목 검색부터 차트 해석, 목표가·손절가 분석까지. 공시·시세·뉴스를 실시간으로 읽어 답합니다.</p>
+        <a id="aiCtaLink" href="ai.html"><button class="cta">터미널 열기 →</button></a>
+      </div>
+      <div class="prompt-box">
+        <div class="q" id="aiPromptQ">삼성전자 지금 사도 돼? 큰손들은 어떻게 움직여?</div>
+        <div class="a"><svg class="bot"><use href="#mascot"/></svg><span id="aiPromptA">삼성전자는 오늘 <b style="color:#1f9d57">+2.8%</b>, 외국인이 3거래일 연속 순매수 중입니다. 다만 운용사 액티브 ETF에서는 비중을 소폭 줄이는 흐름이라 방향이 엇갈립니다. 7/29 미국 빅테크 실적과 HBM 관련 뉴스가 단기 변수예요. <span style="color:#9aa0ab">(투자권유 아님)</span></span></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="font-size:16px;margin-bottom:6px"><svg class="bot" style="width:26px;height:26px"><use href="#mascot"/></svg><span>RICHFLOW</span></div>
+        <div>국장·미장·코인 데이터 대시보드</div>
+      </div>
+      <div class="foot-links">
+        <a href="#">소개</a><a href="#">개인정보처리방침</a><a href="#">이용약관</a><a href="#">문의</a>
+      </div>
+    </div>
+    <div class="disc">
+      데이터 출처: DART 전자공시 · 공공데이터포털 · 뉴스 API · 미국 SEC/FRED · 자체 산출물.
+      본 서비스의 모든 정보는 정보 제공용이며 특정 종목의 매수·매도 권유나 투자자문이 아닙니다.
+      과거 데이터·신호는 미래 수익을 보장하지 않으며, 모든 투자 판단과 책임은 이용자 본인에게 있습니다.
+      · 이 화면은 <b style="color:#5c626d">샘플 데이터로 만든 디자인 시안</b>입니다.
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ===== helpers ===== */
+  function tcls(p){return p>=5?'u3':p>=2?'u2':p>=0?'u1':p>-1.5?'d1':p>-3?'d2':'d3';}
+  function heatHTML(secs){return secs.map(s=>{
+    const chip=s.avg>=3?'u3':s.avg>=0?'u2':s.avg<=-3?'d3':s.avg<=-1.5?'d2':'d1';
+    const tiles=s.t.map((t,i)=>{const sz=i===0?'big':i===1?'wide':'';return `<a class="htile ${sz} ${tcls(t[1])}" href="stock.html">${t[0]}<b>${t[1]>0?'+':''}${t[1]}%</b></a>`;}).join('');
+    return `<div class="sector"><div class="slabel">${s.n} <span class="${chip}" style="color:#fff">${s.avg>0?'+':''}${s.avg}%</span></div><div class="stiles">${tiles}</div></div>`;
+  }).join('');}
+  function srows(list){return list.map(r=>{const px=r[6]?` data-px="${r[6]}"`:'';const cg=r[6]?` data-chg="${r[6]}"`:'';return `<a class="srow" href="stock.html"><div class="logo-sq">${r[0]}</div><div class="info"><div class="n">${r[1]}</div><div class="c">${r[2]}</div></div><div class="px"><div class="p mono"${px}>${r[3]}</div><div class="r ${r[5]?'up':'down'} mono"${cg}>${r[4]}</div></div></a>`;}).join('');}
+  function artsHTML(list){return list.map((a,i)=>`<div class="art">${i===0?'<span class="badge-new">NEW</span>':''}<div class="thumb">${a[0]}</div><div class="body"><div class="cat"><span class="tag">${a[1]}</span> · ${a[2]}</div><h4>${a[3]}</h4><p>${a[4]}</p></div></div>`).join('')+`<div style="text-align:center;padding:14px"><a class="more" href="research.html" style="font-size:13px;color:var(--brand);font-weight:600">피드에서 더 보기 →</a></div>`;}
+  function themeRows(list){return list.map(r=>`<div class="theme-row"><span class="tn">${r[0]}</span><div class="theme-bar"><i style="width:${r[2]}%;background:var(--${r[3]?'up':'down'})"></i></div><span class="tv ${r[3]?'up':'down'}">${r[1]}</span></div>`).join('');}
+  function calRows(list){return list.map(r=>`<div class="cal-row"><span class="d">${r[0]}</span><span class="e">${r[1]}</span><span class="t">${r[2]}</span></div>`).join('');}
+  function tickerHTML(items){return items.map(([n,v,c,up])=>`<span class="tk">${n} <b>${v}</b> <span class="${up?'up':'down'}">${c}</span></span>`).join('');}
+  function setTicker(items){const t=document.getElementById('tk');const h=tickerHTML(items);t.innerHTML=h+h;}
+
+  const TICK_KR=[['코스피','7,052','+3.74%',1],['코스닥','788','+4.87%',1],['삼성전자','267,750','+2.8%',1],['SK하이닉스','1,898,000','+3.7%',1],['원/달러','1,467','-0.62%',0],['비트코인','$118,240','+1.9%',1],['테슬라','$377','-4.1%',0],['엔비디아','$182','+2.2%',1],['나스닥선물','29,229','-0.8%',0],['금(oz)','$3,412','+0.6%',1]];
+
+  /* ===== capture KR (default HTML) ===== */
+  const IDS=['indexRow','briefList','whaleTitle','whaleSub','whaleCards','heatboard','articleFeed','todayStocks','todayTitle','sideTheme','sideSector','sideCal'];
+  const KR={}; IDS.forEach(id=>KR[id]=document.getElementById(id).innerHTML);
+
+  /* ===== US ===== */
+  const US={
+    ticker:[['S&P500','6,342','+0.90%',1],['나스닥','20,850','+1.40%',1],['다우','42,100','+0.30%',1],['엔비디아','$182','+2.2%',1],['애플','$232','+0.6%',1],['테슬라','$377','-4.1%',0],['MSFT','$398','-2.1%',0],['비트코인','$118,240','+1.9%',1],['VIX','14.2','-3.1%',1],['미10년물','4.28%','+0.02',0]],
+    indexRow:`<div class="idx"><div class="name">S&amp;P 500</div><div class="val mono">6,342.18</div><div class="chg up mono">▲ 56.4 (+0.90%)</div></div><div class="idx"><div class="name">나스닥</div><div class="val mono">20,850.7</div><div class="chg up mono">▲ 288 (+1.40%)</div></div><div class="idx"><div class="name">다우</div><div class="val mono">42,100</div><div class="chg up mono">▲ 126 (+0.30%)</div></div>`,
+    briefList:`<li>나스닥 <b>+1.4%</b> — <b>엔비디아·AI 반도체</b> 강세가 지수 견인</li><li>테슬라·MS는 <b class="down">실적 실망</b>에 애프터마켓 하락</li><li>미 6월 CPI 둔화로 <b>9월 금리인하 기대</b> 재부각</li><li>관전 포인트: <b>7/29 MS·메타 실적</b>과 AI 자본지출 가이던스</li>`,
+    whaleTitle:`🐋 오늘의 큰손 흐름 <span style="font-size:13px;font-weight:600;color:var(--brand-2)">· 13F·ARK·내부자</span>`,
+    whaleSub:`7/22 SEC·13F 공시 기준`,
+    whaleCards:`<div class="card"><h3>ARK 데일리 <span class="hint">7/22 매매</span></h3><div class="wlist"><div class="wrow"><span class="nm">▲ ACHR (아처)</span><span class="pct up">담음</span></div><div class="wrow"><span class="nm">▲ PRME</span><span class="pct up">담음</span></div><div class="wrow"><span class="nm">▼ HOOD (로빈후드)</span><span class="pct down">덜어냄</span></div></div><div class="flow-note" style="margin-top:8px">캐시 우드 <b>ARK</b>가 오늘 담고 판 종목</div></div><div class="card"><h3>13F 거물 순매수 <span class="hint">기관 겹침</span></h3><div class="wlist"><div class="wrow"><span class="rank">1</span><span class="nm">SpaceX</span><span class="pct up">3곳</span></div><div class="wrow"><span class="rank">2</span><span class="nm">Archer Aviation</span><span class="pct up">2곳</span></div><div class="wrow"><span class="rank">3</span><span class="nm">Lumentum</span><span class="pct up">2곳</span></div></div><div class="flow-note" style="margin-top:8px">액티브 ETF·ARK <b>동시 매수</b></div></div><div class="card"><h3>내부자·공매도 <span class="hint">SEC</span></h3><div class="wlist"><div class="wrow"><span class="nm">MicroStrategy</span><span class="pct up">내부자 매수</span></div><div class="wrow"><span class="nm">Appaloosa(테퍼)</span><span class="pct down">알파벳 축소</span></div><div class="wrow"><span class="nm">COIN</span><span class="pct down">숏 스퀴즈 임박</span></div></div><div class="flow-note" style="margin-top:8px">내부자는 <b>매도 우위</b> · 공매도 과열 주의</div></div>`,
+    heatboard:heatHTML([
+      {n:'AI 소프트웨어',avg:4.1,t:[['팔란티어',6.0],['C3.ai',4.2],['스노우플레이크',2.1]]},
+      {n:'반도체',avg:1.6,t:[['엔비디아',2.2],['AMD',3.4],['브로드컴',1.1],['TSMC',1.9],['마이크론',-0.8]]},
+      {n:'에너지',avg:1.0,t:[['엑슨모빌',1.1],['셰브론',0.8]]},
+      {n:'금융',avg:0.9,t:[['JP모건',0.9],['BoA',1.2],['골드만',0.6]]},
+      {n:'헬스케어',avg:0.3,t:[['일라이릴리',1.4],['UNH',-0.8],['J&J',0.3]]},
+      {n:'빅테크',avg:0.1,t:[['애플',0.6],['MS',-2.1],['아마존',1.2],['알파벳',1.8],['메타',-0.9]]},
+      {n:'소비재',avg:0.0,t:[['코스트코',0.7],['맥도날드',0.4],['나이키',-1.1]]},
+      {n:'전기차',avg:-2.6,t:[['테슬라',-4.1],['리비안',-2.2],['루시드',-1.5]]}
+    ]),
+    articleFeed:artsHTML([
+      ['MS','종목분석','7분 전','마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다','1900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화가 겹치며 52주 고점 대비 약 30% 하락. 7/29 실적이 분수령.'],
+      ['PLTR','종목분석','1시간 전','팔란티어 124달러, 하루새 6% 급락한 이유','밸류에이션 부담과 차익실현 매물이 겹치며 급락. 다만 정부·상업 수주는 견조.'],
+      ['NVDA','종목분석','3시간 전','엔비디아 주가 전망 2026, AI 수요와 실적 기대치 점검','블랙웰 수요와 데이터센터 자본지출이 실적을 좌우. 밸류에이션 논쟁 지속.'],
+      ['AVGO','종목분석','7시간 전','브로드컴 396달러대 반등, 관건은 9월 실적','월가 목표주가 평균 509달러. AI 반도체 매출과 가이던스가 관건.']
+    ]),
+    todayTitle:`🔥 오늘의 종목 <span class="hint">거래대금</span>`,
+    todayStocks:srows([['NV','엔비디아','NVDA · $28B','$182.40','▲2.2%',1],['A','애플','AAPL · $12B','$232.10','▲0.6%',1],['T','테슬라','TSLA · $22B','$377.00','▼4.1%',0],['M','MSFT','MSFT · $18B','$398.20','▼2.1%',0]]),
+    sideTheme:`<h3>💠 섹터 자금 흐름 <span class="hint">오늘</span></h3>`+themeRows([['반도체','+$8.2B',100,1],['AI SW','+$3.1B',45,1],['빅테크','+$1.9B',28,1],['에너지','+$0.8B',14,1],['전기차','−$2.1B',30,0]]),
+    sideSector:`<h3>🏭 섹터 등락 순위 <span class="hint">업종 지수</span></h3>`+themeRows([['AI SW','+4.1%',100,1],['반도체','+1.6%',40,1],['에너지','+1.0%',25,1],['금융','+0.9%',22,1],['전기차','−2.6%',65,0]]),
+    sideCal:`<h3>📅 경제 캘린더 <span class="hint">실적·지표</span></h3>`+calRows([['07/29','<b>MS·메타</b> 실적','밤'],['07/30','<b>FOMC</b> 금리 결정','새벽'],['07/31','<b>애플</b> 실적','밤'],['08/01','<b>미 고용지표</b>','21:30']])
+  };
+  US.heatboard=US.heatboard.split('stock.html').join('stock-us.html');
+  US.todayStocks=US.todayStocks.split('stock.html').join('stock-us.html');
+
+  /* ===== COIN ===== */
+  const COIN={
+    ticker:[['비트코인','$118,240','+1.9%',1],['이더리움','$4,120','+2.4%',1],['솔라나','$214','+5.1%',1],['리플','$2.85','+3.2%',1],['BNB','$712','+0.8%',1],['도지','$0.21','+8.2%',1],['김프','+1.8%','',1],['공포탐욕','72 탐욕','',1]],
+    indexRow:`<div class="idx"><div class="name">비트코인</div><div class="val mono" data-px="BTCUSDT">$118,240</div><div class="chg up mono" data-chg="BTCUSDT">▲ 2,180 (+1.9%)</div></div><div class="idx"><div class="name">이더리움</div><div class="val mono" data-px="ETHUSDT">$4,120</div><div class="chg up mono" data-chg="ETHUSDT">▲ 96 (+2.4%)</div></div><div class="idx"><div class="name">전체 시총</div><div class="val mono">$3.82T</div><div class="chg up mono">▲ (+1.5%)</div></div>`,
+    briefList:`<li>비트코인 <b>+1.9%</b> 반등 — 현물 ETF <b class="up">순유입</b> 지속</li><li><b>밈코인·AI코인</b> 강세, 솔라나 온체인 활동 급증</li><li>거래소 <b class="up">순유출</b> 지속 = 매도 압력 완화</li><li>관전 포인트: <b>클래리티 액트</b> 표결 + 공포탐욕 72(탐욕) 과열</li>`,
+    whaleTitle:`🐋 온체인 고래 추적`,
+    whaleSub:`온체인 지갑·거래소 흐름 기준`,
+    whaleCards:`<div class="card"><h3>거래소 흐름 <span class="hint">온체인</span></h3><div class="wlist"><div class="wrow"><span class="nm">BTC 순유출</span><span class="pct up">−1.2만개</span></div><div class="wrow"><span class="nm">ETH 순유출</span><span class="pct up">−8.4만개</span></div><div class="wrow"><span class="nm">USDT 발행</span><span class="pct up">+12억달러</span></div></div><div class="flow-note" style="margin-top:8px">거래소 <b class="up">순유출</b> = 매도 압력 완화(강세)</div></div><div class="card"><h3>고래 지갑 <span class="hint">1000+ BTC</span></h3><div class="wlist"><div class="wrow"><span class="rank">1</span><span class="nm">BTC 고래</span><span class="pct up">매집 중</span></div><div class="wrow"><span class="rank">2</span><span class="nm">스마트머니</span><span class="pct up">SOL·AI 유입</span></div><div class="wrow"><span class="rank">3</span><span class="nm">장기보유자</span><span class="pct up">홀딩 증가</span></div></div><div class="flow-note" style="margin-top:8px">대형 지갑 <b>매집</b> 지속</div></div><div class="card"><h3>파생·심리 <span class="hint">선물·옵션 · LIVE</span></h3><div class="wlist"><div class="wrow"><span class="nm">공포·탐욕 지수</span><span class="pct up" id="liveFng">…</span></div><div class="wrow"><span class="nm">펀딩비 (BTC)</span><span class="pct up" id="liveFunding">…</span></div><div class="wrow"><span class="nm">김치프리미엄</span><span class="pct up" id="liveKimp">…</span></div></div><div class="flow-note" style="margin-top:8px">업비트·바이낸스·alternative.me <b>실시간</b> 집계</div></div>`,
+    heatboard:heatHTML([
+      {n:'밈코인',avg:8.9,t:[['PEPE',12.4],['도지',8.2],['시바',6.1]]},
+      {n:'AI 코인',avg:5.4,t:[['TAO',6.8],['FET',5.2],['RENDER',4.1]]},
+      {n:'DePIN',avg:3.2,t:[['RENDER',4.1],['HNT',2.2]]},
+      {n:'DeFi',avg:3.0,t:[['UNI',4.1],['AAVE',3.2],['MKR',1.8]]},
+      {n:'RWA',avg:2.5,t:[['ONDO',3.1],['MKR',1.8]]},
+      {n:'L2',avg:2.4,t:[['ARB',3.2],['OP',2.8],['MATIC',1.1]]},
+      {n:'L1',avg:2.3,t:[['솔라나',5.1],['비트코인',1.9],['이더리움',2.4],['BNB',0.8],['에이다',1.2]]},
+      {n:'스테이킹',avg:1.8,t:[['LDO',2.1],['RPL',1.4]]}
+    ]),
+    articleFeed:artsHTML([
+      ['₿','거시·정책','29분 전','클래리티 액트, 통과되면 진짜 뭐가 바뀌나 — 지금 봐야 할 것','미국이 코인 시장 규칙을 통째로 다시 쓰는 중. "통과되면 내 자산은 어떻게 되냐"에 답하는 정리.'],
+      ['BTC','비트코인','2시간 전','비트코인 전망: 골든크로스는 떴지만 200일선은 아직 멀다','단기 반등 신호에도 주요 저항선이 남아있다. 온체인 지표로 본 다음 방향.'],
+      ['ETH','이더리움','5시간 전','이더리움 ETF 자금 유입 재개, 4000달러 회복 시도','현물 ETF 순유입이 다시 늘며 반등. 스테이킹 수익률과 공급 소각 점검.'],
+      ['SOL','알트코인','8시간 전','솔라나 214달러, 밈코인 열풍에 온체인 활동 급증','네트워크 수수료와 DEX 거래량이 사상 최대. 밸류에이션 부담도 함께.']
+    ]),
+    todayTitle:`🔥 오늘의 코인 <span class="hint">거래대금</span>`,
+    todayStocks:srows([['₿','비트코인','BTC · $42B','$118,240','▲1.9%',1,'BTCUSDT'],['Ξ','이더리움','ETH · $21B','$4,120','▲2.4%',1,'ETHUSDT'],['S','솔라나','SOL · $8B','$214.30','▲5.1%',1,'SOLUSDT'],['X','리플','XRP · $5B','$2.85','▲3.2%',1,'XRPUSDT']]),
+    sideTheme:`<h3>💠 카테고리 자금 흐름 <span class="hint">24h</span></h3>`+themeRows([['밈코인','+$1.2B',100,1],['AI코인','+$680M',56,1],['DeFi','+$420M',35,1],['L2','+$310M',26,1],['L1','−$180M',15,0]]),
+    sideSector:`<h3>🏭 카테고리 등락 <span class="hint">24h</span></h3>`+themeRows([['밈코인','+8.9%',100,1],['AI코인','+5.4%',60,1],['DeFi','+3.0%',34,1],['L2','+2.4%',27,1],['L1','+2.3%',26,1]]),
+    sideCal:`<h3>📅 코인 이벤트 <span class="hint">언락·업그레이드</span></h3>`+calRows([['07/24','<b>ETH</b> 대량 언락','종일'],['07/26','<b>SOL</b> 네트워크 업그레이드','종일'],['07/29','<b>클래리티 액트</b> 표결','밤'],['08/01','<b>BTC</b> 월물 옵션 만기','09:00']])
+  };
+  COIN.heatboard=COIN.heatboard.split('stock.html').join('stock-coin.html');
+  COIN.todayStocks=COIN.todayStocks.split('stock.html').join('stock-coin.html');
+
+  /* ===== render ===== */
+  const NAV_LINK={
+    kr:{whale:'whale.html',leaders:'leaders.html',idea:'idea.html',forecast:'forecast.html',theme:'theme.html',screener:'screener.html',cal:'calendar.html',ai:'ai.html'},
+    us:{whale:'whale-us.html',leaders:'leaders-us.html',idea:'idea-us.html',forecast:'forecast-us.html',theme:'theme-us.html',screener:'screener-us.html',cal:'calendar-us.html',ai:'ai-us.html'},
+    coin:{whale:'whale-coin.html',leaders:'leaders.html',idea:'idea.html',forecast:'forecast.html',theme:'theme.html',screener:'screener.html',cal:'calendar.html',ai:'ai.html'}
+  };
+  const AI_PROMPT={
+    kr:['삼성전자 지금 사도 돼? 큰손들은 어떻게 움직여?','삼성전자는 오늘 <b style="color:#1f9d57">+2.8%</b>, 외국인이 3거래일 연속 순매수 중입니다. 다만 운용사 액티브 ETF에서는 비중을 소폭 줄이는 흐름이라 방향이 엇갈립니다. 7/29 미국 빅테크 실적과 HBM 관련 뉴스가 단기 변수예요. <span style="color:#9aa0ab">(투자권유 아님)</span>'],
+    us:['엔비디아 지금 사도 돼? 기관들은 어떻게 움직여?','엔비디아는 오늘 <b style="color:#1f9d57">+2.2%</b>, 사상 최고가 부근입니다. 13F 기관 18곳이 신규·확대 매수 중이고 옵션도 콜 우위예요. 다만 P/E 52배로 밸류 부담이 있고 CEO는 계획 매도 중입니다. 8/27 실적이 분수령이에요. <span style="color:#9aa0ab">(투자권유 아님)</span>'],
+    coin:['비트코인 지금 어때? 고래들은 뭐 하고 있어?','비트코인은 오늘 <b style="color:#1f9d57">+1.9%</b>, 거래소에서 계속 빠져나가는(순유출) 강세 구조예요. USDT 12억달러 신규 발행으로 살 돈도 늘었습니다. 다만 공포탐욕 72(탐욕)로 과열 구간이라 펀딩비 급등은 조심하세요. <span style="color:#9aa0ab">(투자권유 아님)</span>']
+  };
+  function render(m){
+    if(m==='kr'){IDS.forEach(id=>document.getElementById(id).innerHTML=KR[id]);setTicker(TICK_KR);}
+    else{const d=(m==='us')?US:COIN;IDS.forEach(id=>{if(d[id]!==undefined)document.getElementById(id).innerHTML=d[id];});setTicker(d.ticker);}
+    const nl=NAV_LINK[m];
+    const nw=document.getElementById('navWhale'),nlead=document.getElementById('navLeaders');
+    document.getElementById('whaleMore').href=nl.whale;
+    if(m==='coin'){ // 코인은 관제/온체인으로 메뉴 라벨 교체
+      nw.textContent='관제';nw.href='coin-terminal.html';
+      nlead.textContent='온체인';nlead.href='whale-coin.html';
+    }else{
+      nw.textContent='큰손 수급';nw.href=nl.whale;
+      nlead.textContent='대표주';nlead.href=nl.leaders;
+    }
+    document.getElementById('navIdea').href=nl.idea;document.getElementById('navForecast').href=nl.forecast;
+    document.getElementById('navTheme').href=nl.theme;document.getElementById('navScreener').href=nl.screener;document.getElementById('navCal').href=nl.cal;
+    document.getElementById('aiCtaLink').href=nl.ai;
+    const p=AI_PROMPT[m];document.getElementById('aiPromptQ').textContent=p[0];document.getElementById('aiPromptA').innerHTML=p[1];
+    initHeatboard();wireArticles();
+  }
+  function initHeatboard(){
+    const board=document.getElementById('heatboard');
+    const secs=Array.from(board.querySelectorAll('.sector'));
+    const val=s=>parseFloat(s.querySelector('.slabel span').textContent.replace('%',''));
+    secs.sort((a,b)=>val(b)-val(a));
+    secs.forEach(s=>board.appendChild(s));
+    const VIS=6, btn=document.getElementById('heatMoreBtn');
+    secs.forEach((s,i)=>s.classList.toggle('sec-hidden',i>=VIS));
+    let open=false;
+    btn.textContent='＋ 전체 산업 보기 ('+secs.length+'개)';
+    btn.onclick=()=>{open=!open;secs.forEach((s,i)=>{if(i>=VIS)s.classList.toggle('sec-hidden',!open)});btn.textContent=open?'− 접기':'＋ 전체 산업 보기 ('+secs.length+'개)';};
+  }
+  function wireArticles(){document.querySelectorAll('#articleFeed .art').forEach(a=>a.onclick=()=>location.href='article.html');}
+
+  /* ===== market switch ===== */
+  const MK=['kr','us','coin'];
+  document.querySelectorAll('.market-switch button').forEach((b,i)=>{
+    b.onclick=()=>{document.querySelectorAll('.market-switch button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(MK[i]);updateLive();updateCoinIndicators();};
+  });
+  document.querySelectorAll('.tabs').forEach(t=>t.querySelectorAll('button').forEach(b=>b.onclick=()=>{t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
+
+  /* ===== 실시간 코인 시세 (Binance, 무료·키불필요) ===== */
+  function fmtPrice(p){if(p>=1000)return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});if(p>=1)return '$'+p.toFixed(2);return '$'+p.toFixed(p<0.01?4:3);}
+  async function updateLive(){
+    const syms=[...new Set([...document.querySelectorAll('[data-px]')].map(el=>el.dataset.px))];
+    if(!syms.length)return;
+    try{
+      const url='https://api.binance.com/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(syms));
+      const res=await fetch(url);const data=await res.json();const map={};data.forEach(d=>map[d.symbol]=d);
+      document.querySelectorAll('[data-px]').forEach(el=>{const d=map[el.dataset.px];if(!d)return;el.textContent=fmtPrice(parseFloat(d.lastPrice));});
+      document.querySelectorAll('[data-chg]').forEach(el=>{const d=map[el.dataset.chg];if(!d)return;const c=parseFloat(d.priceChangePercent);el.textContent=(c>=0?'▲ ':'▼ ')+Math.abs(c).toFixed(1)+'%';el.classList.remove('up','down');el.classList.add(c>=0?'up':'down');});
+    }catch(e){console.warn('live fetch failed',e);}
+  }
+  function setV(id,txt,col){const el=document.getElementById(id);if(!el)return;el.textContent=txt;el.classList.remove('up','down');if(col)el.classList.add(col);}
+  async function updateCoinIndicators(){
+    if(!document.getElementById('liveFng'))return;
+    try{const d=(await(await fetch('https://api.alternative.me/fng/')).json()).data[0];const v=+d.value;const km={'Extreme Fear':'극단적 공포','Fear':'공포','Neutral':'중립','Greed':'탐욕','Extreme Greed':'극단적 탐욕'};setV('liveFng',v+' ('+(km[d.value_classification]||'')+')',v>=60?'up':(v<=40?'down':''));}catch(e){}
+    try{const d=await(await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT')).json();const f=parseFloat(d.lastFundingRate)*100;setV('liveFunding',(f>=0?'+':'')+f.toFixed(4)+'%',f>=0?'up':'down');}catch(e){}
+    try{const[ub,bn]=await Promise.all([fetch('https://api.upbit.com/v1/ticker?markets=KRW-BTC,KRW-USDT').then(r=>r.json()),fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT').then(r=>r.json())]);const kimp=(ub[0].trade_price/(parseFloat(bn.price)*ub[1].trade_price)-1)*100;setV('liveKimp',(kimp>=0?'+':'')+kimp.toFixed(2)+'%',kimp>=0?'up':'down');}catch(e){}
+  }
+  setInterval(()=>{updateLive();updateCoinIndicators();},10000);
+
+  /* init KR */
+  setTicker(TICK_KR);initHeatboard();wireArticles();
+</script>
+</body>
+</html>

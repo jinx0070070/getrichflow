@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커넥션 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--amber-bg:rgba(192,127,36,.12);
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:2px;margin-left:4px;flex-wrap:wrap}
+  nav.menu a{color:var(--txt-2);font-size:13.5px;font-weight:500;padding:8px 11px;border-radius:9px;white-space:nowrap}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:170px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 4px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .phead .meta{font-size:12px;color:var(--txt-3);font-weight:600;margin-top:8px}
+  .filters{display:flex;gap:6px;margin:18px 0;flex-wrap:wrap}
+  .filters button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .filters button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  /* summary */
+  .summary{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2);border-radius:16px;padding:20px;margin-bottom:20px}
+  .summary .h{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;margin-bottom:12px}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
+  .summary .counts{margin-left:auto;display:flex;gap:8px}
+  .cbadge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px}
+  .cbadge.pos{color:var(--up);background:var(--up-bg)}.cbadge.warn{color:var(--amber);background:var(--amber-bg)}
+  .summary p{font-size:13.5px;color:var(--txt-2);line-height:1.7}
+  .summary p b{color:var(--txt)}
+  /* idea card */
+  .ideas{display:flex;flex-direction:column;gap:16px}
+  .idea{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+  .idea .top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .tag{font-size:10px;font-weight:800;padding:3px 9px;border-radius:6px;background:var(--card-2);color:var(--txt-2);border:1px solid var(--line)}
+  .tag.cat{color:var(--brand);font-weight:800}
+  .conf{margin-left:auto;font-size:11px;font-weight:800;padding:3px 10px;border-radius:7px}
+  .conf.high{color:var(--up);background:var(--up-bg)}.conf.mid{color:var(--amber);background:var(--amber-bg)}.conf.low{color:var(--txt-3);background:var(--card-2)}
+  .idea h3{font-size:17px;font-weight:800;line-height:1.4;margin-bottom:14px}
+  .sect{margin-top:14px}
+  .sect .sl{font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:7px;letter-spacing:.02em}
+  .stocks{display:flex;gap:6px;flex-wrap:wrap}
+  .stk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;background:var(--card-2);border:1px solid var(--line);padding:6px 12px;border-radius:20px;color:var(--txt-2);cursor:pointer}
+  .stk:hover{color:var(--txt);border-color:var(--line-2)}
+  .stk.second{background:transparent;border-style:dashed}
+  .warnbox{display:flex;gap:9px;align-items:flex-start;background:var(--amber-bg);border:1px solid rgba(192,127,36,.25);border-radius:11px;padding:11px 13px;font-size:12.5px;color:var(--txt-2);line-height:1.5;margin-top:10px}
+  .warnbox b{color:var(--amber)}
+  .why{font-size:13.5px;color:var(--txt-2);line-height:1.7;background:var(--card-2);border-radius:12px;padding:14px 16px;margin-top:12px}
+  .why b{color:var(--txt)}
+  .why .src{display:block;font-size:11px;color:var(--txt-3);margin-top:8px;font-weight:600}
+  .scen{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .sc{background:var(--card-2);border-radius:11px;padding:12px 14px;font-size:12.5px;color:var(--txt-2);line-height:1.5;display:flex;gap:9px}
+  .sc .n{width:20px;height:20px;border-radius:6px;background:var(--brand);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .watch{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .wp{font-size:12px;font-weight:600;color:var(--txt-2);background:var(--card-2);border:1px solid var(--line);border-radius:9px;padding:7px 12px;display:flex;align-items:center;gap:6px}
+  /* chain */
+  .chain{background:var(--card);border:1px solid var(--line-2);border-radius:16px;padding:20px;margin-top:20px;box-shadow:var(--shadow-sm)}
+  .chain h3{font-size:14px;font-weight:800;margin-bottom:6px}
+  .chain .s{font-size:12px;color:var(--txt-3);margin-bottom:12px}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:900px){.scen{grid-template-columns:1fr}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <nav class="menu">
+    <a href="whale.html">큰손 수급</a><a href="leaders.html">대표주</a><a href="idea.html" class="on">커넥션</a><a href="forecast.html">확률 통계</a>
+    <a href="research.html">리서치</a><a href="theme.html">테마·흐름</a><a href="screener.html">종목탐색</a><a href="calendar.html">캘린더</a>
+  </nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="종목 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>💡 커넥션</h1>
+    <p>오늘 뉴스가 <b style="color:var(--txt)">어떤 종목과 연결되는지</b> AI가 엮어드려요.</p>
+    <div class="meta">07/24 08:11 갱신 · 하루 2회 · 뉴스 + 공시 + 수급 교차분석</div>
+  </section>
+
+  <div class="filters" id="filters">
+    <button class="on">전체</button><button>매크로</button><button>기술</button><button>정책</button><button>산업</button>
+  </div>
+
+  <!-- 종합 의견 -->
+  <div class="summary">
+    <div class="h"><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 종합 의견
+      <span class="counts"><span class="cbadge pos">긍정 2</span><span class="cbadge warn">주의 2</span></span>
+    </div>
+    <p>유가 급등과 무역 제재가 시장 불확실성을 높이는 가운데, <b>AI·반도체 실적 기대감</b>은 여전히 유효합니다. 다만 <b>환율 변동성</b>과 <b>무역 리스크</b> 같은 매크로 변수를 함께 보며 신중하게 접근할 필요가 있어요.</p>
+  </div>
+
+  <div class="ideas" id="ideas"></div>
+
+  <!-- 꼬리물기 -->
+  <div class="chain">
+    <h3>🔗 다음은 이런 흐름 어때요?</h3>
+    <div class="s">눌러서 꼬리물기 — 관련 종목으로 계속 이어집니다</div>
+    <div class="stocks">
+      <span class="stk" onclick="location.href='stock.html'">SK이노베이션</span>
+      <span class="stk" onclick="location.href='stock.html'">GS</span>
+      <span class="stk" onclick="location.href='stock.html'">S-Oil</span>
+      <span class="stk" onclick="location.href='stock.html'">한국조선해양</span>
+      <span class="stk" onclick="location.href='stock.html'">HMM</span>
+    </div>
+  </div>
+
+  <div class="disc">AI가 공개 데이터(뉴스·공시·수급)로 생성한 <b>정보 제공용 아이디어</b>입니다. 매수·매도 권유나 투자자문이 아니며 사실과 다를 수 있습니다. 데이터 출처: 뉴스 API · DART 전자공시 · 공공데이터포털 · 자체 산출물. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<script>
+  const IDEAS=[
+    {cat:'매크로',conf:'mid',confL:'확신도 중간',src:'연합뉴스 · 로이터',
+     title:'브렌트유 두 달 만에 100달러 돌파, 유가 급등 지속',
+     stocks:['SK이노베이션','GS','S-Oil','에쓰오일'],
+     warn:'미국 USTR, 무역법 301조 「강제노동 관세」 부과 — 무역 리스크 상존',
+     why:'브렌트유가 두 달 만에 종가 <b>100달러</b>를 돌파하며 급등세가 지속되고 있습니다. 지정학적 리스크와 공급 우려가 복합 작용한 결과로, 유가 상승은 <b>정유사 정제마진 개선</b>에 긍정적입니다. 다만 고유가는 소비·물가 부담으로도 이어집니다.',
+     scen:['유가 상승 지속 → 정유사 마진 개선','고유가 부담 → 소비 심리 위축 가능성'],
+     second:['한국조선해양','HMM'],
+     watch:['OPEC+ 추가 감산 여부','원/달러 환율 추이']},
+    {cat:'기술',conf:'high',confL:'확신도 높음',src:'전자신문 · Smart Money',
+     title:'AI 붐 지속, 엔비디아·SK하이닉스 HBM 수요 기대감',
+     stocks:['SK하이닉스','삼성전자','한미반도체','동진쎄미켐'],
+     warn:'AI 자본지출 과열 논쟁 — 빅테크 가이던스 하향 시 조정 가능',
+     why:'엔비디아가 AI 붐에 힘입어 <b>15년 만에 가장 빠른 매출 성장세</b>를 기록했고, HBM 공급망인 국내 반도체가 직접 수혜 구간에 있습니다. 스마트머니 수급에서도 <b>외국인 3거래일 연속 순매수</b>가 확인됩니다.',
+     scen:['AI 하드웨어 수요 증가 → HBM 공급망 실적 개선','AI 경쟁 심화 → 소부장까지 낙수효과'],
+     second:['마이크론','원익IPS'],
+     watch:['엔비디아 8/27 실적','HBM4 퀄 통과 여부']},
+    {cat:'정책',conf:'low',confL:'확신도 낮음',src:'연합뉴스',
+     title:'재건축 규제 완화 기대감, 강남구 추진위 승인 기간 단축',
+     stocks:['현대건설','GS건설','DL이앤씨','삼성물산'],
+     warn:'금리 부담과 미분양 리스크는 여전 — 실제 착공까지 시차',
+     why:'강남구가 재건축추진위 승인 처리 기간을 대폭 단축하며 기대감이 높아졌습니다. 정부의 <b>부동산 활성화 기조</b>와 맞물려 건설 업종에 우호적일 수 있으나, 실제 <b>수주·착공까지는 시차</b>가 큽니다.',
+     scen:['재건축 활성화 → 건설사 신규 수주 증가','주택 공급 확대 → 시장 안정화 기대'],
+     second:['한샘','LX하우시스'],
+     watch:['추가 규제 완화 발표','실제 착공 현황']},
+    {cat:'산업',conf:'mid',confL:'확신도 중간',src:'전자신문 · KIND',
+     title:'AI 데이터센터 전력 수요 급증, 변압기 3사 수주잔고 사상 최대',
+     stocks:['HD현대일렉트릭','LS ELECTRIC','효성중공업','제룡전기'],
+     warn:'수주 피크아웃 우려 — 밸류에이션 이미 높은 구간',
+     why:'AI 데이터센터 확산으로 <b>전력 인프라</b> 수요가 구조적으로 늘고 있습니다. 국내 변압기 3사의 수주잔고가 사상 최대를 기록했고, 큰손 수급에서도 <b>전력기기 테마 신규 5% 진입</b>이 포착됩니다.',
+     scen:['데이터센터 증설 지속 → 변압기 장기 수주 사이클','전력망 교체 수요 → 케이블·배전까지 확산'],
+     second:['대한전선','일진전기'],
+     watch:['미국 전력망 투자 법안','수주잔고 갱신 여부']}
+  ];
+  const CONF={high:'high',mid:'mid',low:'low'};
+  function render(cat){
+    const list=cat==='전체'?IDEAS:IDEAS.filter(i=>i.cat===cat);
+    document.getElementById('ideas').innerHTML=list.map(i=>`
+      <div class="idea">
+        <div class="top"><span class="tag cat">${i.cat}</span><span class="tag">뉴스 연계</span>
+          <span class="conf ${CONF[i.conf]}">${i.confL}</span></div>
+        <h3>${i.title}</h3>
+        <div class="sect"><div class="sl">📈 이 소식에 영향받는 종목</div>
+          <div class="stocks">${i.stocks.map(s=>`<span class="stk" onclick="location.href='stock.html'">${s}</span>`).join('')}</div></div>
+        <div class="warnbox">⚠️ <span><b>주의</b> — ${i.warn}</span></div>
+        <div class="why">${i.why}<span class="src">근거 · 출처: ${i.src}</span></div>
+        <div class="sect"><div class="sl">🔀 시나리오</div>
+          <div class="scen">${i.scen.map((s,n)=>`<div class="sc"><span class="n">${n+1}</span><span>${s}</span></div>`).join('')}</div></div>
+        <div class="sect"><div class="sl">🔗 2차 관련주</div>
+          <div class="stocks">${i.second.map(s=>`<span class="stk second" onclick="location.href='stock.html'">${s}</span>`).join('')}</div></div>
+        <div class="sect"><div class="sl">👀 관전 포인트</div>
+          <div class="watch">${i.watch.map(w=>`<span class="wp">◈ ${w}</span>`).join('')}</div></div>
+      </div>`).join('');
+  }
+  render('전체');
+  document.getElementById('filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(b.textContent.trim());
+  });
+</script>
+</body>
+</html>

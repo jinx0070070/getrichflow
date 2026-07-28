@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>테마·흐름 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.mono{font-variant-numeric:tabular-nums}.bot{display:block}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .logo .bot{width:34px;height:34px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:26px 0 6px}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .subtabs{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap}
+  .subtabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .subtabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .band{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+  .flow-row{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:13px}
+  .flow-row .tn{width:76px;font-weight:700}
+  .flow-bar{flex:1;height:24px;border-radius:6px;background:var(--card-2);position:relative;overflow:hidden;display:flex;align-items:center}
+  .flow-bar i{position:absolute;left:50%;height:100%;top:0}
+  .flow-mid{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--line-2)}
+  .flow-val{width:80px;text-align:right;font-weight:800;font-size:12.5px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  /* theme strength ranking */
+  .strength{display:flex;align-items:center;gap:12px;padding:11px 8px;border-radius:11px;cursor:pointer}
+  .strength:hover{background:var(--card-2)}
+  .strength .rk{width:20px;font-weight:800;color:var(--txt-3);font-size:13px}
+  .strength .nm{width:120px;font-weight:800;font-size:14px}
+  .strength .gauge{flex:1;height:8px;border-radius:4px;background:var(--card-2);overflow:hidden}
+  .strength .gauge i{display:block;height:100%}
+  .strength .flow{width:76px;text-align:right;font-size:12px;color:var(--txt-2);font-weight:600}
+  .strength .chg{width:56px;text-align:right;font-weight:800;font-size:13px}
+  /* theme cards grid */
+  .theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .tcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);cursor:pointer;transition:.12s}
+  .tcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line-2)}
+  .tcard .th{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .tcard .tname{font-size:15px;font-weight:800}.tcard .tchg{font-size:14px;font-weight:800}
+  .tcard .sub{font-size:11px;color:var(--txt-3);margin-bottom:10px}
+  .tcard .stocks{display:flex;flex-wrap:wrap;gap:5px}
+  .tcard .stk{font-size:11px;font-weight:600;background:var(--card-2);border:1px solid var(--line);padding:3px 8px;border-radius:7px;color:var(--txt-2)}
+  .tspark{width:100%;height:34px;margin:6px 0}
+  /* rotation */
+  .rot-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .rot-row:last-child{border:none}
+  .rot-row .tn{width:80px;font-weight:700}
+  .rot-bar{flex:1;height:7px;border-radius:4px;background:var(--card-2);overflow:hidden}
+  .rot-bar i{display:block;height:100%}
+  .rot-val{width:52px;text-align:right;font-weight:800;font-size:12.5px}
+  .ai-note{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2)}
+  .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
+  .timeline-play{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .play-btn{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;border:none;font-size:15px;cursor:pointer;flex-shrink:0}
+  /* daily flow chart */
+  .dflow{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;align-items:end;height:120px;margin-top:6px}
+  .dflow .bar{border-radius:2px 2px 0 0;width:100%;position:relative}
+  .dflow-x{display:flex;justify-content:space-between;font-size:10px;color:var(--txt-3);font-weight:600;margin-top:6px}
+  /* etf table */
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl th{text-align:right;font-size:11px;color:var(--txt-3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+  .tbl th:first-child{text-align:left}
+  .tbl td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right}
+  .tbl td:first-child{text-align:left;font-weight:700}
+  .tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:var(--card-2)}
+  /* line chart */
+  .linechart svg{width:100%}
+  .lc-legend{display:flex;gap:14px;font-size:11px;font-weight:600;color:var(--txt-2);margin-top:8px;flex-wrap:wrap}
+  .lc-legend span{display:flex;align-items:center;gap:5px}.lc-legend i{width:14px;height:3px;border-radius:2px}
+  /* connected themes */
+  .conn{display:flex;flex-direction:column;gap:12px}
+  .conn-row{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:13px}
+  .conn-row .hub{font-weight:800;font-size:14px;margin-bottom:6px}
+  .conn-row .links{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .conn-row .lk{font-size:11.5px;font-weight:600;background:var(--card);border:1px solid var(--line);padding:4px 9px;border-radius:20px}
+  .conn-row .arrow{color:var(--txt-3);font-weight:800}
+  /* discovery */
+  .disc-card{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:11px;cursor:pointer}
+  .disc-card:hover{background:var(--card-2)}
+  .disc-card .ic{width:38px;height:38px;border-radius:11px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+  .disc-card .nm{flex:1}.disc-card .nm .n{font-weight:800;font-size:14px}.disc-card .nm .s{font-size:11px;color:var(--txt-3)}
+  .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:var(--up-bg);color:var(--up)}
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(20,24,30,.5);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--card);border:1px solid var(--line-2);border-radius:20px;max-width:520px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.32);padding:24px}
+  .modal .mh{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+  .modal .mh .t h4{font-size:19px;font-weight:800}.modal .mh .t .s{font-size:12px;color:var(--txt-3);font-weight:600;margin-top:2px}
+  .modal .mh .chg{margin-left:auto;font-size:20px;font-weight:800}
+  .modal .close{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card-2);cursor:pointer;font-size:15px;color:var(--txt-2)}
+  .modal .mstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+  .modal .mstat div{background:var(--card-2);border-radius:11px;padding:11px;text-align:center}
+  .modal .mstat .k{font-size:11px;color:var(--txt-3);font-weight:600}.modal .mstat .v{font-size:15px;font-weight:800;margin-top:3px}
+  .modal h5{font-size:12px;font-weight:800;color:var(--txt-2);margin:14px 0 8px}
+  .mstk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .mstk:last-child{border:none}.mstk .lg{width:28px;height:28px;border-radius:8px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--brand)}
+  .mstk .nm{flex:1;font-weight:700}.mstk .pc{font-weight:800}
+  .mnews{font-size:12.5px;color:var(--txt-2);padding:7px 0;border-bottom:1px solid var(--line);line-height:1.4}
+  .mnews:last-child{border:none}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:900px){.band,.cols{grid-template-columns:1fr}nav.menu,.search{display:none}.strength .nm{width:80px}.strength .flow{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/>
+  <rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <nav class="menu"><a href="whale.html">큰손 수급</a><a href="leaders.html">대표주</a><a href="idea.html">커넥션</a><a href="forecast.html">확률 통계</a><a href="research.html">리서치</a><a href="theme.html" class="on">테마·흐름</a><a href="screener.html">종목탐색</a><a href="calendar.html">캘린더</a></nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="테마·종목 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>💠 테마·흐름</h1>
+    <p>오늘 돈이 어느 테마로 몰리고 빠지는지 — ETF 자금과 섹터 수급으로 추적합니다. <b style="color:var(--txt-2)">7/22 종가 기준</b></p>
+    <div class="subtabs" id="subtabs">
+      <button class="on" data-p="today">오늘의 테마</button>
+      <button data-p="flow">자금 흐름</button>
+      <button data-p="rot">섹터 로테이션</button>
+      <button data-p="find">테마 발굴</button>
+    </div>
+  </section>
+
+  <!-- 오늘의 테마 -->
+  <div class="panel" data-panel="today">
+    <div class="band">
+      <div class="card">
+        <h3>💧 오늘 돈이 몰린 곳 <span class="hint">ETF 설정·환매 실측</span></h3>
+        <div class="flow-row"><span class="tn up">반도체</span><div class="flow-bar"><span class="flow-mid"></span><i class="up" style="left:50%;width:46%;background:var(--up)"></i></div><span class="flow-val up">+2,021억</span></div>
+        <div class="flow-row"><span class="tn up">금융</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:11%;background:var(--up)"></i></div><span class="flow-val up">+485억</span></div>
+        <div class="flow-row"><span class="tn up">조선</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:8%;background:var(--up)"></i></div><span class="flow-val up">+326억</span></div>
+      </div>
+      <div class="card">
+        <h3>🩸 오늘 돈이 빠진 곳 <span class="hint">ETF 환매</span></h3>
+        <div class="flow-row"><span class="tn down">방산</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:5%;background:var(--down)"></i></div><span class="flow-val down">−227억</span></div>
+        <div class="flow-row"><span class="tn down">2차전지</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:5%;background:var(--down)"></i></div><span class="flow-val down">−206억</span></div>
+        <div class="flow-row"><span class="tn down">AI</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:4%;background:var(--down)"></i></div><span class="flow-val down">−167억</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>🏆 테마 강도 랭킹 <span class="hint">등락·자금·거래대금 종합 · 클릭 = 상세</span></h3>
+      <div id="strengthList"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px"><h3>🃏 테마 카드 <span class="hint">대표종목·추세</span></h3></div>
+    <div class="theme-grid" id="themeGrid"></div>
+
+    <div class="card ai-note" style="margin-top:16px">
+      <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 테마 해설</h3>
+      <div style="display:flex;gap:12px">
+        <svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
+        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">오늘은 <b style="color:var(--txt)">반도체·전력기기</b>로 돈이 강하게 몰렸어요. HBM 기대와 AI 데이터센터 전력 수요가 동시에 자극한 결과예요. 반면 <b style="color:var(--txt)">2차전지·방산</b>에서는 자금이 빠지며 로테이션이 진행 중입니다.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 자금 흐름 -->
+  <div class="panel" data-panel="flow" style="display:none">
+    <div class="card" style="margin:20px 0">
+      <h3>📈 일별 섹터 자금 흐름 <span class="hint">최근 20거래일 · 순유입(억)</span></h3>
+      <div class="timeline-play"><button class="play-btn" id="playBtn">▶</button><div><div style="font-weight:800;font-size:14px" id="playLabel">반도체 테마 자금</div><div style="font-size:12px;color:var(--txt-3)">재생하면 섹터가 순환하며 흐름을 보여줘요</div></div></div>
+      <div class="dflow" id="dflow"></div>
+      <div class="dflow-x"><span>6/26</span><span>7/3</span><span>7/10</span><span>7/17</span><span>7/22</span></div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>📊 섹터별 누적 순유입 <span class="hint">최근 24거래일</span></h3>
+        <div class="rot-row"><span class="tn up">금융</span><div class="rot-bar"><i style="width:100%;background:var(--up)"></i></div><span class="rot-val up">+568</span></div>
+        <div class="rot-row"><span class="tn up">반도체</span><div class="rot-bar"><i style="width:79%;background:var(--up)"></i></div><span class="rot-val up">+447</span></div>
+        <div class="rot-row"><span class="tn up">소비재</span><div class="rot-bar"><i style="width:58%;background:var(--up)"></i></div><span class="rot-val up">+331</span></div>
+        <div class="rot-row"><span class="tn up">식음료</span><div class="rot-bar"><i style="width:37%;background:var(--up)"></i></div><span class="rot-val up">+213</span></div>
+        <div class="rot-row"><span class="tn up">화장품</span><div class="rot-bar"><i style="width:27%;background:var(--up)"></i></div><span class="rot-val up">+153</span></div>
+        <div class="rot-row"><span class="tn down">바이오</span><div class="rot-bar"><i style="width:24%;background:var(--down)"></i></div><span class="rot-val down">−134</span></div>
+      </div>
+      <div class="card">
+        <h3>💰 ETF 자금 상세 <span class="hint">순유입 상위</span></h3>
+        <table class="tbl">
+          <thead><tr><th>ETF</th><th>설정</th><th>환매</th><th>순유입</th></tr></thead>
+          <tbody>
+            <tr><td>TIGER 반도체TOP10</td><td class="up">+920억</td><td class="down">−210억</td><td class="up mono">+710억</td></tr>
+            <tr><td>KODEX 은행</td><td class="up">+480억</td><td class="down">−95억</td><td class="up mono">+385억</td></tr>
+            <tr><td>ACE 조선</td><td class="up">+310억</td><td class="down">−40억</td><td class="up mono">+270억</td></tr>
+            <tr><td>TIGER 2차전지</td><td class="up">+120억</td><td class="down">−326억</td><td class="down mono">−206억</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 섹터 로테이션 -->
+  <div class="panel" data-panel="rot" style="display:none">
+    <div class="card" style="margin:20px 0">
+      <h3>🔄 3개월 테마 로테이션 <span class="hint">누적 자금 흐름 추이</span></h3>
+      <div class="linechart">
+        <svg viewBox="0 0 700 220">
+          <line x1="0" y1="55" x2="700" y2="55" stroke="#d3d6dd"/><line x1="0" y1="110" x2="700" y2="110" stroke="#d3d6dd"/><line x1="0" y1="165" x2="700" y2="165" stroke="#d3d6dd"/>
+          <polyline fill="none" stroke="#1f9d57" stroke-width="2.5" points="0,150 140,130 280,100 420,70 560,45 700,30"/>
+          <polyline fill="none" stroke="#434955" stroke-width="2.5" points="0,80 140,90 280,85 420,110 560,140 700,170"/>
+          <polyline fill="none" stroke="#c07f24" stroke-width="2.5" points="0,120 140,110 280,125 420,105 560,95 700,88"/>
+          <g font-size="11" fill="#5c6470" font-weight="700" text-anchor="middle"><text x="0" y="205">4월</text><text x="280" y="205">5월</text><text x="560" y="205">6월</text><text x="700" y="205">7월</text></g>
+        </svg>
+      </div>
+      <div class="lc-legend"><span><i style="background:#1f9d57"></i>전력·에너지(담기는중)</span><span><i style="background:#434955"></i>반도체(비워지는중)</span><span><i style="background:#c07f24"></i>조선(유지)</span></div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>▲ 담기는 테마 <span class="hint">큰손 3개월 지분율 변화</span></h3>
+        <div class="rot-row"><span class="tn up">리츠</span><div class="rot-bar"><i style="width:90%;background:var(--up)"></i></div><span class="rot-val up">+9.0</span></div>
+        <div class="rot-row"><span class="tn up">2차전지</span><div class="rot-bar"><i style="width:70%;background:var(--up)"></i></div><span class="rot-val up">+7.0</span></div>
+        <div class="rot-row"><span class="tn up">디스플레이</span><div class="rot-bar"><i style="width:69%;background:var(--up)"></i></div><span class="rot-val up">+6.9</span></div>
+        <div class="rot-row"><span class="tn up">전력기기</span><div class="rot-bar"><i style="width:51%;background:var(--up)"></i></div><span class="rot-val up">+5.1</span></div>
+      </div>
+      <div class="card">
+        <h3>▼ 비워지는 테마 <span class="hint">최근 3개월</span></h3>
+        <div class="rot-row"><span class="tn down">반도체</span><div class="rot-bar"><i style="width:100%;background:var(--down)"></i></div><span class="rot-val down">−10.5</span></div>
+        <div class="rot-row"><span class="tn down">패션</span><div class="rot-bar"><i style="width:15%;background:var(--down)"></i></div><span class="rot-val down">−1.5</span></div>
+        <div class="rot-row"><span class="tn down">바이오</span><div class="rot-bar"><i style="width:14%;background:var(--down)"></i></div><span class="rot-val down">−1.4</span></div>
+        <div class="rot-row"><span class="tn down">원전</span><div class="rot-bar"><i style="width:11%;background:var(--down)"></i></div><span class="rot-val down">−1.1</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🔗 연계 테마 <span class="hint">함께 움직이는 테마</span></h3>
+      <div class="conn">
+        <div class="conn-row"><div class="hub">🤖 AI 데이터센터</div><div class="links"><span class="lk">반도체(HBM)</span><span class="arrow">→</span><span class="lk">전력기기</span><span class="arrow">→</span><span class="lk">원전</span><span class="arrow">→</span><span class="lk">냉각·소재</span></div></div>
+        <div class="conn-row"><div class="hub">🚢 조선 슈퍼사이클</div><div class="links"><span class="lk">조선</span><span class="arrow">→</span><span class="lk">기자재</span><span class="arrow">→</span><span class="lk">철강</span><span class="arrow">→</span><span class="lk">방산(함정)</span></div></div>
+        <div class="conn-row"><div class="hub">💄 K-뷰티 수출</div><div class="links"><span class="lk">화장품</span><span class="arrow">→</span><span class="lk">ODM</span><span class="arrow">→</span><span class="lk">용기·부자재</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 테마 발굴 -->
+  <div class="panel" data-panel="find" style="display:none">
+    <div class="cols" style="margin-top:20px">
+      <div class="card">
+        <h3>✨ 신규·급부상 테마 <span class="hint">최근 부상</span></h3>
+        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">🤖</div><div class="nm"><div class="n">휴머노이드 로봇 <span class="badge">NEW</span></div><div class="s">정책·큰손 매집 · 5거래일 +18%</div></div></div>
+        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">⚡</div><div class="nm"><div class="n">AI 전력기기 <span class="badge">급부상</span></div><div class="s">데이터센터 전력 수요 · +14%</div></div></div>
+        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">🩻</div><div class="nm"><div class="n">의료 AI</div><div class="s">FDA 승인 기대 · +9%</div></div></div>
+        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">🛰️</div><div class="nm"><div class="n">우주·위성</div><div class="s">스페이스X 상장 기대 · +7%</div></div></div>
+      </div>
+      <div class="card">
+        <h3>🔥 오늘의 급등 테마 <span class="hint">테마 지수 등락</span></h3>
+        <div class="strength" onclick="location.href='stock.html'"><span class="rk">1</span><span class="nm" style="width:auto;flex:1">초전도체</span><span class="chg up">+12.4%</span></div>
+        <div class="strength" onclick="location.href='stock.html'"><span class="rk">2</span><span class="nm" style="width:auto;flex:1">전력·에너지</span><span class="chg up">+4.2%</span></div>
+        <div class="strength" onclick="location.href='stock.html'"><span class="rk">3</span><span class="nm" style="width:auto;flex:1">조선</span><span class="chg up">+3.9%</span></div>
+        <div class="strength" onclick="location.href='stock.html'"><span class="rk">4</span><span class="nm" style="width:auto;flex:1">로봇·휴머노이드</span><span class="chg up">+2.8%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📰 테마 관련 뉴스 <span class="hint">테마 촉발 이벤트</span></h3>
+      <div class="mnews" onclick="location.href='article.html'" style="cursor:pointer"><b style="color:var(--brand)">[전력기기]</b> AI 데이터센터 전력 수요 급증… 변압기 3사 수주잔고 사상 최대</div>
+      <div class="mnews" onclick="location.href='article.html'" style="cursor:pointer"><b style="color:var(--brand)">[조선]</b> 카타르發 LNG선 발주 재개, 국내 조선 3사 수혜 전망</div>
+      <div class="mnews" onclick="location.href='article.html'" style="cursor:pointer"><b style="color:var(--brand)">[로봇]</b> 정부, 휴머노이드 로봇 국가전략기술 지정 검토</div>
+    </div>
+  </div>
+
+  <div class="disc">데이터 출처: 한국거래소 · ETF 설정·환매(금융투자협회) · DART · 뉴스 API · 자체 산출물. 정보 제공용이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<!-- theme modal -->
+<div class="modal-bg" id="modalBg"><div class="modal">
+  <div class="mh"><div class="t"><h4 id="mName">테마</h4><div class="s" id="mSub">구성 종목</div></div><span class="chg" id="mChg"></span><button class="close" id="mClose" style="margin-left:12px">✕</button></div>
+  <div class="mstat"><div><div class="k">오늘 자금</div><div class="v" id="mFlow"></div></div><div><div class="k">구성 종목</div><div class="v" id="mCnt"></div></div><div><div class="k">대장주</div><div class="v" id="mLead" style="font-size:13px"></div></div></div>
+  <h5>📈 구성 종목</h5><div id="mStocks"></div>
+  <h5>📰 관련 뉴스</h5><div id="mNews"></div>
+  <div style="font-size:11px;color:var(--txt-3);margin-top:12px">정보 제공용 · 투자권유 아님 · <b style="color:var(--brand)">샘플 데이터</b></div>
+</div></div>
+
+<script>
+  const THEMES=[
+    ['전력·에너지','+4.2%',1,'ETF 유입 3위 · AI 전력수요','+1,240억',[['두산에너빌리티','+5.2%'],['HD현대일렉','+6.1%'],['LS ELECTRIC','+4.0%'],['제룡전기','+2.8%']],['AI 데이터센터 전력 수요 급증, 변압기 수주 사상 최대','한전 요금 인상 기대감']],
+    ['조선','+3.9%',1,'수주 슈퍼사이클','+326억',[['한화오션','+8.1%'],['HD한국조선','+4.1%'],['삼성중공업','+2.2%']],['카타르 LNG선 발주 재개','조선 3사 수주잔고 3년치 확보']],
+    ['반도체','+3.4%',1,'HBM4 기대 · 자금 최다 유입','+2,021억',[['삼성전자','+2.8%'],['SK하이닉스','+3.7%'],['삼성전기','+7.6%'],['한미반도체','+5.1%']],['SK하이닉스 HBM4 엔비디아 퀄 임박','삼성 파운드리 2나노 수율 개선']],
+    ['로봇·휴머노이드','+2.8%',1,'정책·큰손 매집','+180억',[['레인보우로보틱스','+4.1%'],['두산로보틱스','+3.2%']],['정부 휴머노이드 국가전략기술 지정 검토','테슬라 옵티머스 양산 로드맵']],
+    ['인터넷·플랫폼','+2.4%',1,'반등 시도','+95억',[['NAVER','+2.4%'],['카카오','+1.5%'],['크래프톤','+3.2%']],['네이버 AI 검색 트래픽 회복','카카오 커머스 성장']],
+    ['화장품','+1.8%',1,'수출 회복','+153억',[['아모레퍼시픽','+2.1%'],['한국콜마','+3.0%'],['코스맥스','+2.4%']],['K-뷰티 미국 수출 사상 최대','인디 브랜드 ODM 수혜']],
+    ['방산','+1.1%',0,'차익실현 유입 감소','−227억',[['LIG넥스원','+2.4%'],['현대로템','+3.1%'],['한화에어로','−0.7%']],['폴란드 2차 계약 협상 지연']],
+    ['2차전지','-1.9%',0,'자금 이탈','−206억',[['LG에너지솔루션','−2.1%'],['삼성SDI','−1.4%'],['에코프로비엠','−2.4%']],['전기차 캐즘 지속, 유럽 수요 부진']]
+  ];
+  // strength ranking (sorted by chg)
+  const sList=document.getElementById('strengthList');
+  [...THEMES].sort((a,b)=>parseFloat(b[1])-parseFloat(a[1])).forEach((t,i)=>{
+    const up=t[2];const col=up?'var(--up)':'var(--down)';const w=Math.min(100,Math.abs(parseFloat(t[1]))/12*100);
+    const el=document.createElement('div');el.className='strength';
+    el.innerHTML=`<span class="rk">${i+1}</span><span class="nm">${t[0]}</span><div class="gauge"><i style="width:${w}%;background:${col}"></i></div><span class="flow">${t[4]}</span><span class="chg" style="color:${col}">${t[1]}</span>`;
+    el.onclick=()=>openTheme(t);sList.appendChild(el);
+  });
+  // theme cards
+  const grid=document.getElementById('themeGrid');
+  THEMES.forEach(t=>{
+    const up=t[2];const col=up?'var(--up)':'var(--down)';
+    const pts=up?'0,30 30,26 60,28 90,18 120,20 150,10 180,6':'0,8 30,10 60,14 90,12 120,20 150,24 180,30';
+    const el=document.createElement('div');el.className='tcard';
+    el.innerHTML=`<div class="th"><span class="tname">${t[0]}</span><span class="tchg" style="color:${col}">${t[1]}</span></div>
+      <div class="sub">${t[3]}</div>
+      <svg class="tspark" viewBox="0 0 180 34" preserveAspectRatio="none"><polyline fill="none" stroke="${col}" stroke-width="2" points="${pts}"/></svg>
+      <div class="stocks">${t[5].map(s=>`<span class="stk">${s[0]}</span>`).join('')}</div>`;
+    el.onclick=()=>openTheme(t);grid.appendChild(el);
+  });
+  function openTheme(t){
+    const up=t[2];const col=up?'var(--up)':'var(--down)';
+    mName.textContent=t[0];mSub.textContent=t[3];mChg.textContent=t[1];mChg.style.color=col;
+    mFlow.textContent=t[4];mFlow.style.color=t[4].startsWith('−')?'var(--down)':'var(--up)';
+    mCnt.textContent=t[5].length+'개';mLead.textContent=t[5][0][0];
+    mStocks.innerHTML=t[5].map(s=>{const su=!s[1].startsWith('-')&&!s[1].startsWith('−');return `<div class="mstk"><span class="lg">${s[0][0]}</span><span class="nm">${s[0]}</span><span class="pc" style="color:${su?'var(--up)':'var(--down)'}">${s[1]}</span></div>`}).join('');
+    mNews.innerHTML=t[6].map(n=>`<div class="mnews">${n}</div>`).join('');
+    modalBg.classList.add('on');
+  }
+  mClose.onclick=()=>modalBg.classList.remove('on');
+  modalBg.onclick=e=>{if(e.target.id==='modalBg')modalBg.classList.remove('on')};
+
+  // daily flow chart
+  const flowData={'반도체':[ -30,20,-10,40,30,-20,50,60,-15,45,55,-25,70,80,40,90,60,-10,110,120]};
+  function renderFlow(key){
+    const d=flowData[key]||flowData['반도체'];const max=Math.max(...d.map(Math.abs));
+    document.getElementById('dflow').innerHTML=d.map(v=>{
+      const h=Math.abs(v)/max*100;const col=v>=0?(v>max*0.6?'#148f4f':'#1fa15c'):'#c46b74';
+      return `<div class="bar" style="height:${h}%;background:${col}"></div>`;
+    }).join('');
+  }
+  renderFlow('반도체');
+  const cyc=['반도체','금융','조선','2차전지'];let ci=0;let timer=null;
+  flowData['금융']=[10,15,-5,20,25,30,-10,15,20,35,40,20,-15,25,30,45,50,20,-10,40];
+  flowData['조선']=[-5,10,20,15,30,25,40,35,-10,45,50,30,60,55,-20,70,65,40,80,90];
+  flowData['2차전지']=[40,30,-20,25,-15,10,-30,-25,-40,-10,-35,-50,-20,-15,-45,-30,-25,-40,-50,-60];
+  document.getElementById('playBtn').onclick=function(){
+    if(timer){clearInterval(timer);timer=null;this.textContent='▶';return;}
+    this.textContent='⏸';
+    timer=setInterval(()=>{ci=(ci+1)%cyc.length;renderFlow(cyc[ci]);document.getElementById('playLabel').textContent=cyc[ci]+' 테마 자금';},1200);
+  };
+
+  const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    panels.forEach(p=>p.style.display=p.dataset.panel===b.dataset.p?'block':'none');
+  });
+</script>
+</body>
+</html>

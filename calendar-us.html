@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캘린더 · 미장 · RICHFLOW</title>
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+  .up{color:var(--up)}.down{color:var(--down)}.bot{display:block}.mono{font-variant-numeric:tabular-nums}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:16px;height:64px;max-width:1280px;margin:0 auto;padding:0 20px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}.logo .bot{width:34px;height:34px}
+  .mkbadge{font-size:11px;font-weight:800;color:#fff;background:var(--brand);padding:3px 9px;border-radius:7px}
+  nav.menu{display:flex;gap:4px;margin-left:6px}
+  nav.menu a{color:var(--txt-2);font-size:14px;font-weight:500;padding:8px 12px;border-radius:9px}
+  nav.menu a.on{color:#fff;background:var(--brand)}nav.menu a:hover:not(.on){color:var(--txt);background:var(--card)}
+  .nav-right{margin-left:auto;display:flex;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:200px;box-shadow:var(--shadow-sm)}
+  .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .phead{padding:24px 0 6px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+  .viewtoggle{display:flex;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:3px;box-shadow:var(--shadow-sm)}
+  .viewtoggle button{background:none;border:none;color:var(--txt-3);font-size:13px;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .viewtoggle button.on{background:var(--brand);color:#fff}
+  .wk{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}
+  .wk button{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--line);cursor:pointer;font-size:14px;box-shadow:var(--shadow-sm)}
+  .subtabs{display:flex;gap:6px;margin:18px 0;flex-wrap:wrap}
+  .subtabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .subtabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--txt-2);font-weight:600;margin-bottom:16px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:3px}
+  .d-earn{background:var(--brand)}.d-econ{background:var(--amber)}.d-fed{background:var(--down)}.d-ipo{background:var(--brand-2)}
+  .layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  .week{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .day{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 11px;min-height:230px;box-shadow:var(--shadow-sm)}
+  .day.today{border-color:var(--brand);border-width:2px}
+  .day .dh{display:flex;align-items:baseline;gap:6px;margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .day .dh .wd{font-size:12px;font-weight:700;color:var(--txt-3)}.day .dh .dd{font-size:18px;font-weight:800}
+  .day.today .dh .dd{color:var(--brand)}.day .dh .badge{margin-left:auto;font-size:10px;font-weight:800;background:var(--card-2);color:var(--txt-3);padding:2px 7px;border-radius:6px}
+  .ev{display:flex;gap:8px;padding:7px 0;font-size:12px;cursor:pointer}
+  .ev:hover .en{color:var(--brand)}.ev .dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;margin-top:4px}
+  .ev .en{font-weight:700;line-height:1.35}.ev .et{font-size:10px;color:var(--txt-3);font-weight:600;margin-top:1px}
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow-sm)}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500}
+  .today-ev{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.today-ev:last-child{border:none}
+  .today-ev .tm{font-size:12px;font-weight:800;color:var(--brand);width:52px;flex-shrink:0}
+  .today-ev .info .n{font-size:13px;font-weight:700}.today-ev .info .s{font-size:11px;color:var(--txt-3);margin-top:2px}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:right;font-size:10px;color:var(--txt-3);font-weight:700;padding:6px 6px;border-bottom:1px solid var(--line)}.tbl th:first-child{text-align:left}
+  .tbl td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right}.tbl td:first-child{text-align:left;font-weight:700}.tbl tr:last-child td{border-bottom:none}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
+  @media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static}.week{grid-template-columns:1fr}nav.menu,.search{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <span class="mkbadge">🇺🇸 미장</span>
+  <nav class="menu"><a href="whale-us.html">큰손 수급</a><a href="leaders-us.html">대표주</a><a href="idea-us.html">커넥션</a><a href="forecast-us.html">확률 통계</a><a href="research.html">리서치</a><a href="theme-us.html">테마·흐름</a><a href="screener-us.html">종목탐색</a><a href="calendar-us.html" class="on">캘린더</a></nav>
+  <div class="nav-right"><div class="search">🔍<input placeholder="Ticker 일정 검색"></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>📅 캘린더 <span class="mkbadge" style="font-size:14px">🇺🇸 US</span></h1>
+    <div class="viewtoggle"><button class="on">주간</button><button>월간</button></div>
+    <div class="wk"><button>‹</button><span>Jul 28 – Aug 1</span><button>›</button></div>
+  </section>
+
+  <div class="subtabs" id="subtabs"><button class="on">전체</button><button>어닝</button><button>경제지표</button><button>Fed</button><button>IPO</button></div>
+  <div class="legend">
+    <span><i class="d-earn" style="background:var(--brand)"></i>어닝(실적)</span>
+    <span><i class="d-econ" style="background:var(--amber)"></i>경제지표</span>
+    <span><i class="d-fed" style="background:var(--down)"></i>Fed·FOMC</span>
+    <span><i class="d-ipo" style="background:var(--brand-2)"></i>IPO</span>
+  </div>
+
+  <div class="layout">
+    <div class="week">
+      <div class="day">
+        <div class="dh"><span class="wd">Mon</span><span class="dd">28</span><span class="badge">2</span></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-earn"></span><div><div class="en">Palantir</div><div class="et">애프터마켓 · EPS $0.09</div></div></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-econ"></span><div><div class="en">댈러스 연은 제조업</div><div class="et">경제지표 · 10:30</div></div></div>
+      </div>
+      <div class="day">
+        <div class="dh"><span class="wd">Tue</span><span class="dd">29</span><span class="badge">3</span></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-earn"></span><div><div class="en">Microsoft</div><div class="et">애프터마켓 · EPS $3.12</div></div></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-earn"></span><div><div class="en">Meta</div><div class="et">애프터마켓 · EPS $6.28</div></div></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-econ"></span><div><div class="en">JOLTS 구인</div><div class="et">경제지표 · 10:00</div></div></div>
+      </div>
+      <div class="day today">
+        <div class="dh"><span class="wd">Wed</span><span class="dd">30</span><span class="badge">2</span></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-fed"></span><div><div class="en">FOMC 금리 결정</div><div class="et">Fed · 14:00 ET</div></div></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-econ"></span><div><div class="en">2Q GDP 속보</div><div class="et">경제지표 · 08:30</div></div></div>
+      </div>
+      <div class="day">
+        <div class="dh"><span class="wd">Thu</span><span class="dd">31</span><span class="badge">3</span></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-earn"></span><div><div class="en">Apple</div><div class="et">애프터마켓 · EPS $1.42</div></div></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-earn"></span><div><div class="en">Amazon</div><div class="et">애프터마켓 · EPS $1.28</div></div></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-econ"></span><div><div class="en">PCE 물가</div><div class="et">경제지표 · 08:30</div></div></div>
+      </div>
+      <div class="day">
+        <div class="dh"><span class="wd">Fri</span><span class="dd">01</span><span class="badge">2</span></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-econ"></span><div><div class="en">비농업 고용(NFP)</div><div class="et">경제지표 · 08:30</div></div></div>
+        <div class="ev" onclick="location.href='stock-us.html'"><span class="dot d-econ"></span><div><div class="en">실업률</div><div class="et">경제지표 · 08:30</div></div></div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="card">
+        <h3>🔴 이번주 핵심 <span class="hint">Fed 위크</span></h3>
+        <div class="today-ev"><span class="tm down">7/30</span><div class="info"><div class="n">FOMC 금리 결정</div><div class="s">동결 유력 · 9월 인하 신호 주목</div></div></div>
+        <div class="today-ev"><span class="tm">7/31</span><div class="info"><div class="n">Apple·Amazon 실적</div><div class="s">빅테크 실적 하이라이트</div></div></div>
+        <div class="today-ev"><span class="tm">8/01</span><div class="info"><div class="n">고용보고서(NFP)</div><div class="s">예상 +18만명 · 금리 경로 변수</div></div></div>
+      </div>
+
+      <div class="card">
+        <h3>📊 이번주 어닝 컨센서스 <span class="hint">EPS 예상</span></h3>
+        <table class="tbl">
+          <thead><tr><th>종목</th><th>예상 EPS</th><th>전년비</th></tr></thead>
+          <tbody>
+            <tr><td>Microsoft</td><td class="mono">$3.12</td><td class="up">+11%</td></tr>
+            <tr><td>Meta</td><td class="mono">$6.28</td><td class="up">+22%</td></tr>
+            <tr><td>Apple</td><td class="mono">$1.42</td><td class="up">+7%</td></tr>
+            <tr><td>Amazon</td><td class="mono">$1.28</td><td class="up">+38%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>🏦 경제지표 예상 <span class="hint">예상치·이전치</span></h3>
+        <table class="tbl">
+          <thead><tr><th>지표</th><th>예상</th><th>이전</th></tr></thead>
+          <tbody>
+            <tr><td>FOMC 금리</td><td class="mono">4.50%</td><td class="mono">4.50%</td></tr>
+            <tr><td>2Q GDP</td><td class="mono up">+2.4%</td><td class="mono">+2.8%</td></tr>
+            <tr><td>PCE(YoY)</td><td class="mono">2.6%</td><td class="mono">2.7%</td></tr>
+            <tr><td>NFP</td><td class="mono">+18만</td><td class="mono">+20.6만</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>🎯 예정 IPO <span class="hint">최근·예정</span></h3>
+        <div class="today-ev"><span class="tm up">Q3</span><div class="info"><div class="n">SpaceX (기대)</div><div class="s">비공개 · 상장설 지속</div></div></div>
+        <div class="today-ev"><span class="tm">8월</span><div class="info"><div class="n">OO AI Inc</div><div class="s">S-1 제출 · 나스닥 예정</div></div></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="disc">데이터 출처: SEC EDGAR · Nasdaq/NYSE · FRED · 애널리스트 컨센서스 · 자체 취합. 시간은 ET 기준이며 변경될 수 있습니다. 정보 제공용입니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+</div>
+
+<script>
+  const tabs=document.getElementById('subtabs');
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+  document.querySelectorAll('.viewtoggle button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.viewtoggle button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+</script>
+</body>
+</html>
