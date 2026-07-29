@@ -153,9 +153,9 @@
 </symbol></svg>
 
 <header class="nav"><div class="wrap nav-in">
-  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html?m=us" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
   <span class="mkbadge">🇺🇸 미장</span>
-  <a href="index.html" class="back">← 홈</a>
+  <a href="index.html?m=us" class="back">← 홈</a>
   <div class="nav-right"><div class="search-wrap"><div class="search">🔍<input id="tickerSearch" placeholder="종목 검색 (이름·코드: apple, TSLA)" autocomplete="off"></div><div class="search-drop" id="searchDrop"></div></div><button class="btn">＋ 관심종목</button></div>
 </div></header>
 
@@ -451,11 +451,26 @@
     }
 
     async function loadStock(){
-      const s=await fetchJSON('https://api.nasdaq.com/api/quote/'+T+'/summary?assetclass=stocks');
-      const sd=(s&&s.data&&s.data.summaryData)||{};
+      let sd={}, cr=null, m=null;
+      for(let attempt=0;attempt<3;attempt++){
+        const s=await fetchJSON('https://api.nasdaq.com/api/quote/'+T+'/summary?assetclass=stocks');
+        const cj=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval=1d&range=1mo');
+        if(s&&s.data&&s.data.summaryData)sd=s.data.summaryData;
+        cr=cj&&cj.chart&&cj.chart.result&&cj.chart.result[0]; m=cr&&cr.meta;
+        if(m||Object.keys(sd).length)break;
+        await new Promise(r=>setTimeout(r,1500));
+      }
       const g=k=>sd[k]&&sd[k].value;
-      const cj=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval=1d&range=1mo');
-      const cr=cj&&cj.chart&&cj.chart.result&&cj.chart.result[0], m=cr&&cr.meta;
+      // 완전 실패 시: 빈 화면 대신 안내 노출
+      if(!m&&!Object.keys(sd).length){
+        if($('shLogo'))$('shLogo').textContent=T;
+        if($('shName'))$('shName').textContent=T;
+        if($('shCode'))$('shCode').textContent='데이터를 불러오지 못했어요';
+        if($('aiCard')){$('aiCard').style.display='block';}
+        if($('aiVerdict'))$('aiVerdict').textContent='일시적 연결 오류';
+        if($('aiBrief'))$('aiBrief').innerHTML='시세 서버 연결이 일시적으로 원활하지 않습니다. 잠시 후 <a href="javascript:location.reload()" style="color:var(--brand);font-weight:800">다시 시도 ↻</a> 해주세요. (미국장 데이터는 공개 프록시를 거쳐 오기 때문에 가끔 지연될 수 있어요)';
+        return;
+      }
       const name=(m&&(m.longName||m.shortName))||T;
       const exch=(m&&m.fullExchangeName)||g('Exchange')||'US';
       curPrice=m&&m.regularMarketPrice;

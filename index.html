@@ -870,6 +870,17 @@
   });
   document.querySelectorAll('.tabs').forEach(t=>t.querySelectorAll('button').forEach(b=>b.onclick=()=>{t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
 
+  /* ===== URL ?m= 로 초기 시장 설정 (미장/코인 페이지에서 홈 누르면 해당 시장으로) ===== */
+  (function(){
+    const m=(new URLSearchParams(location.search).get('m')||'kr').toLowerCase();
+    const idx=MK.indexOf(m);
+    if(idx>0){
+      const btns=document.querySelectorAll('.market-switch button');
+      btns.forEach(x=>x.classList.remove('on')); if(btns[idx])btns[idx].classList.add('on');
+      render(MK[idx]); updateLive(); updateCoinIndicators();
+    }
+  })();
+
   /* ===== 실시간 코인 시세 (Binance, 무료·키불필요) ===== */
   function fmtPrice(p){if(p>=1000)return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});if(p>=1)return '$'+p.toFixed(2);return '$'+p.toFixed(p<0.01?4:3);}
   async function updateLive(){
