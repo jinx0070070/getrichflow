@@ -422,12 +422,17 @@
       chEl.className='c mono '+(up?'up':'down');
       if(lblEl)lblEl.textContent=label;
       if(dotEl)dotEl.style.background=amber?'var(--amber)':'var(--up)';
-      if(tmEl){
-        const hhmmss=new Date().toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false});
-        tmEl.textContent=(label==='장마감'?'⟳ 장 마감 (마지막 체결) · ':'⟳ 실시간 · ')+hhmmss+' 갱신';
-      }
+      curLabel=label; lastFetch=Date.now();
     }
-    live(); setInterval(live, 15000);
+    let curLabel='정규장', lastFetch=0;
+    function tick(){
+      if(!tmEl)return;
+      const hhmmss=new Date().toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false});
+      const head=curLabel==='장마감'?'장 마감 · 마지막 체결가':(curLabel==='정규장'?'실시간 정규장':'실시간 '+curLabel);
+      const ago=lastFetch?Math.round((Date.now()-lastFetch)/1000):0;
+      tmEl.textContent='⟳ '+head+' · '+hhmmss+(lastFetch?' (야후 '+ago+'초 전 확인)':'');
+    }
+    live(); setInterval(live, 15000); tick(); setInterval(tick, 1000);
   })();
 </script>
 </body>
