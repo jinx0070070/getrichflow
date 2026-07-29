@@ -535,7 +535,7 @@
       if($('shCode'))$('shCode').textContent=T+(sector?' · '+sector:'')+(industry?' · '+industry:'');
       document.title=name+' '+T+' · RICHFLOW 종목 허브 (미장)';
       if($('stMcap'))$('stMcap').textContent=g('MarketCap')?fmtBig(num(g('MarketCap'))):'—';
-      if($('stVol'))$('stVol').textContent=g('ShareVolume')||'—';
+      if($('stVol')){const vv=g('ShareVolume');$('stVol').textContent=vv?Math.round(num(vv)).toLocaleString('en-US'):'—';}
       if($('st52w')){ const w=g('FiftTwoWeekHighLow'); if(w){const p=w.split('/');$('st52w').textContent=(p.length===2?p[1]+'~'+p[0]:w);} }
       if($('stDiv'))$('stDiv').textContent=(g('Yield')&&g('Yield')!=='N/A')?g('Yield'):'—';
       if($('stSector'))$('stSector').textContent=sector||'—';
