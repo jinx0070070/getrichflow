@@ -152,7 +152,7 @@
         <div class="code">NVDA · 반도체 · 미국 시총 1위</div>
       </div>
       <div class="sh-price">
-        <div class="live" id="liveTag" style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><span style="width:6px;height:6px;border-radius:50%;background:var(--up);display:inline-block;animation:pulse 1.6s infinite"></span>실시간</div>
+        <div class="live" id="liveTag" style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--up);display:inline-block;animation:pulse 1.6s infinite"></span><span id="liveLbl">실시간</span></div>
         <div class="p mono" id="shPx">$196.51</div>
         <div class="c down mono" id="shChg">▼ 10.33 (−4.99%)</div>
       </div>
@@ -395,16 +395,28 @@
       return null;
     }
     const pxEl=document.getElementById('shPx'), chEl=document.getElementById('shChg');
+    const dotEl=document.getElementById('liveDot'), lblEl=document.getElementById('liveLbl');
     async function live(){
-      const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+TICKER+'?interval=1d&range=1d');
-      const m=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta;
-      if(!m||!m.regularMarketPrice)return;
-      const price=m.regularMarketPrice;
-      const prev=m.chartPreviousClose||m.previousClose||price;
-      const chg=price-prev, pct=prev?chg/prev*100:0, up=chg>=0;
+      const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+TICKER+'?interval=1m&range=1d&includePrePost=true');
+      const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
+      const m=res&&res.meta; if(!m||!m.regularMarketPrice)return;
+      const ts=res.timestamp||[], cl=(res.indicators&&res.indicators.quote&&res.indicators.quote[0]&&res.indicators.quote[0].close)||[];
+      let lastPx=null,lastTs=null;
+      for(let i=cl.length-1;i>=0;i--){if(cl[i]!=null){lastPx=cl[i];lastTs=ts[i];break;}}
+      const regPrice=m.regularMarketPrice, prev=m.previousClose||m.chartPreviousClose||regPrice;
+      if(lastPx==null){lastPx=regPrice;lastTs=m.regularMarketTime;}
+      const reg=(m.currentTradingPeriod&&m.currentTradingPeriod.regular)||{};
+      let ref=prev, label='정규장', amber=false;
+      if(reg.start&&reg.end&&lastTs){
+        if(lastTs>reg.end){ref=regPrice;label='장후';amber=true;}
+        else if(lastTs<reg.start){ref=prev;label='장전';amber=true;}
+      }
+      const price=lastPx, chg=price-ref, pct=ref?chg/ref*100:0, up=chg>=0;
       pxEl.textContent='$'+price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
       chEl.textContent=(up?'▲ ':'▼ ')+Math.abs(chg).toFixed(2)+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)';
       chEl.className='c mono '+(up?'up':'down');
+      if(lblEl)lblEl.textContent=label;
+      if(dotEl)dotEl.style.background=amber?'var(--amber)':'var(--up)';
     }
     live(); setInterval(live, 20000);
   })();
