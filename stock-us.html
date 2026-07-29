@@ -152,10 +152,10 @@
 <div class="wrap">
   <section class="stock-head">
     <div class="sh-top">
-      <div class="sh-logo">NVDA</div>
+      <div class="sh-logo" id="shLogo">NVDA</div>
       <div class="sh-name">
-        <h1>NVIDIA <span class="mk">NASDAQ</span></h1>
-        <div class="code">NVDA · 반도체 · 미국 시총 1위</div>
+        <h1 id="shName">NVIDIA <span class="mk" id="shExch">NASDAQ</span></h1>
+        <div class="code" id="shCode">불러오는 중…</div>
       </div>
       <div class="sh-price">
         <div class="live" id="liveTag" style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--up);display:inline-block;animation:pulse 1.6s infinite"></span><span id="liveLbl">실시간</span></div>
@@ -166,12 +166,12 @@
       <div class="sh-btns"><div class="icon-btn">☆</div><div class="icon-btn">🔔</div></div>
     </div>
     <div class="stats">
-      <div class="stat"><div class="k">시가총액</div><div class="v">$4.76T</div></div>
-      <div class="stat"><div class="k">거래대금</div><div class="v">$30.2B</div></div>
-      <div class="stat"><div class="k">P/E</div><div class="v">31.6</div></div>
-      <div class="stat"><div class="k">P/S</div><div class="v">18.8</div></div>
-      <div class="stat"><div class="k">배당수익률</div><div class="v">0.02%</div></div>
-      <div class="stat"><div class="k">52주 범위</div><div class="v">$164~$237</div></div>
+      <div class="stat"><div class="k">시가총액</div><div class="v" id="stMcap">—</div></div>
+      <div class="stat"><div class="k">거래량</div><div class="v" id="stVol">—</div></div>
+      <div class="stat"><div class="k">52주 범위</div><div class="v" id="st52w">—</div></div>
+      <div class="stat"><div class="k">배당수익률</div><div class="v" id="stDiv">—</div></div>
+      <div class="stat"><div class="k">업종</div><div class="v" id="stSector" style="font-size:12.5px">—</div></div>
+      <div class="stat"><div class="k">1년 목표가</div><div class="v" id="stTgt">—</div></div>
     </div>
     <div class="futbar" id="futbar">
       <span class="fk">🌏 미국 선물 <b>24시간</b></span>
@@ -182,7 +182,7 @@
   </section>
 </div>
 
-<div class="anchor-nav"><div class="wrap" style="display:flex;gap:2px">
+<div class="anchor-nav"><div class="wrap" style="display:flex;gap:2px" id="anchorNav">
   <a href="#chart">차트</a><a href="#f13">13F 수급</a><a href="#whale">큰손</a><a href="#filing">공시</a><a href="#earn">실적</a><a href="#peer">동종비교</a><a href="#news">뉴스</a><a href="#about">기업개요</a><a href="#talk">토론</a>
 </div></div>
 
@@ -195,7 +195,7 @@
           <div class="tabrow" style="margin-left:auto" id="chartTabs"><button>1D</button><button>1W</button><button class="on">1M</button><button>1Y</button><button>5Y</button></div>
         </h3>
         <div class="chart-wrap">
-          <svg viewBox="0 0 700 260" preserveAspectRatio="none">
+          <svg viewBox="0 0 700 260" preserveAspectRatio="none" id="pxChart">
             <line x1="0" y1="40" x2="700" y2="40" stroke="#d3d6dd"/><line x1="0" y1="90" x2="700" y2="90" stroke="#d3d6dd"/><line x1="0" y1="140" x2="700" y2="140" stroke="#d3d6dd"/><line x1="0" y1="190" x2="700" y2="190" stroke="#d3d6dd"/>
             <polygon fill="url(#ga)" points="0,189 37,142 74,165 111,190 147,184 184,171 221,106 258,118 295,44 332,111 368,36 405,30 442,76 479,118 516,114 553,77 590,34 626,64 663,81 700,175 700,195 0,195"/>
             <polyline fill="none" stroke="#1f9d57" stroke-width="2.5" points="0,189 37,142 74,165 111,190 147,184 184,171 221,106 258,118 295,44 332,111 368,36 405,30 442,76 479,118 516,114 553,77 590,34 626,64 663,81 700,175"/>
@@ -204,9 +204,9 @@
             <circle cx="700" cy="175" r="4" fill="#d8455a"/>
             <defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#1f9d57" stop-opacity=".22"/><stop offset="1" stop-color="#1f9d57" stop-opacity="0"/></linearGradient></defs>
           </svg>
-          <div class="yaxis"><span>$211</span><span>$206</span><span>$200</span><span>$195</span></div>
+          <div class="yaxis" id="pxYaxis"><span>—</span><span>—</span><span>—</span><span>—</span></div>
         </div>
-        <div class="chart-legend"><span><i style="background:#1f9d57"></i>주가(최근 1개월 실제)</span><span><i style="background:#c07f24"></i>50일선 $208.6</span><span style="margin-left:auto;color:var(--txt-3)">거래량 154M주 · 7/27 종가 기준</span></div>
+        <div class="chart-legend" id="pxLegend"><span><i style="background:#1f9d57"></i>주가</span><span style="margin-left:auto;color:var(--txt-3)">최근 1개월</span></div>
       </div>
 
       <!-- AI BRIEF -->
@@ -215,11 +215,11 @@
         <div class="row">
           <svg class="bot"><use href="#mascot"/></svg>
           <div>
-            <span class="verdict buy">중립 · 매수 컨센서스 유지</span>
-            <p>엔비디아는 이날 <b class="down">−4.99%</b> 급락한 <b>$196.51</b>로, 반도체 동반 약세(AMD −5.2%) 속 <b>50일선($208.6) 아래</b>로 내려왔습니다. 다만 펀더멘털은 견고 — 매출 <b class="up">+85% YoY</b>, ROE 114%, 순이익률 63%. 애널리스트 <b>58명 중 58명이 매수</b>(강력매수 컨센서스)이며 평균 목표가 <b class="up">$302.83(+54%)</b>. PER 31.6배(선행 15.3·PEG 0.57)로 성장 대비 과하지 않아요. 다음 <b>실적은 8월 하순</b>. <span style="color:var(--txt-3)">(정보 제공용·투자권유 아님)</span></p>
+            <span class="verdict buy" id="aiVerdict">종목 한눈에</span>
+            <p id="aiBrief">엔비디아는 이날 <b class="down">−4.99%</b> 급락한 <b>$196.51</b>로, 반도체 동반 약세(AMD −5.2%) 속 <b>50일선($208.6) 아래</b>로 내려왔습니다. 다만 펀더멘털은 견고 — 매출 <b class="up">+85% YoY</b>, ROE 114%, 순이익률 63%. 애널리스트 <b>58명 중 58명이 매수</b>(강력매수 컨센서스)이며 평균 목표가 <b class="up">$302.83(+54%)</b>. PER 31.6배(선행 15.3·PEG 0.57)로 성장 대비 과하지 않아요. 다음 <b>실적은 8월 하순</b>. <span style="color:var(--txt-3)">(정보 제공용·투자권유 아님)</span></p>
           </div>
         </div>
-        <div class="score-row">
+        <div class="score-row" id="aiScore">
           <div class="score-pill"><div class="k">밸류</div><div class="v" style="color:var(--amber)">60</div></div>
           <div class="score-pill"><div class="k">성장</div><div class="v" style="color:var(--up)">97</div></div>
           <div class="score-pill"><div class="k">수급</div><div class="v" style="color:var(--up)">80</div></div>
@@ -336,23 +336,23 @@
     <!-- SIDEBAR -->
     <div class="col">
       <div class="card">
-        <h3>📈 월가 목표가 <span class="hint">애널리스트 58명</span></h3>
-        <div class="target"><div class="to mono" style="font-size:26px">$302.83</div><div class="gap">평균 · 상승여력 +54.1%</div></div>
-        <div style="margin-top:12px">
+        <h3>📈 월가 목표가 <span class="hint" id="tgtHint">1년 목표</span></h3>
+        <div class="target"><div class="to mono" id="tgtPx" style="font-size:26px">—</div><div class="gap" id="tgtGap">—</div></div>
+        <div style="margin-top:12px" id="tgtDetail">
           <div class="analyst"><span>최고 목표가</span><span class="b up">$500</span></div>
           <div class="analyst"><span>중앙값</span><span class="b up">$300</span></div>
           <div class="analyst"><span>최저 목표가</span><span class="b">$180</span></div>
           <div class="analyst"><span>투자의견</span><span class="b up">강력매수 (1.30)</span></div>
           <div class="analyst"><span>매수 의견</span><span class="b up">58 / 61명</span></div>
         </div>
-        <div style="display:flex;gap:4px;margin-top:12px;font-size:10px;font-weight:800;text-align:center">
+        <div id="tgtDist" style="display:flex;gap:4px;margin-top:12px;font-size:10px;font-weight:800;text-align:center">
           <div style="flex:10;background:var(--up-bg);color:var(--up);padding:5px 0;border-radius:5px">강력매수 10</div>
           <div style="flex:48;background:var(--up);color:#fff;padding:5px 0;border-radius:5px">매수 48</div>
           <div style="flex:3;background:var(--card-2);color:var(--txt-2);padding:5px 0;border-radius:5px">중립 3</div>
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="cardOptions">
         <h3>🎲 옵션 플로우 <span class="hint">예시 · 유료 데이터</span></h3>
         <div class="keystat"><span class="k">Put/Call 비율</span><span class="v up">0.62 (콜 우위)</span></div>
         <div class="keystat"><span class="k">내재변동성(IV)</span><span class="v">48%</span></div>
@@ -361,7 +361,7 @@
         <div style="font-size:11px;color:var(--txt-3);margin-top:8px">콜 매수 우위 — 시장은 상승에 베팅 중.</div>
       </div>
 
-      <div class="card">
+      <div class="card" id="cardShort">
         <h3>📉 공매도 <span class="hint">FINRA</span></h3>
         <div class="keystat"><span class="k">공매도 잔고(SI)</span><span class="v">1.34%</span></div>
         <div class="keystat"><span class="k">숏 커버 일수(DTC)</span><span class="v">2.2일</span></div>
@@ -369,18 +369,17 @@
         <div style="font-size:11px;color:var(--txt-3);margin-top:8px">공매도 잔고 낮은 편 — 직전월 대비 소폭 증가(3.0억→3.24억주).</div>
       </div>
 
-      <div class="card">
+      <div class="card" id="cardScore">
         <h3>🧭 종목 스코어 <span class="hint">종합</span></h3>
         <div class="gauge"><div class="num">74</div><div class="gaugebar"><div class="pin" style="left:74%"></div></div></div>
         <div style="font-size:12px;color:var(--txt-2);margin-top:10px;line-height:1.5">성장(+85%)·기관수급(71.5%) 최상위. 단기 <b style="color:var(--down)">모멘텀</b>은 −5% 급락·50일선 이탈로 약화.</div>
       </div>
 
       <div class="card">
-        <h3>💵 배당 <span class="hint">2025</span></h3>
-        <div class="keystat"><span class="k">주당 배당 (연)</span><span class="v">$0.04</span></div>
-        <div class="keystat"><span class="k">배당수익률</span><span class="v">0.02%</span></div>
-        <div class="keystat"><span class="k">배당성향</span><span class="v">0.6%</span></div>
-        <div style="font-size:11px;color:var(--txt-3);margin-top:8px">성장주 특성상 배당은 상징적 수준(이익의 0.6%만 배당).</div>
+        <h3>💵 배당 <span class="hint">연간</span></h3>
+        <div class="keystat"><span class="k">주당 배당 (연)</span><span class="v" id="divRate">—</span></div>
+        <div class="keystat"><span class="k">배당수익률</span><span class="v" id="divYield">—</span></div>
+        <div class="keystat" id="divExDiv"><span class="k">배당락일</span><span class="v" id="divEx">—</span></div>
       </div>
     </div>
   </div>
@@ -396,7 +395,8 @@
 
   /* ===== 실시간 시세 (야후 파이낸스 → CORS 프록시 경유) ===== */
   (function(){
-    const TICKER='NVDA';
+    const T=(new URLSearchParams(location.search).get('t')||'NVDA').toUpperCase().replace(/[^A-Z.\-]/g,'');
+    const TICKER=T;
     const PROXIES=[
       u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
       u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
@@ -408,6 +408,83 @@
       }
       return null;
     }
+    const $=id=>document.getElementById(id);
+    let curPrice=null;
+    function fmtBig(n){ n=+n; if(!isFinite(n))return '—';
+      if(n>=1e12)return '$'+(n/1e12).toFixed(2)+'T';
+      if(n>=1e9)return '$'+(n/1e9).toFixed(1)+'B';
+      if(n>=1e6)return '$'+(n/1e6).toFixed(0)+'M'; return '$'+n.toLocaleString('en-US'); }
+    function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
+
+    function drawChart(closes){
+      const svg=$('pxChart'); if(!svg||!closes||closes.length<2)return;
+      const n=closes.length,W=700,top=30,bot=190;
+      const min=Math.min.apply(null,closes),max=Math.max.apply(null,closes),rng=(max-min)||1;
+      const X=i=>(i*(W/(n-1))),Y=v=>top+(max-v)/rng*(bot-top);
+      const pts=closes.map((c,i)=>X(i).toFixed(0)+','+Y(c).toFixed(0)).join(' ');
+      const up=closes[n-1]>=closes[0], col=up?'#1f9d57':'#d8455a';
+      svg.innerHTML=[40,90,140,190].map(y=>'<line x1="0" y1="'+y+'" x2="700" y2="'+y+'" stroke="#d3d6dd"/>').join('')
+        +'<polygon fill="url(#ga)" points="'+pts+' '+W+',195 0,195"/>'
+        +'<polyline fill="none" stroke="'+col+'" stroke-width="2.5" points="'+pts+'"/>'
+        +'<circle cx="'+X(n-1).toFixed(0)+'" cy="'+Y(closes[n-1]).toFixed(0)+'" r="4" fill="'+col+'"/>'
+        +'<defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".22"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>';
+      const ya=$('pxYaxis'); if(ya){ const L=[max,max-rng/3,max-2*rng/3,min]; ya.innerHTML=L.map(v=>'<span>$'+v.toFixed(v<10?2:0)+'</span>').join(''); }
+    }
+    const TF={'1D':['5m','1d'],'1W':['30m','5d'],'1M':['1d','1mo'],'1Y':['1wk','1y'],'5Y':['1mo','5y']};
+    async function loadChart(tf){
+      const cfg=TF[tf]||TF['1M'];
+      const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval='+cfg[0]+'&range='+cfg[1]);
+      const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
+      const cl=((res&&res.indicators&&res.indicators.quote&&res.indicators.quote[0]&&res.indicators.quote[0].close)||[]).filter(x=>x!=null);
+      drawChart(cl);
+      const lg=$('pxLegend'); if(lg&&lg.querySelector('span:last-child'))lg.querySelector('span:last-child').textContent=T+' · '+tf;
+    }
+
+    async function loadStock(){
+      const s=await fetchJSON('https://api.nasdaq.com/api/quote/'+T+'/summary?assetclass=stocks');
+      const sd=(s&&s.data&&s.data.summaryData)||{};
+      const g=k=>sd[k]&&sd[k].value;
+      const cj=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval=1d&range=1mo');
+      const cr=cj&&cj.chart&&cj.chart.result&&cj.chart.result[0], m=cr&&cr.meta;
+      const name=(m&&(m.longName||m.shortName))||T;
+      const exch=(m&&m.fullExchangeName)||g('Exchange')||'US';
+      curPrice=m&&m.regularMarketPrice;
+      if($('shLogo'))$('shLogo').textContent=T;
+      if($('shName'))$('shName').innerHTML=name+' <span class="mk">'+exch+'</span>';
+      const sector=g('Sector'), industry=g('Industry');
+      if($('shCode'))$('shCode').textContent=T+(sector?' · '+sector:'')+(industry?' · '+industry:'');
+      document.title=name+' '+T+' · RICHFLOW 종목 허브 (미장)';
+      if($('stMcap'))$('stMcap').textContent=g('MarketCap')?fmtBig(num(g('MarketCap'))):'—';
+      if($('stVol'))$('stVol').textContent=g('ShareVolume')||'—';
+      if($('st52w')){ const w=g('FiftTwoWeekHighLow'); if(w){const p=w.split('/');$('st52w').textContent=(p.length===2?p[1]+'~'+p[0]:w);} }
+      if($('stDiv'))$('stDiv').textContent=(g('Yield')&&g('Yield')!=='N/A')?g('Yield'):'—';
+      if($('stSector'))$('stSector').textContent=sector||'—';
+      if($('stTgt'))$('stTgt').textContent=(g('OneYrTarget')&&g('OneYrTarget')!=='N/A')?g('OneYrTarget'):'—';
+      const tgt=num(g('OneYrTarget'));
+      if($('tgtPx'))$('tgtPx').textContent=isFinite(tgt)?'$'+tgt.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
+      if($('tgtGap')&&isFinite(tgt)&&curPrice){ const u=(tgt/curPrice-1)*100; $('tgtGap').textContent='1년 목표 · 상승여력 '+(u>=0?'+':'')+u.toFixed(1)+'%'; $('tgtGap').className='gap '+(u>=0?'':'down'); }
+      if($('divRate'))$('divRate').textContent=(g('AnnualizedDividend')&&g('AnnualizedDividend')!=='N/A')?g('AnnualizedDividend'):'없음';
+      if($('divYield'))$('divYield').textContent=(g('Yield')&&g('Yield')!=='N/A')?g('Yield'):'—';
+      if($('divEx'))$('divEx').textContent=g('ExDividendDate')||'—';
+      const cl=((cr&&cr.indicators&&cr.indicators.quote&&cr.indicators.quote[0]&&cr.indicators.quote[0].close)||[]).filter(x=>x!=null);
+      drawChart(cl);
+      const lg=$('pxLegend'); if(lg&&lg.querySelector('span:last-child'))lg.querySelector('span:last-child').textContent=T+' · 1M';
+
+      if(T!=='NVDA'){
+        ['f13','whale','filing','earn','peer','news','about','talk','cardOptions','cardShort','cardScore','aiScore','tgtDetail','tgtDist'].forEach(id=>{const e=$(id);if(e)e.style.display='none';});
+        if($('anchorNav'))$('anchorNav').innerHTML='<a href="#chart">차트</a>';
+        if($('tgtHint'))$('tgtHint').textContent='나스닥 컨센서스';
+        const prevC=m&&(m.previousClose||m.chartPreviousClose);
+        const chgP=(curPrice&&prevC)?((curPrice-prevC)/prevC*100):0;
+        const upG=(isFinite(tgt)&&curPrice)?((tgt/curPrice-1)*100):null;
+        if($('aiVerdict'))$('aiVerdict').textContent=name+' 요약';
+        if($('aiBrief'))$('aiBrief').innerHTML=name+'('+T+')은 현재 <b>$'+(curPrice?curPrice.toLocaleString('en-US',{maximumFractionDigits:2}):'—')+'</b> (<b class="'+(chgP>=0?'up':'down')+'">'+(chgP>=0?'+':'')+chgP.toFixed(2)+'%</b>) 입니다. '+(sector?'업종은 <b>'+sector+'</b>. ':'')+(isFinite(tgt)?'월가 1년 목표가 <b>$'+tgt.toLocaleString('en-US',{maximumFractionDigits:0})+'</b>'+(upG!=null?'(상승여력 '+(upG>=0?'+':'')+upG.toFixed(0)+'%)':'')+'. ':'')+'<span style="color:var(--txt-3)">시세·차트·시총·목표가·배당은 실제 데이터이며, 상세 수급·재무·공시는 준비 중입니다. (투자권유 아님)</span>';
+        const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·52주·배당·1년 목표가·업종은 '+name+' 실제 시장 데이터</b>(Yahoo Finance·Nasdaq)입니다. 상세 기관수급·재무·공시·토론은 준비 중입니다. 정보 제공용이며 투자권유가 아닙니다.';
+      }
+    }
+    loadStock();
+    const _ct=$('chartTabs'); if(_ct)_ct.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>loadChart(b.textContent.trim())));
+
     const pxEl=document.getElementById('shPx'), chEl=document.getElementById('shChg');
     const dotEl=document.getElementById('liveDot'), lblEl=document.getElementById('liveLbl'), tmEl=document.getElementById('shTime');
     async function live(){
