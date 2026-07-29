@@ -28,6 +28,14 @@
   .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
   .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--txt-3);font-size:13px;width:220px;box-shadow:var(--shadow-sm)}
   .search input{background:none;border:none;color:var(--txt);font-family:inherit;font-size:13px;outline:none;width:100%}
+  .search-wrap{position:relative}
+  .search-drop{position:absolute;top:calc(100% + 6px);right:0;width:300px;max-width:80vw;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;z-index:60;display:none}
+  .search-drop.on{display:block}
+  .search-drop a{display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line);cursor:pointer}
+  .search-drop a:last-child{border-bottom:none}.search-drop a:hover{background:var(--card-2)}
+  .search-drop .sym{font-weight:800;color:var(--brand);font-size:13px;flex-shrink:0}
+  .search-drop .nm{color:var(--txt-2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .search-drop .ex{margin-left:auto;font-size:10px;color:var(--txt-3);font-weight:700;flex-shrink:0}
   .btn{background:var(--brand);color:#fff;font-weight:700;font-size:13px;border:none;padding:9px 16px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
   .stock-head{padding:24px 0 8px}
   .sh-top{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
@@ -146,7 +154,7 @@
   <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
   <span class="mkbadge">🇺🇸 미장</span>
   <a href="index.html" class="back">← 홈</a>
-  <div class="nav-right"><div class="search">🔍<input id="tickerSearch" placeholder="종목코드 검색 (예: AAPL, TSLA)"></div><button class="btn">＋ 관심종목</button></div>
+  <div class="nav-right"><div class="search-wrap"><div class="search">🔍<input id="tickerSearch" placeholder="종목 검색 (이름·코드: apple, TSLA)" autocomplete="off"></div><div class="search-drop" id="searchDrop"></div></div><button class="btn">＋ 관심종목</button></div>
 </div></header>
 
 <div class="wrap">
@@ -484,7 +492,23 @@
     }
     loadStock();
     const _ct=$('chartTabs'); if(_ct)_ct.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>loadChart(b.textContent.trim())));
-    const _sr=$('tickerSearch'); if(_sr)_sr.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const v=_sr.value.trim().toUpperCase().replace(/[^A-Z.\-]/g,''); if(v)location.href='stock-us.html?t='+v; } });
+    const _sr=$('tickerSearch'), _drop=$('searchDrop');
+    let _st, _results=[];
+    async function doSearch(q){
+      if(!q){ if(_drop){_drop.classList.remove('on');_drop.innerHTML='';} _results=[]; return; }
+      const j=await fetchJSON('https://query1.finance.yahoo.com/v1/finance/search?q='+encodeURIComponent(q)+'&quotesCount=8&newsCount=0');
+      const us=['NMS','NYQ','NGM','ASE','PCX','BATS','NCM'];
+      _results=((j&&j.quotes)||[]).filter(x=>(x.quoteType==='EQUITY'||x.quoteType==='ETF')&&x.symbol&&!x.symbol.includes('.')&&us.includes(x.exchange)).slice(0,7);
+      if(!_drop)return;
+      if(!_results.length){ _drop.classList.remove('on'); _drop.innerHTML=''; return; }
+      _drop.innerHTML=_results.map(x=>'<a href="stock-us.html?t='+x.symbol+'"><span class="sym">'+x.symbol+'</span><span class="nm">'+((x.shortname||x.longname||'').replace(/</g,''))+'</span><span class="ex">'+(x.exchange==='NYQ'?'NYSE':'NASDAQ')+'</span></a>').join('');
+      _drop.classList.add('on');
+    }
+    if(_sr){
+      _sr.addEventListener('input',()=>{ clearTimeout(_st); const v=_sr.value.trim(); _st=setTimeout(()=>doSearch(v),250); });
+      _sr.addEventListener('keydown',e=>{ if(e.key==='Enter'){ if(_results[0]){location.href='stock-us.html?t='+_results[0].symbol;} else {const v=_sr.value.trim().toUpperCase().replace(/[^A-Z.\-]/g,'');if(v)location.href='stock-us.html?t='+v;} } });
+      _sr.addEventListener('blur',()=>setTimeout(()=>{ if(_drop)_drop.classList.remove('on'); },200));
+    }
 
     const pxEl=document.getElementById('shPx'), chEl=document.getElementById('shChg');
     const dotEl=document.getElementById('liveDot'), lblEl=document.getElementById('liveLbl'), tmEl=document.getElementById('shTime');
