@@ -36,6 +36,8 @@
   .sh-name .mk{font-size:11px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
   .sh-price{margin-left:auto;text-align:right}
   .sh-price .p{font-size:30px;font-weight:800;letter-spacing:-.02em}.sh-price .c{font-size:14px;font-weight:700;margin-top:2px}
+  .sh-price .live{font-size:10px;font-weight:800;color:var(--up);margin-bottom:2px}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
   .sh-btns{display:flex;gap:8px;margin-left:14px}
   .icon-btn{width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;box-shadow:var(--shadow-sm)}
   .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:18px}
@@ -150,8 +152,9 @@
         <div class="code">NVDA · 반도체 · 미국 시총 1위</div>
       </div>
       <div class="sh-price">
-        <div class="p mono">$196.51</div>
-        <div class="c down mono">▼ 10.33 (−4.99%)</div>
+        <div class="live" id="liveTag" style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><span style="width:6px;height:6px;border-radius:50%;background:var(--up);display:inline-block;animation:pulse 1.6s infinite"></span>실시간</div>
+        <div class="p mono" id="shPx">$196.51</div>
+        <div class="c down mono" id="shChg">▼ 10.33 (−4.99%)</div>
       </div>
       <div class="sh-btns"><div class="icon-btn">☆</div><div class="icon-btn">🔔</div></div>
     </div>
@@ -377,6 +380,34 @@
   const tBuy=document.getElementById('tBuy'),tSell=document.getElementById('tSell');
   tBuy.onclick=()=>{tBuy.classList.add('on');tSell.classList.remove('on');};
   tSell.onclick=()=>{tSell.classList.add('on');tBuy.classList.remove('on');};
+
+  /* ===== 실시간 시세 (야후 파이낸스 → CORS 프록시 경유) ===== */
+  (function(){
+    const TICKER='NVDA';
+    const PROXIES=[
+      u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+      u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)
+    ];
+    async function fetchJSON(url){
+      for(const wrap of PROXIES){
+        try{const r=await fetch(wrap(url));if(!r.ok)continue;return await r.json();}catch(e){}
+      }
+      return null;
+    }
+    const pxEl=document.getElementById('shPx'), chEl=document.getElementById('shChg');
+    async function live(){
+      const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+TICKER+'?interval=1d&range=1d');
+      const m=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta;
+      if(!m||!m.regularMarketPrice)return;
+      const price=m.regularMarketPrice;
+      const prev=m.chartPreviousClose||m.previousClose||price;
+      const chg=price-prev, pct=prev?chg/prev*100:0, up=chg>=0;
+      pxEl.textContent='$'+price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      chEl.textContent=(up?'▲ ':'▼ ')+Math.abs(chg).toFixed(2)+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)';
+      chEl.className='c mono '+(up?'up':'down');
+    }
+    live(); setInterval(live, 20000);
+  })();
 </script>
 </body>
 </html>
