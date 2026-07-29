@@ -138,6 +138,8 @@
   .cmt .acts{display:flex;gap:14px;margin-top:7px;font-size:11px;color:var(--txt-3);font-weight:600}
   .cmt .acts span{cursor:pointer}.cmt .acts span:hover{color:var(--txt-2)}
   .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:16px 2px 40px}
+  /* 로딩 전 깜빡임 방지: 종목별 상세는 로드 후 JS가 노출 */
+  #aiCard,#aiScore,#f13,#whale,#filing,#earn,#peer,#news,#about,#talk,#cardOptions,#cardShort,#cardScore,#tgtDetail,#tgtDist{display:none}
   @media(max-width:900px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.search{display:none}}
 </style>
 </head>
@@ -160,15 +162,15 @@
 <div class="wrap">
   <section class="stock-head">
     <div class="sh-top">
-      <div class="sh-logo" id="shLogo">NVDA</div>
+      <div class="sh-logo" id="shLogo">···</div>
       <div class="sh-name">
-        <h1 id="shName">NVIDIA <span class="mk" id="shExch">NASDAQ</span></h1>
-        <div class="code" id="shCode">불러오는 중…</div>
+        <h1 id="shName">불러오는 중…</h1>
+        <div class="code" id="shCode">종목 데이터 로딩</div>
       </div>
       <div class="sh-price">
         <div class="live" id="liveTag" style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--up);display:inline-block;animation:pulse 1.6s infinite"></span><span id="liveLbl">실시간</span></div>
-        <div class="p mono" id="shPx">$196.51</div>
-        <div class="c down mono" id="shChg">▼ 10.33 (−4.99%)</div>
+        <div class="p mono" id="shPx">—</div>
+        <div class="c mono" id="shChg"></div>
         <div id="shTime" style="font-size:10px;color:var(--txt-3);font-weight:600;margin-top:3px">불러오는 중…</div>
       </div>
       <div class="sh-btns"><div class="icon-btn">☆</div><div class="icon-btn">🔔</div></div>
@@ -191,7 +193,7 @@
 </div>
 
 <div class="anchor-nav"><div class="wrap" style="display:flex;gap:2px" id="anchorNav">
-  <a href="#chart">차트</a><a href="#f13">13F 수급</a><a href="#whale">큰손</a><a href="#filing">공시</a><a href="#earn">실적</a><a href="#peer">동종비교</a><a href="#news">뉴스</a><a href="#about">기업개요</a><a href="#talk">토론</a>
+  <a href="#chart">차트</a>
 </div></div>
 
 <div class="wrap">
@@ -218,7 +220,7 @@
       </div>
 
       <!-- AI BRIEF -->
-      <div class="card aibrief">
+      <div class="card aibrief" id="aiCard">
         <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 종목 한눈에</h3>
         <div class="row">
           <svg class="bot"><use href="#mascot"/></svg>
@@ -353,7 +355,7 @@
           <div class="analyst"><span>투자의견</span><span class="b up">강력매수 (1.30)</span></div>
           <div class="analyst"><span>매수 의견</span><span class="b up">58 / 61명</span></div>
         </div>
-        <div id="tgtDist" style="display:flex;gap:4px;margin-top:12px;font-size:10px;font-weight:800;text-align:center">
+        <div id="tgtDist" style="gap:4px;margin-top:12px;font-size:10px;font-weight:800;text-align:center">
           <div style="flex:10;background:var(--up-bg);color:var(--up);padding:5px 0;border-radius:5px">강력매수 10</div>
           <div style="flex:48;background:var(--up);color:#fff;padding:5px 0;border-radius:5px">매수 48</div>
           <div style="flex:3;background:var(--card-2);color:var(--txt-2);padding:5px 0;border-radius:5px">중립 3</div>
@@ -478,9 +480,15 @@
       drawChart(cl);
       const lg=$('pxLegend'); if(lg&&lg.querySelector('span:last-child'))lg.querySelector('span:last-child').textContent=T+' · 1M';
 
-      if(T!=='NVDA'){
-        ['f13','whale','filing','earn','peer','news','about','talk','cardOptions','cardShort','cardScore','aiScore','tgtDetail','tgtDist'].forEach(id=>{const e=$(id);if(e)e.style.display='none';});
-        if($('anchorNav'))$('anchorNav').innerHTML='<a href="#chart">차트</a>';
+      // AI 카드는 항상 노출(로딩 후)
+      if($('aiCard'))$('aiCard').style.display='block';
+      if(T==='NVDA'){
+        // 엔비디아: 리치 상세 전부 노출 + 앵커 복원 (AI브리핑은 baked 유지)
+        ['f13','whale','filing','earn','peer','news','about','talk','cardOptions','cardShort','cardScore','tgtDetail'].forEach(id=>{const e=$(id);if(e)e.style.display='block';});
+        ['aiScore','tgtDist'].forEach(id=>{const e=$(id);if(e)e.style.display='flex';});
+        if($('anchorNav'))$('anchorNav').innerHTML='<a href="#chart">차트</a><a href="#f13">13F 수급</a><a href="#whale">큰손</a><a href="#filing">공시</a><a href="#earn">실적</a><a href="#peer">동종비교</a><a href="#news">뉴스</a><a href="#about">기업개요</a><a href="#talk">토론</a>';
+      }else{
+        // 그 외 종목: 상세는 숨긴 채로 두고 AI브리핑 자동생성
         if($('tgtHint'))$('tgtHint').textContent='나스닥 컨센서스';
         const prevC=m&&(m.previousClose||m.chartPreviousClose);
         const chgP=(curPrice&&prevC)?((curPrice-prevC)/prevC*100):0;
