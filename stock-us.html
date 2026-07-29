@@ -412,11 +412,17 @@
     const PROXIES=[
       u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
       u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
-      u=>'https://thingproxy.freeboard.io/fetch/'+u
+      u=>'https://api.codetabs.com/v1/proxy/?quest='+u
     ];
     async function fetchJSON(url){
       for(const wrap of PROXIES){
-        try{const r=await fetch(wrap(url),{cache:'no-store'});if(!r.ok)continue;return await r.json();}catch(e){}
+        try{
+          const c=new AbortController(); const id=setTimeout(()=>c.abort(),6000);
+          const r=await fetch(wrap(url),{cache:'no-store',signal:c.signal}); clearTimeout(id);
+          if(!r.ok)continue;
+          const txt=await r.text(); if(!txt||txt[0]==='<')continue; // HTML(에러페이지) 걸러냄
+          return JSON.parse(txt);
+        }catch(e){}
       }
       return null;
     }
