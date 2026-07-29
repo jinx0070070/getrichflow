@@ -146,7 +146,7 @@
   <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
   <span class="mkbadge">🇺🇸 미장</span>
   <a href="index.html" class="back">← 홈</a>
-  <div class="nav-right"><div class="search">🔍<input placeholder="다른 종목 검색"></div><button class="btn">＋ 관심종목</button></div>
+  <div class="nav-right"><div class="search">🔍<input id="tickerSearch" placeholder="종목코드 검색 (예: AAPL, TSLA)"></div><button class="btn">＋ 관심종목</button></div>
 </div></header>
 
 <div class="wrap">
@@ -484,6 +484,7 @@
     }
     loadStock();
     const _ct=$('chartTabs'); if(_ct)_ct.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>loadChart(b.textContent.trim())));
+    const _sr=$('tickerSearch'); if(_sr)_sr.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const v=_sr.value.trim().toUpperCase().replace(/[^A-Z.\-]/g,''); if(v)location.href='stock-us.html?t='+v; } });
 
     const pxEl=document.getElementById('shPx'), chEl=document.getElementById('shChg');
     const dotEl=document.getElementById('liveDot'), lblEl=document.getElementById('liveLbl'), tmEl=document.getElementById('shTime');
