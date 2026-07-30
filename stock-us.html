@@ -215,7 +215,7 @@
           <h3 style="margin:0">주가 차트</h3>
           <button id="magBtn" class="magbtn" title="자석: 커서가 캔들 고저종에 딱 붙음">🧲 무자석</button>
           <div class="tf-tabs" id="chartTabs">
-            <button data-tf="1D">1일</button><button data-tf="1W">1주</button><button data-tf="1M" class="on">1개월</button><button data-tf="3M">3개월</button><button data-tf="6M">6개월</button><button data-tf="1Y">1년</button><button data-tf="5Y">5년</button>
+            <button data-tf="5m">5분</button><button data-tf="15m">15분</button><button data-tf="30m">30분</button><button data-tf="1h">1시간</button><button data-tf="2h">2시간</button><button data-tf="4h">4시간</button><button data-tf="12h">12시간</button><button data-tf="1d" class="on">일</button><button data-tf="1wk">주</button><button data-tf="1mo">월</button>
           </div>
         </div>
         <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=확대/축소 · Shift+드래그=구간 측정</div>
@@ -440,15 +440,15 @@
     function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
     /* ===== 캔들 차트 엔진 (드래그 이동 + 휠 확대/축소) ===== */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1M',hi:1,lo:0,yShift:0};
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,intraday:false,ym:false};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
     function fmtPx(p){ return p>=1000? p.toLocaleString('en-US',{maximumFractionDigits:0}) : (p>=1?p.toFixed(2):p.toFixed(4)); }
     function xCenter(i){ return CH.mL + CH.slot*(i+0.5); }
     function yPrice(p){ return CH.mT + (CH.hi-p)/((CH.hi-CH.lo)||1)*CH.plotH + CH.yShift; }
-    function fmtT(sec,tf){
+    function fmtT(sec){
       const d=new Date(sec*1000), M=d.getMonth()+1, D=d.getDate(), h=d.getHours(), mi=d.getMinutes();
-      if(tf==='1D'||tf==='1W') return M+'/'+D+' '+String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
-      if(tf==='1Y'||tf==='5Y') return d.getFullYear()+'.'+M;
+      if(CH.intraday) return M+'/'+D+' '+String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
+      if(CH.ym) return d.getFullYear()+'.'+M;
       return M+'/'+D;
     }
     function drawCandles(){
@@ -490,20 +490,36 @@
     let _raf=0;
     function redraw(){ if(_raf)return; _raf=requestAnimationFrame(()=>{_raf=0;drawCandles();}); }
     // [interval, range, 기본 표시 캔들수]
-    const TF={'1D':['5m','1mo',78],'1W':['30m','1mo',65],'1M':['1d','2y',22],'3M':['1d','2y',64],'6M':['1d','5y',126],'1Y':['1wk','10y',52],'5Y':['1mo','max',60]};
+    function aggregate(data,hours){ if(!hours)return data; const b=hours*3600,out=[]; let cur=null,key=null;
+      for(const c of data){ const k=Math.floor(c.t/b); if(k!==key){ if(cur)out.push(cur); cur={t:c.t,o:c.o,h:c.h,l:c.l,c:c.c,v:c.v||0}; key=k; }
+        else { if(c.h>cur.h)cur.h=c.h; if(c.l<cur.l)cur.l=c.l; cur.c=c.c; cur.v+=(c.v||0); } }
+      if(cur)out.push(cur); return out; }
+    const TF={
+      '5m':{iv:'5m',rg:'1mo',vis:78,intra:1,lbl:'5분'},
+      '15m':{iv:'15m',rg:'1mo',vis:70,intra:1,lbl:'15분'},
+      '30m':{iv:'30m',rg:'1mo',vis:65,intra:1,lbl:'30분'},
+      '1h':{iv:'1h',rg:'6mo',vis:60,intra:1,lbl:'1시간'},
+      '2h':{iv:'1h',rg:'1y',vis:60,intra:1,aggH:2,lbl:'2시간'},
+      '4h':{iv:'1h',rg:'2y',vis:60,intra:1,aggH:4,lbl:'4시간'},
+      '12h':{iv:'1h',rg:'2y',vis:60,intra:1,aggH:12,lbl:'12시간'},
+      '1d':{iv:'1d',rg:'2y',vis:60,lbl:'일봉'},
+      '1wk':{iv:'1wk',rg:'10y',vis:60,ym:1,lbl:'주봉'},
+      '1mo':{iv:'1mo',rg:'max',vis:60,ym:1,lbl:'월봉'}
+    };
     async function loadChart(tf){
-      CH.tf=tf; CH.yShift=0; const svg=$('pxChart'); if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text>';
-      const cfg=TF[tf]||TF['1M'];
-      const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval='+cfg[0]+'&range='+cfg[1]);
+      CH.tf=tf; CH.yShift=0; const cfg=TF[tf]||TF['1d']; CH.intraday=!!cfg.intra; CH.ym=!!cfg.ym;
+      const svg=$('pxChart'); if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text>';
+      const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval='+cfg.iv+'&range='+cfg.rg);
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
       const q=res&&res.indicators&&res.indicators.quote&&res.indicators.quote[0], ts=res&&res.timestamp;
       if(!q||!ts){ if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="12">차트 데이터를 불러오지 못했어요</text>'; return; }
-      CH.full=ts.map((t,i)=>({t:t,o:q.open[i],h:q.high[i],l:q.low[i],c:q.close[i],v:q.volume?q.volume[i]:0})).filter(c=>c.o!=null&&c.c!=null&&c.h!=null&&c.l!=null);
-      const n=CH.full.length, vis=Math.min(cfg[2],n);
+      let data=ts.map((t,i)=>({t:t,o:q.open[i],h:q.high[i],l:q.low[i],c:q.close[i],v:q.volume?q.volume[i]:0})).filter(c=>c.o!=null&&c.c!=null&&c.h!=null&&c.l!=null);
+      if(cfg.aggH)data=aggregate(data,cfg.aggH);
+      CH.full=data; const n=data.length, vis=Math.min(cfg.vis,n);
       CH.i1=n; CH.i0=Math.max(0,n-vis);
       drawCandles();
       const dd=CH.data; if(dd.length){ const first=dd[0].o, last=dd[dd.length-1].c, pc=first?(last-first)/first*100:0, oh=$('chartOhlc');
-        if(oh)oh.innerHTML='<span>'+tf+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">드래그: 과거 이동 · 휠: 확대/축소</span>'; }
+        if(oh)oh.innerHTML='<span>'+cfg.lbl+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">드래그·휠·Shift+드래그</span>'; }
     }
     function priceAt(y){ return CH.hi-(y-CH.mT-CH.yShift)/CH.plotH*(CH.hi-CH.lo); }
     function setupChartInteract(){
@@ -614,7 +630,7 @@
       if($('divRate'))$('divRate').textContent=(g('AnnualizedDividend')&&g('AnnualizedDividend')!=='N/A')?g('AnnualizedDividend'):'없음';
       if($('divYield'))$('divYield').textContent=(g('Yield')&&g('Yield')!=='N/A')?g('Yield'):'—';
       if($('divEx'))$('divEx').textContent=g('ExDividendDate')||'—';
-      loadChart('1M');
+      loadChart('1d');
 
       // AI 카드는 항상 노출(로딩 후)
       if($('aiCard'))$('aiCard').style.display='block';
