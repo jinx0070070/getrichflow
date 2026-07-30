@@ -440,11 +440,11 @@
     function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
     /* ===== 캔들 차트 엔진 (드래그 이동 + 휠 확대/축소) ===== */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1M',hi:1,lo:0};
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1M',hi:1,lo:0,yShift:0};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
     function fmtPx(p){ return p>=1000? p.toLocaleString('en-US',{maximumFractionDigits:0}) : (p>=1?p.toFixed(2):p.toFixed(4)); }
     function xCenter(i){ return CH.mL + CH.slot*(i+0.5); }
-    function yPrice(p){ return CH.mT + (CH.hi-p)/((CH.hi-CH.lo)||1)*CH.plotH; }
+    function yPrice(p){ return CH.mT + (CH.hi-p)/((CH.hi-CH.lo)||1)*CH.plotH + CH.yShift; }
     function fmtT(sec,tf){
       const d=new Date(sec*1000), M=d.getMonth()+1, D=d.getDate(), h=d.getHours(), mi=d.getMinutes();
       if(tf==='1D'||tf==='1W') return M+'/'+D+' '+String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
@@ -492,7 +492,7 @@
     // [interval, range, 기본 표시 캔들수]
     const TF={'1D':['5m','1mo',78],'1W':['30m','1mo',65],'1M':['1d','2y',22],'3M':['1d','2y',64],'6M':['1d','5y',126],'1Y':['1wk','10y',52],'5Y':['1mo','max',60]};
     async function loadChart(tf){
-      CH.tf=tf; const svg=$('pxChart'); if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text>';
+      CH.tf=tf; CH.yShift=0; const svg=$('pxChart'); if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text>';
       const cfg=TF[tf]||TF['1M'];
       const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval='+cfg[0]+'&range='+cfg[1]);
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
@@ -505,7 +505,7 @@
       const dd=CH.data; if(dd.length){ const first=dd[0].o, last=dd[dd.length-1].c, pc=first?(last-first)/first*100:0, oh=$('chartOhlc');
         if(oh)oh.innerHTML='<span>'+tf+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">드래그: 과거 이동 · 휠: 확대/축소</span>'; }
     }
-    function priceAt(y){ return CH.hi-(y-CH.mT)/CH.plotH*(CH.hi-CH.lo); }
+    function priceAt(y){ return CH.hi-(y-CH.mT-CH.yShift)/CH.plotH*(CH.hi-CH.lo); }
     function setupChartInteract(){
       const box=$('chartBox'), svg=$('pxChart'), tip=$('chartTip'); if(!box||!svg)return;
       box.style.cursor='crosshair';
@@ -548,20 +548,26 @@
         const t1=document.getElementById('measT1'); t1.setAttribute('x',cxm.toFixed(1));t1.setAttribute('y',(by+13).toFixed(1));t1.textContent=(dPct>=0?'+':'')+dPct.toFixed(2)+'%';
         const t2=document.getElementById('measT2'); t2.setAttribute('x',cxm.toFixed(1));t2.setAttribute('y',(by+25).toFixed(1));t2.textContent=(up?'+':'')+(p1-mP).toFixed(2)+' · '+bars+'봉';
       }
-      function pan(cx){ const r=svg.getBoundingClientRect(); const slotPx=r.width/Math.max(1,CH.data.length); const dc=Math.round((cx-dragX)/slotPx); const vis=CH.i1-CH.i0; let ni0=dragI0-dc; ni0=Math.max(0,Math.min(CH.full.length-vis,ni0)); if(ni0!==CH.i0){ CH.i0=ni0; CH.i1=ni0+vis; redraw(); } }
+      function pan(cx,cy){ const r=svg.getBoundingClientRect();
+        // 좌우 → 시간축 이동
+        const slotPx=r.width/Math.max(1,CH.data.length); const dc=Math.round((cx-dragX)/slotPx); const vis=CH.i1-CH.i0; let ni0=Math.max(0,Math.min(CH.full.length-vis,dragI0-dc)); CH.i0=ni0; CH.i1=ni0+vis;
+        // 상하 → 가격축 이동
+        if(cy!=null){ const vbDelta=(cy-dragY)/r.height*CH.vbH; CH.yShift=dragYShift+vbDelta; }
+        redraw(); }
       function zoom(cx,dir){ const vis=CH.i1-CH.i0, cIdx=idxAt(cx), frac=CH.data.length?cIdx/CH.data.length:0.5, abs=CH.i0+cIdx; let nv=Math.round(vis*(dir>0?1.25:0.8)); nv=Math.max(15,Math.min(Math.min(CH.full.length,500),nv)); let ni0=Math.round(abs-frac*nv); ni0=Math.max(0,Math.min(CH.full.length-nv,ni0)); CH.i0=ni0; CH.i1=ni0+nv; redraw(); }
-      let dragging=false, dragX=0, dragI0=0, measuring=false, mI=0, mP=0;
+      let dragging=false, dragX=0, dragY=0, dragI0=0, dragYShift=0, measuring=false, mI=0, mP=0;
       box.addEventListener('mousedown',e=>{
         if(e.shiftKey){ measuring=true; mI=idxAt(e.clientX); const c=CH.data[mI]; mP=CH.magnet?c.c:priceAt(vbYof(e.clientY)); hide(); e.preventDefault(); return; }
-        hideMeas(); dragging=true; dragX=e.clientX; dragI0=CH.i0; box.style.cursor='grabbing'; hide(); e.preventDefault();
+        hideMeas(); dragging=true; dragX=e.clientX; dragY=e.clientY; dragI0=CH.i0; dragYShift=CH.yShift; box.style.cursor='grabbing'; hide(); e.preventDefault();
       });
       window.addEventListener('mouseup',()=>{ if(dragging){dragging=false; box.style.cursor='crosshair';} measuring=false; });
-      box.addEventListener('mousemove',e=>{ if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX); else showCross(e.clientX,e.clientY); });
+      box.addEventListener('mousemove',e=>{ if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX,e.clientY); else showCross(e.clientX,e.clientY); });
       box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring)hide(); });
       box.addEventListener('wheel',e=>{ e.preventDefault(); zoom(e.clientX, e.deltaY>0?1:-1); },{passive:false});
-      let tX=0,tI0=0;
-      box.addEventListener('touchstart',e=>{ if(e.touches[0]){tX=e.touches[0].clientX;tI0=CH.i0;} },{passive:true});
-      box.addEventListener('touchmove',e=>{ if(!e.touches[0])return; const cx=e.touches[0].clientX; if(Math.abs(cx-tX)>6){ dragX=tX; dragI0=tI0; pan(cx);} else showCross(cx,e.touches[0].clientY); },{passive:true});
+      box.addEventListener('dblclick',e=>{ CH.yShift=0; redraw(); });
+      let tX=0,tY=0,tI0=0,tYS=0;
+      box.addEventListener('touchstart',e=>{ if(e.touches[0]){tX=e.touches[0].clientX;tY=e.touches[0].clientY;tI0=CH.i0;tYS=CH.yShift;} },{passive:true});
+      box.addEventListener('touchmove',e=>{ if(!e.touches[0])return; const cx=e.touches[0].clientX, cy=e.touches[0].clientY; if(Math.abs(cx-tX)>6||Math.abs(cy-tY)>6){ dragX=tX; dragY=tY; dragI0=tI0; dragYShift=tYS; pan(cx,cy);} else showCross(cx,cy); },{passive:true});
       box.addEventListener('touchend',()=>setTimeout(hide,1500));
       const magBtn=$('magBtn'); CH.magnet=false;
       if(magBtn)magBtn.onclick=()=>{ CH.magnet=!CH.magnet; magBtn.classList.toggle('on',CH.magnet); magBtn.textContent=CH.magnet?'🧲 자석 ON':'🧲 무자석'; };
