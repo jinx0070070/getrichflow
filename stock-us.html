@@ -410,9 +410,9 @@
     const T=(new URLSearchParams(location.search).get('t')||'NVDA').toUpperCase().replace(/[^A-Z.\-]/g,'');
     const TICKER=T;
     const PROXIES=[
+      u=>'https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url='+encodeURIComponent(u),
       u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
-      u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
-      u=>'https://api.codetabs.com/v1/proxy/?quest='+u
+      u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)
     ];
     async function fetchJSON(url){
       for(const wrap of PROXIES){
