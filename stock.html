@@ -576,14 +576,15 @@
     async function loadStock(){
       if(!CODE){ const nm=params.get('name'); if(nm){ const ac=await fetchJSON('https://ac.stock.naver.com/ac?q='+encodeURIComponent(nm)+'&target=stock'); const it=ac&&ac.items&&ac.items.find(x=>/^\d{6}$/.test(x.code)); if(it)CODE=it.code; } }
       CODE=CODE||'005930';
-      let nv=null; for(let a=0;a<3;a++){ nv=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/integration'); if(nv&&nv.stockName)break; await sleep(1200); }
-      if(!nv||!nv.stockName){ if($('shName'))$('shName').textContent=CODE; if($('shCode'))$('shCode').textContent='데이터를 불러오지 못했어요 (새로고침 해주세요)'; return; }
-      const name=nv.stockName, mk=(nv.stockExchangeType&&nv.stockExchangeType.code)||'KS'; YT=CODE+(mk==='KQ'?'.KQ':'.KS');
+      let bs=null; for(let a=0;a<3;a++){ bs=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/basic'); if(bs&&bs.stockName)break; await sleep(1200); }
+      if(!bs||!bs.stockName){ if($('shName'))$('shName').textContent=CODE; if($('shCode'))$('shCode').textContent='데이터를 불러오지 못했어요 (새로고침 해주세요)'; return; }
+      const nv=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/integration');
+      const name=bs.stockName, mk=(bs.stockExchangeType&&bs.stockExchangeType.code)||'KS'; YT=CODE+(mk==='KQ'?'.KQ':'.KS');
       if($('shLogo'))$('shLogo').textContent=name.slice(0,1);
       if($('shName'))$('shName').innerHTML=name+' <span class="mk">'+(mk==='KQ'?'KOSDAQ':'KOSPI')+'</span>';
       if($('shCode'))$('shCode').textContent=CODE+(mk==='KQ'?' · 코스닥':' · 코스피');
       document.title=name+' '+CODE+' · RICHFLOW 종목 허브';
-      const info={}; (nv.totalInfos||[]).forEach(x=>{info[x.key]=x.value;});
+      const info={}; ((nv&&nv.totalInfos)||[]).forEach(x=>{info[x.key]=x.value;});
       if($('stMcap'))$('stMcap').textContent=info['시총']||'—';
       if($('stVol'))$('stVol').textContent=info['대금']||'—';
       if($('stPer'))$('stPer').textContent=info['PER']||'—';
@@ -593,20 +594,20 @@
       if($('divRate'))$('divRate').textContent=info['주당배당금']||'없음';
       if($('divYield'))$('divYield').textContent=info['배당수익률']||'—';
       if($('divEps'))$('divEps').textContent=info['EPS']||'—';
-      applyPrice(nv); updateSession();
+      applyPrice(bs); updateSession();
       loadChart('1d');
       if(CODE==='005930'){
         ['supply','whale','filing','earn','peer','news','about','talk','cardMaxpain','cardTarget','cardShort','cardScore','cardFin'].forEach(id=>{const e=$(id);if(e)e.style.display='block';});
         if($('aiScore'))$('aiScore').style.display='flex';
         if($('anchorNav'))$('anchorNav').innerHTML='<a href="#chart">차트</a><a href="#supply">수급</a><a href="#whale">큰손</a><a href="#filing">공시</a><a href="#earn">실적·재무</a><a href="#peer">동종비교</a><a href="#news">뉴스</a><a href="#about">기업개요</a><a href="#talk">토론</a>';
       } else {
-        const pct=pnum(nv.fluctuationsRatio),up=pct>=0;
+        const pct=pnum(bs.fluctuationsRatio),up=pct>=0;
         if($('aiVerdict')){$('aiVerdict').textContent=name+' 요약';$('aiVerdict').className='verdict '+(up?'buy':'mixed');}
-        if($('aiBrief'))$('aiBrief').innerHTML=name+'('+CODE+')은 현재 <b>'+(nv.closePrice||'—')+'원</b> (<b class="'+(up?'up':'down')+'">'+(pct>=0?'+':'')+pct.toFixed(2)+'%</b>) 입니다. 시총 <b>'+(info['시총']||'-')+'</b> · PER <b>'+(info['PER']||'-')+'</b> · 배당수익률 <b>'+(info['배당수익률']||'-')+'</b>. <span style="color:var(--txt-3)">시세·차트·시총·PER·배당·52주는 네이버·야후 실데이터이며, 상세 수급·공시·재무는 준비 중입니다. (투자권유 아님)</span>';
+        if($('aiBrief'))$('aiBrief').innerHTML=name+'('+CODE+')은 현재 <b>'+(bs.closePrice||'—')+'원</b> (<b class="'+(up?'up':'down')+'">'+(pct>=0?'+':'')+pct.toFixed(2)+'%</b>) 입니다. 시총 <b>'+(info['시총']||'-')+'</b> · PER <b>'+(info['PER']||'-')+'</b> · 배당수익률 <b>'+(info['배당수익률']||'-')+'</b>. <span style="color:var(--txt-3)">시세·차트·시총·PER·배당·52주는 네이버·야후 실데이터이며, 상세 수급·공시·재무는 준비 중입니다. (투자권유 아님)</span>';
         const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·PER·PBR·배당·52주는 '+name+' 실제 데이터</b>(네이버 금융·야후 파이낸스)입니다. 상세 투자자수급·공시·재무·토론은 준비 중입니다. 정보 제공용이며 투자권유가 아닙니다.';
       }
     }
-    async function live(){ const nv=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/integration'); if(nv&&nv.closePrice)applyPrice(nv); }
+    async function live(){ const bs=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/basic'); if(bs&&bs.closePrice)applyPrice(bs); }
 
     setupChartInteract();
     loadStock();
