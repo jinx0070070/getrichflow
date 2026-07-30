@@ -866,8 +866,19 @@
   /* ===== market switch ===== */
   const MK=['kr','us','coin'];
   document.querySelectorAll('.market-switch button').forEach((b,i)=>{
-    b.onclick=()=>{document.querySelectorAll('.market-switch button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(MK[i]);updateLive();updateCoinIndicators();};
+    b.onclick=()=>{document.querySelectorAll('.market-switch button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(MK[i]);updateLive();updateCoinIndicators();wireKR();};
   });
+  /* 국장 종목 링크: 이름으로 stock.html?name= 연결 (100여개 종목 클릭 시 해당 종목으로) */
+  function wireKR(){
+    document.querySelectorAll('a[href="stock.html"]').forEach(a=>{
+      let nm=''; const n=a.querySelector('.n');
+      if(n)nm=n.textContent.trim();
+      else if(a.firstChild&&a.firstChild.nodeType===3)nm=a.firstChild.textContent.trim();
+      else nm=a.textContent.replace(/[+\-\d.,%kK조억]/g,'').trim();
+      if(nm)a.setAttribute('href','stock.html?name='+encodeURIComponent(nm));
+    });
+  }
+  wireKR();
   document.querySelectorAll('.tabs').forEach(t=>t.querySelectorAll('button').forEach(b=>b.onclick=()=>{t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
 
   /* ===== URL ?m= 로 초기 시장 설정 (미장/코인 페이지에서 홈 누르면 해당 시장으로) ===== */
