@@ -24,6 +24,9 @@ export default {
       "query1.finance.yahoo.com",
       "query2.finance.yahoo.com",
       "api.nasdaq.com",
+      "m.stock.naver.com",
+      "api.stock.naver.com",
+      "ac.stock.naver.com",
     ];
     if (!allowed.includes(host)) {
       return new Response("host not allowed", { status: 403, headers: cors() });
