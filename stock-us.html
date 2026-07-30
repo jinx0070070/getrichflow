@@ -434,8 +434,8 @@
       if(n>=1e6)return '$'+(n/1e6).toFixed(0)+'M'; return '$'+n.toLocaleString('en-US'); }
     function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
-    /* ===== 캔들 차트 엔진 ===== */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,data:[],slot:0,tf:'1M',hi:1,lo:0,prevClose:0};
+    /* ===== 캔들 차트 엔진 (드래그 이동 + 휠 확대/축소) ===== */
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1M',hi:1,lo:0};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
     function fmtPx(p){ return p>=1000? p.toLocaleString('en-US',{maximumFractionDigits:0}) : (p>=1?p.toFixed(2):p.toFixed(4)); }
     function xCenter(i){ return CH.mL + CH.slot*(i+0.5); }
@@ -447,21 +447,22 @@
       return M+'/'+D;
     }
     function drawCandles(){
-      const svg=$('pxChart'), d=CH.data, n=d.length; if(!svg)return;
+      const svg=$('pxChart'); CH.data=CH.full.slice(CH.i0,CH.i1); const d=CH.data, n=d.length; if(!svg)return;
       if(!n){ svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 데이터 없음</text>'; return; }
       let lo=Infinity, hi=-Infinity, maxV=0;
       d.forEach(c=>{ if(c.l<lo)lo=c.l; if(c.h>hi)hi=c.h; if(c.v>maxV)maxV=c.v; });
       const pad=(hi-lo)*0.06||1; CH.hi=hi+pad; CH.lo=lo-pad; CH.slot=CH.plotW/n;
-      const bw=Math.max(1.2, CH.slot*0.62), volH=CH.plotH*0.15, volY0=CH.mT+CH.plotH;
+      const bw=Math.max(1, Math.min(14, CH.slot*0.66)), volH=CH.plotH*0.15, volY0=CH.mT+CH.plotH;
       let g='';
       for(let s=0;s<=5;s++){ const p=CH.hi-(CH.hi-CH.lo)*s/5, y=yPrice(p);
         g+='<line x1="'+CH.mL+'" y1="'+y.toFixed(1)+'" x2="'+(CH.mL+CH.plotW)+'" y2="'+y.toFixed(1)+'" stroke="#e6e8ec"/>';
         g+='<text x="'+(CH.vbW-CH.mR+5)+'" y="'+(y+3).toFixed(1)+'" fill="#8a909b" font-size="10" font-weight="600">'+fmtPx(p)+'</text>'; }
-      d.forEach((c,i)=>{ if(!maxV)return; const h=c.v/maxV*volH, x=xCenter(i)-bw/2;
+      if(maxV) d.forEach((c,i)=>{ const h=c.v/maxV*volH, x=xCenter(i)-bw/2;
         g+='<rect x="'+x.toFixed(1)+'" y="'+(volY0-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+(c.c>=c.o?'rgba(31,157,87,.16)':'rgba(216,69,90,.16)')+'"/>'; });
+      const thin=CH.slot<3;
       d.forEach((c,i)=>{ const x=xCenter(i), up=c.c>=c.o, col=up?'#1f9d57':'#d8455a';
-        g+='<line x1="'+x.toFixed(1)+'" y1="'+yPrice(c.h).toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+yPrice(c.l).toFixed(1)+'" stroke="'+col+'" stroke-width="1"/>';
-        const yo=yPrice(c.o), yc=yPrice(c.c), by=Math.min(yo,yc), bh=Math.max(1,Math.abs(yo-yc));
+        g+='<line x1="'+x.toFixed(1)+'" y1="'+yPrice(c.h).toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+yPrice(c.l).toFixed(1)+'" stroke="'+col+'" stroke-width="'+(thin?0.6:1)+'"/>';
+        const yo=yPrice(c.o), yc=yPrice(c.c), by=Math.min(yo,yc), bh=Math.max(thin?0.6:1,Math.abs(yo-yc));
         g+='<rect x="'+(x-bw/2).toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+col+'"/>'; });
       const labN=Math.min(6,n);
       for(let k=0;k<labN;k++){ const i=Math.round(k*(n-1)/((labN-1)||1)), x=xCenter(i);
@@ -469,7 +470,10 @@
       g+='<g id="pxCross" style="display:none"><line id="cvx" y1="'+CH.mT+'" y2="'+(CH.mT+CH.plotH)+'" stroke="#5c6470" stroke-width="1" stroke-dasharray="3 3"/><line id="cvy" x1="'+CH.mL+'" x2="'+(CH.mL+CH.plotW)+'" stroke="#5c6470" stroke-width="1" stroke-dasharray="3 3"/><circle id="cvd" r="3.5" fill="#1b1e24"/></g>';
       svg.innerHTML=g;
     }
-    const TF={'1D':['5m','1d'],'1W':['30m','5d'],'1M':['1d','1mo'],'3M':['1d','3mo'],'6M':['1d','6mo'],'1Y':['1wk','1y'],'5Y':['1mo','5y']};
+    let _raf=0;
+    function redraw(){ if(_raf)return; _raf=requestAnimationFrame(()=>{_raf=0;drawCandles();}); }
+    // [interval, range, 기본 표시 캔들수]
+    const TF={'1D':['5m','1mo',78],'1W':['30m','1mo',65],'1M':['1d','2y',22],'3M':['1d','2y',64],'6M':['1d','5y',126],'1Y':['1wk','10y',52],'5Y':['1mo','max',60]};
     async function loadChart(tf){
       CH.tf=tf; const svg=$('pxChart'); if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text>';
       const cfg=TF[tf]||TF['1M'];
@@ -477,38 +481,45 @@
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
       const q=res&&res.indicators&&res.indicators.quote&&res.indicators.quote[0], ts=res&&res.timestamp;
       if(!q||!ts){ if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="12">차트 데이터를 불러오지 못했어요</text>'; return; }
-      CH.data=ts.map((t,i)=>({t:t,o:q.open[i],h:q.high[i],l:q.low[i],c:q.close[i],v:q.volume?q.volume[i]:0})).filter(c=>c.o!=null&&c.c!=null&&c.h!=null&&c.l!=null);
-      CH.prevClose=(res.meta&&res.meta.chartPreviousClose)||(CH.data[0]&&CH.data[0].o)||0;
+      CH.full=ts.map((t,i)=>({t:t,o:q.open[i],h:q.high[i],l:q.low[i],c:q.close[i],v:q.volume?q.volume[i]:0})).filter(c=>c.o!=null&&c.c!=null&&c.h!=null&&c.l!=null);
+      const n=CH.full.length, vis=Math.min(cfg[2],n);
+      CH.i1=n; CH.i0=Math.max(0,n-vis);
       drawCandles();
       const dd=CH.data; if(dd.length){ const first=dd[0].o, last=dd[dd.length-1].c, pc=first?(last-first)/first*100:0, oh=$('chartOhlc');
-        if(oh)oh.innerHTML='<span>'+tf+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">차트에 마우스를 올려보세요</span>'; }
+        if(oh)oh.innerHTML='<span>'+tf+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">드래그: 과거 이동 · 휠: 확대/축소</span>'; }
     }
-    function setupCrosshair(){
+    function setupChartInteract(){
       const box=$('chartBox'), svg=$('pxChart'), tip=$('chartTip'); if(!box||!svg)return;
-      function move(clientX,clientY){
+      box.style.cursor='crosshair';
+      const idxAt=cx=>{ const rect=svg.getBoundingClientRect(); if(!rect.width)return 0; const vbX=(cx-rect.left)/rect.width*CH.vbW; return Math.max(0,Math.min(CH.data.length-1,Math.round((vbX-CH.mL)/CH.slot-0.5))); };
+      function showCross(cx,cy){
         const d=CH.data, n=d.length; if(!n)return;
-        const rect=svg.getBoundingClientRect(); if(!rect.width)return;
-        const vbX=(clientX-rect.left)/rect.width*CH.vbW;
-        let i=Math.round((vbX-CH.mL)/CH.slot-0.5); i=Math.max(0,Math.min(n-1,i));
-        const c=d[i], x=xCenter(i), yc=yPrice(c.c);
-        const cross=document.getElementById('pxCross');
-        if(cross){ cross.style.display='';
-          const a=document.getElementById('cvx'), b=document.getElementById('cvy'), dot=document.getElementById('cvd');
-          a.setAttribute('x1',x); a.setAttribute('x2',x); b.setAttribute('y1',yc); b.setAttribute('y2',yc); dot.setAttribute('cx',x); dot.setAttribute('cy',yc); }
-        const up=c.c>=c.o, pc=CH.prevClose?((c.c-CH.prevClose)/CH.prevClose*100):0, cls=up?'up':'down';
-        tip.innerHTML='<b>'+fmtT(c.t,CH.tf)+'</b><br>시 '+fmtPx(c.o)+' · 고 '+fmtPx(c.h)+'<br>저 '+fmtPx(c.l)+' · <b>종 '+fmtPx(c.c)+'</b><br><span class="'+cls+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'% (전일比)</span>';
+        const i=idxAt(cx), c=d[i], x=xCenter(i), yc=yPrice(c.c);
+        const cr=document.getElementById('pxCross');
+        if(cr){ cr.style.display=''; const a=document.getElementById('cvx'),b=document.getElementById('cvy'),dt=document.getElementById('cvd');
+          a.setAttribute('x1',x);a.setAttribute('x2',x);b.setAttribute('y1',yc);b.setAttribute('y2',yc);dt.setAttribute('cx',x);dt.setAttribute('cy',yc); }
+        const abs=CH.i0+i, prev=(CH.full[abs-1]&&CH.full[abs-1].c)||c.o, up=c.c>=prev, pc=prev?((c.c-prev)/prev*100):0, cls=up?'up':'down';
+        tip.innerHTML='<b>'+fmtT(c.t,CH.tf)+'</b><br>시 '+fmtPx(c.o)+' · 고 '+fmtPx(c.h)+'<br>저 '+fmtPx(c.l)+' · <b>종 '+fmtPx(c.c)+'</b><br><span class="'+cls+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'% (직전比)</span>';
         tip.style.display='block';
         const boxR=box.getBoundingClientRect();
-        let tx=clientX-boxR.left+14; if(tx>boxR.width-140)tx=clientX-boxR.left-140;
-        let ty=clientY-boxR.top+10; if(ty>boxR.height-72)ty=boxR.height-72; if(ty<0)ty=0;
+        let tx=cx-boxR.left+14; if(tx>boxR.width-140)tx=cx-boxR.left-140; if(tx<0)tx=0;
+        let ty=cy-boxR.top+10; if(ty>boxR.height-72)ty=boxR.height-72; if(ty<0)ty=0;
         tip.style.left=tx+'px'; tip.style.top=ty+'px';
         const oh=$('chartOhlc'); if(oh)oh.innerHTML='<span><b>'+fmtT(c.t,CH.tf)+'</b></span><span>시<b> '+fmtPx(c.o)+'</b></span><span>고<b style="color:var(--up)"> '+fmtPx(c.h)+'</b></span><span>저<b style="color:var(--down)"> '+fmtPx(c.l)+'</b></span><span>종<b> '+fmtPx(c.c)+'</b></span><span style="color:'+(up?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</span>';
       }
       const hide=()=>{ tip.style.display='none'; const c=document.getElementById('pxCross'); if(c)c.style.display='none'; };
-      box.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
-      box.addEventListener('mouseleave',hide);
-      box.addEventListener('touchmove',e=>{ if(e.touches[0])move(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
-      box.addEventListener('touchend',hide);
+      function pan(cx){ const rect=svg.getBoundingClientRect(); const slotPx=rect.width/Math.max(1,CH.data.length); const dc=Math.round((cx-dragX)/slotPx); const vis=CH.i1-CH.i0; let ni0=dragI0-dc; ni0=Math.max(0,Math.min(CH.full.length-vis,ni0)); if(ni0!==CH.i0){ CH.i0=ni0; CH.i1=ni0+vis; redraw(); } }
+      function zoom(cx,dir){ const vis=CH.i1-CH.i0, cIdx=idxAt(cx), frac=CH.data.length?cIdx/CH.data.length:0.5, abs=CH.i0+cIdx; let nv=Math.round(vis*(dir>0?1.25:0.8)); nv=Math.max(15,Math.min(Math.min(CH.full.length,500),nv)); let ni0=Math.round(abs-frac*nv); ni0=Math.max(0,Math.min(CH.full.length-nv,ni0)); CH.i0=ni0; CH.i1=ni0+nv; redraw(); }
+      let dragging=false, dragX=0, dragI0=0;
+      box.addEventListener('mousedown',e=>{ dragging=true; dragX=e.clientX; dragI0=CH.i0; box.style.cursor='grabbing'; hide(); e.preventDefault(); });
+      window.addEventListener('mouseup',()=>{ if(dragging){dragging=false; box.style.cursor='crosshair';} });
+      box.addEventListener('mousemove',e=>{ if(dragging)pan(e.clientX); else showCross(e.clientX,e.clientY); });
+      box.addEventListener('mouseleave',()=>{ if(!dragging)hide(); });
+      box.addEventListener('wheel',e=>{ e.preventDefault(); zoom(e.clientX, e.deltaY>0?1:-1); },{passive:false});
+      let tX=0,tI0=0,tMoved=false;
+      box.addEventListener('touchstart',e=>{ if(e.touches[0]){tX=e.touches[0].clientX;tI0=CH.i0;tMoved=false;} },{passive:true});
+      box.addEventListener('touchmove',e=>{ if(!e.touches[0])return; const cx=e.touches[0].clientX; if(Math.abs(cx-tX)>6){tMoved=true; dragX=tX; dragI0=tI0; pan(cx);} else showCross(cx,e.touches[0].clientY); },{passive:true});
+      box.addEventListener('touchend',()=>setTimeout(hide,1200));
     }
 
     async function loadStock(){
@@ -572,7 +583,7 @@
         const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·52주·배당·1년 목표가·업종은 '+name+' 실제 시장 데이터</b>(Yahoo Finance·Nasdaq)입니다. 상세 기관수급·재무·공시·토론은 준비 중입니다. 정보 제공용이며 투자권유가 아닙니다.';
       }
     }
-    setupCrosshair();
+    setupChartInteract();
     loadStock();
     const _ct=$('chartTabs'); if(_ct)_ct.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ _ct.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); loadChart(b.getAttribute('data-tf')); }));
     const _sr=$('tickerSearch'), _drop=$('searchDrop');
