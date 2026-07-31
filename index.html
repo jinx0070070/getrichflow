@@ -308,7 +308,10 @@
   <section class="hero">
     <div class="hero-grid">
       <div class="index-card">
-        <div class="live-badge"><span class="live-dot"></span>LIVE · 실시간 · 20초 갱신</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="live-badge"><span class="live-dot"></span>LIVE · 실시간 · 10초 자동</div>
+          <button id="refreshBtn" title="지금 새로고침" style="background:var(--card);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;transition:transform .5s">↻ 새로고침</button>
+        </div>
         <div class="index-row" id="indexRow">
           <div class="idx" data-sym="^KS11" data-dec="2">
             <div class="name">코스피</div>
@@ -871,11 +874,11 @@
   /* ===== 홈 지수 라이브 (코스피·코스닥·원달러 / S&P·나스닥·다우) — 야후, 워커 경유 ===== */
   const IDX_PROX=[u=>'https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url='+encodeURIComponent(u),u=>'https://corsproxy.io/?url='+encodeURIComponent(u)];
   async function idxFetch(url){ for(const w of IDX_PROX){ try{ const c=new AbortController(),id=setTimeout(()=>c.abort(),6000); const r=await fetch(w(url),{cache:'no-store',signal:c.signal}); clearTimeout(id); if(!r.ok)continue; const t=await r.text(); if(!t||t[0]==='<')continue; return JSON.parse(t); }catch(e){} } return null; }
-  async function updateIndexRow(){
+  async function updateIndexRow(force){
     const cells=[...document.querySelectorAll('#indexRow .idx[data-sym]')];
     for(const cell of cells){
       const sym=cell.getAttribute('data-sym'), dec=+(cell.getAttribute('data-dec')||2);
-      const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d');
+      const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d'+(force?'&_='+Date.now():''));
       const m=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta; if(!m||!m.regularMarketPrice)continue;
       const price=m.regularMarketPrice, prev=m.chartPreviousClose||m.previousClose||price, chg=price-prev, pct=prev?chg/prev*100:0, up=chg>=0;
       const val=cell.querySelector('.val'), c=cell.querySelector('.chg');
@@ -906,7 +909,8 @@
       render(MK[idx]); updateLive(); updateCoinIndicators();
     }
   })();
-  updateIndexRow(); setInterval(updateIndexRow, 20000);
+  updateIndexRow(); setInterval(updateIndexRow, 10000);
+  (function(){ const rb=document.getElementById('refreshBtn'); if(rb)rb.onclick=()=>{ rb.style.transform='rotate(360deg)'; updateIndexRow(true); updateLive(); updateCoinIndicators(); setTimeout(()=>{rb.style.transition='none';rb.style.transform='rotate(0deg)';setTimeout(()=>rb.style.transition='transform .5s',30);},550); }; })();
 
   /* ===== 실시간 코인 시세 (Binance, 무료·키불필요) ===== */
   function fmtPrice(p){if(p>=1000)return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});if(p>=1)return '$'+p.toFixed(2);return '$'+p.toFixed(p<0.01?4:3);}
