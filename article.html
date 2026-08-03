@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>마이크로소프트 주가 하락 이유 · RICHFLOW 리서치</title>
+<link rel="stylesheet" href="community.css">
 <style>
   :root{
     --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
@@ -70,6 +71,11 @@
   .prose p{margin-bottom:18px}.prose b{font-weight:700;color:var(--txt)}
   .prose .figure{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:24px 0;box-shadow:var(--shadow-sm)}
   .prose .figure .cap{font-size:12px;color:var(--txt-3);margin-top:10px;text-align:center}
+  .bars{height:190px;display:flex;align-items:flex-end;justify-content:center;gap:28px;border-bottom:1px solid var(--line);padding:18px 16px 0}
+  .bar-item{height:100%;width:min(100px,26%);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}
+  .bar-value{font-size:12px;font-weight:800;color:var(--txt)}
+  .bar{width:100%;min-height:14px;background:linear-gradient(180deg,var(--brand-2),var(--brand));border-radius:8px 8px 2px 2px}
+  .bar-label{font-size:11px;color:var(--txt-3);font-weight:700;padding-bottom:7px}
   .quote{border-left:3px solid var(--brand);padding:4px 0 4px 18px;color:var(--txt-2);font-size:17px;margin:24px 0;font-weight:500}
   .stock-inline{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:6px 8px 6px 0;box-shadow:var(--shadow-sm)}
   .stock-inline .n{font-weight:700;font-size:13px}.stock-inline .p{font-size:12px;font-weight:700}
@@ -113,6 +119,15 @@
   .tags{display:flex;gap:6px;flex-wrap:wrap}
   .tags a{font-size:12px;font-weight:600;color:var(--txt-2);background:var(--card-2);border:1px solid var(--line);padding:5px 11px;border-radius:20px}
   .tags a:hover{color:var(--txt)}
+  .source-list{display:flex;flex-direction:column;gap:8px}
+  .source-list a{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:flex-start;font-size:12px;line-height:1.45;color:var(--txt-2);padding:9px 10px;background:var(--card-2);border:1px solid var(--line);border-radius:10px}
+  .source-list a:hover{color:var(--txt);border-color:var(--line-2)}
+  .source-kind{font-size:10px;font-weight:800;color:var(--brand);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 5px;white-space:nowrap}
+  .source-copy{display:flex;flex-direction:column;gap:2px}.source-copy b{font-size:12px}.source-copy small{font-size:10px;color:var(--txt-3)}
+  .evidence{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;line-height:1.55;color:var(--txt-3)}
+  .evidence b{color:var(--txt-2)}
+  .snapshot{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--txt-3);font-weight:650}
+  .snapshot:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--up)}
 
   .nextread{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2);border-radius:16px;padding:20px;margin-top:30px;display:flex;align-items:center;gap:16px}
   .nextread .th{width:60px;height:60px;border-radius:13px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--brand);flex-shrink:0}
@@ -145,12 +160,12 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
-    <a href="index.html" class="back">← 리서치</a>
-    <div class="nav-right"><button class="btn">🔖 저장</button><button class="btn pri">공유</button></div>
+    <a href="research.html" class="back" id="backToResearch">← 리서치</a>
+    <div class="nav-right"><button class="btn" id="saveBtn">🔖 저장</button><button class="btn pri" id="shareBtn">공유</button></div>
   </div>
 </header>
 
-<div class="wrap layout">
+<div class="wrap layout" id="researchLayout">
   <!-- TOC -->
   <nav class="toc" id="toc">
     <div class="th">목차</div>
@@ -267,7 +282,58 @@
   </aside>
 </div>
 
+<script src="research-data.js"></script>
+<script src="community.js"></script>
 <script>
+  const params=new URLSearchParams(location.search);
+  const market=params.get('m')==='us'?'us':'kr';
+  const articles=market==='us'?(window.RICHFLOW_US_ARTICLES || []):(window.RICHFLOW_ARTICLES || []);
+  const article=articles.find(a=>a.id===params.get('id')) || articles[0];
+  const layout=document.getElementById('researchLayout');
+  const articleUrl=id=>'article.html?m='+market+'&id='+encodeURIComponent(id);
+  const researchUrl='research.html'+(market==='us'?'?m=us':'');
+  const aiUrl=market==='us'?'ai-us.html':'ai.html';
+  const stockUrl=code=>market==='us'
+    ?'stock-us.html?t='+encodeURIComponent(code)
+    :'stock.html?code='+encodeURIComponent(code);
+  document.getElementById('backToResearch').href=researchUrl;
+  const chartHTML=chart=>chart?`<div class="figure"><div class="bars">${chart.items.map(x=>`<div class="bar-item"><div class="bar-value">${x.value}</div><div class="bar" style="height:${x.height}%"></div><div class="bar-label">${x.label}</div></div>`).join('')}</div><div class="cap">${chart.caption}</div></div>`:'';
+
+  if(article){
+    document.title=article.title+' · RICHFLOW 리서치';
+    const index=articles.indexOf(article);
+    const next=articles[(index+1)%articles.length];
+    const tickers=article.tickers.length?`<div>${article.tickers.map(t=>`<a href="${stockUrl(t.code)}" class="stock-inline"><span class="n">${t.name}</span><span class="p ${t.direction} mono">${t.price} ${t.change}</span></a>`).join('')}</div>`:'';
+    layout.innerHTML=`
+      <nav class="toc" id="toc"><div class="th">목차</div>${article.sections.map((s,i)=>`<a href="#s${i+1}" class="${i===0?'on':''}">${s.title}</a>`).join('')}</nav>
+      <article>
+        <div class="cat"><span class="pill">${article.category}</span><span class="pill">${article.market}</span></div>
+        <h1 class="title">${article.title}</h1>
+        <div class="byline"><div class="av"><svg class="bot"><use href="#mascot"/></svg></div><span><b>RICHFLOW 리서치</b> · 공개 데이터 교차 확인</span><span>·</span><span>${article.published}</span><span>·</span><span>${article.readTime}</span></div>
+        <div class="tldr"><div class="h"><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>DATA</span> 핵심 요약</div><ul>${article.bullets.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+        ${tickers}
+        <div class="prose"><p>${article.summary}</p>${article.sections.map((s,i)=>`<h2 id="s${i+1}">${s.title}</h2>${s.body}${chartHTML(s.chart)}`).join('')}</div>
+        <div class="askbox"><div class="h"><svg class="bot"><use href="#mascot"/></svg> 이 데이터, AI에게 더 물어보기</div><div class="askq">${article.tags.slice(0,3).map(t=>`<a href="${aiUrl}">${t.replace('#','')} 더 분석해줘</a>`).join('')}</div><div class="askinput"><input placeholder="이 글의 수치와 리스크를 질문해보세요…" aria-label="아티클 데이터 질문"><button aria-label="질문 보내기">↑</button></div></div>
+        <section id="articleDiscussion"></section>
+        <a href="${articleUrl(next.id)}" class="nextread"><div class="th">${next.thumb}</div><div><div class="l">다음 데이터 리서치 →</div><div class="t">${next.title}</div></div></a>
+        <div class="disc">기준 시각 이후 가격과 시장 상황은 달라질 수 있습니다. 전망치와 목표가는 사실이 아닌 추정치이며, 본 콘텐츠는 정보 제공용으로 특정 종목의 매수·매도를 권유하지 않습니다.</div>
+      </article>
+      <aside>
+        <div class="card"><h3>📊 핵심 지표</h3><div class="snapshot">${article.asOf||article.published} 기준</div>${article.keyStats.map(x=>`<div class="keystat"><span class="k">${x[0]}</span><span class="v ${x[2]}">${x[1]}</span></div>`).join('')}${article.evidence?`<div class="evidence"><b>${article.evidence.grade}</b> · ${article.evidence.basis}<br>${article.evidence.note}</div>`:''}</div>
+        <div class="card"><h3>🔎 원문 출처</h3><div class="source-list">${article.sources.map(s=>`<a href="${s.url}" target="_blank" rel="noopener noreferrer"><span class="source-kind">${s.kind||'참고'}</span><span class="source-copy"><b>${s.label}</b>${s.asOf?`<small>${s.asOf} 기준 · 원문 열기 ↗</small>`:'<small>원문 열기 ↗</small>'}</span></a>`).join('')}</div></div>
+        <div class="card"><h3>🏷️ 태그</h3><div class="tags">${article.tags.map(t=>`<a href="${researchUrl}">${t}</a>`).join('')}</div></div>
+        <div class="card"><h3>🔗 관련 데이터 리서치</h3>${articles.filter(a=>a.id!==article.id).slice(0,3).map(a=>`<a href="${articleUrl(a.id)}" class="rel"><div class="th">${a.thumb}</div><div><div class="rt">${a.title}</div><div class="rm">${a.category} · ${a.published.slice(5,10)}</div></div></a>`).join('')}</div>
+      </aside>`;
+    const primaryTicker=article.tickers&&article.tickers[0];
+    RichflowCommunity.mount('#articleDiscussion',{market,entityType:'article',entityId:article.id,ticker:primaryTicker?primaryTicker.code:'',stockName:primaryTicker?primaryTicker.name:article.title,sector:article.category});
+  }
+
+  const saveBtn=document.getElementById('saveBtn');
+  const saved=article&&localStorage.getItem('richflow:saved:'+article.id)==='1';
+  if(saved)saveBtn.textContent='✓ 저장됨';
+  saveBtn.onclick=()=>{if(!article)return;const key='richflow:saved:'+article.id;const on=localStorage.getItem(key)!=='1';localStorage.setItem(key,on?'1':'0');saveBtn.textContent=on?'✓ 저장됨':'🔖 저장';};
+  document.getElementById('shareBtn').onclick=async()=>{const data={title:document.title,text:article?article.summary:'',url:location.href};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(location.href);document.getElementById('shareBtn').textContent='링크 복사됨';}}catch(e){}};
+
   // reading progress
   const bar=document.getElementById('progress');
   const toc=document.querySelectorAll('#toc a');

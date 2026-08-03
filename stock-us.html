@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="community.css">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>NVIDIA NVDA · RICHFLOW 종목 허브 (미장)</title>
 <style>
@@ -39,7 +40,8 @@
   .btn{background:var(--brand);color:#fff;font-weight:700;font-size:13px;border:none;padding:9px 16px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
   .stock-head{padding:24px 0 8px}
   .sh-top{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
-  .sh-logo{width:56px;height:56px;border-radius:16px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--brand)}
+  .sh-logo{width:56px;height:56px;border-radius:16px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--brand);overflow:hidden;box-shadow:var(--shadow-sm)}
+  .sh-logo img{width:100%;height:100%;object-fit:contain;padding:6px}.sh-logo.has-image{background:#fff}.sh-logo.has-image .sh-logo-letter{display:none}.sh-logo-letter{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
   .sh-name h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
   .sh-name .code{font-size:13px;color:var(--txt-3);font-weight:600;margin-top:3px}
   .sh-name .mk{font-size:11px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
@@ -183,7 +185,7 @@
         <div class="c mono" id="shChg"></div>
         <div id="shTime" style="font-size:10px;color:var(--txt-3);font-weight:600;margin-top:3px">불러오는 중…</div>
       </div>
-      <div class="sh-btns"><div class="icon-btn">☆</div><div class="icon-btn">🔔</div></div>
+      <div class="sh-btns"><div class="icon-btn">☆</div><button class="icon-btn" id="priceAlertBtn" data-market="us" type="button" aria-label="가격 알림 설정">🔔</button></div>
     </div>
     <div class="stats">
       <div class="stat"><div class="k">시가총액</div><div class="v" id="stMcap">—</div></div>
@@ -401,9 +403,10 @@
     </div>
   </div>
 
-  <div class="disc"><b style="color:var(--brand)">시세·시가총액·재무·기관수급·목표주가·공매도·주가차트는 실제 시장 데이터(2026-07-27 종가 기준)</b>이며, Yahoo Finance/SEC 13F 기반입니다. 옵션 플로우·SEC 공시 목록·커뮤니티 토론은 예시 데이터입니다. 정보 제공용이며 매수·매도 권유가 아닙니다. 13F는 분기 후행 스냅샷입니다.</div>
+  <div class="disc"><b style="color:var(--brand)">시세·시가총액·재무·기관수급·목표주가·공매도·주가차트는 실제 시장 데이터(2026-07-27 종가 기준)</b>이며, Yahoo Finance/SEC 13F 기반입니다. 옵션 플로우·SEC 공시 목록은 예시 데이터이며, 커뮤니티 작성 글은 현재 브라우저에 저장됩니다. 정보 제공용이며 매수·매도 권유가 아닙니다. 13F는 분기 후행 스냅샷입니다.</div>
 </div>
 
+<script src="stock-logo.js"></script>
 <script>
   document.querySelectorAll('.tabrow').forEach(t=>t.querySelectorAll('button').forEach(b=>b.onclick=()=>{t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
   const tBuy=document.getElementById('tBuy'),tSell=document.getElementById('tSell');
@@ -602,7 +605,7 @@
       const g=k=>sd[k]&&sd[k].value;
       // 완전 실패 시: 빈 화면 대신 안내 노출
       if(!m&&!Object.keys(sd).length){
-        if($('shLogo'))$('shLogo').textContent=T;
+        if($('shLogo'))RichflowStockLogo.set($('shLogo'),'us',T,T);
         if($('shName'))$('shName').textContent=T;
         if($('shCode'))$('shCode').textContent='데이터를 불러오지 못했어요';
         if($('aiCard')){$('aiCard').style.display='block';}
@@ -613,11 +616,12 @@
       const name=(m&&(m.longName||m.shortName))||T;
       const exch=(m&&m.fullExchangeName)||g('Exchange')||'US';
       curPrice=m&&m.regularMarketPrice;
-      if($('shLogo'))$('shLogo').textContent=T;
+      if($('shLogo'))RichflowStockLogo.set($('shLogo'),'us',T,name);
       if($('shName'))$('shName').innerHTML=name+' <span class="mk">'+exch+'</span>';
       const sector=g('Sector'), industry=g('Industry');
       if($('shCode'))$('shCode').textContent=T+(sector?' · '+sector:'')+(industry?' · '+industry:'');
       document.title=name+' '+T+' · RICHFLOW 종목 허브 (미장)';
+      window.dispatchEvent(new CustomEvent('richflow:stock-ready',{detail:{market:'us',ticker:T,name,sector}}));
       if($('stMcap'))$('stMcap').textContent=g('MarketCap')?fmtBig(num(g('MarketCap'))):'—';
       if($('stVol')){const vv=g('ShareVolume');$('stVol').textContent=vv?Math.round(num(vv)).toLocaleString('en-US'):'—';}
       if($('st52w')){ const w=g('FiftTwoWeekHighLow'); if(w){const p=w.split('/');$('st52w').textContent=(p.length===2?p[1]+'~'+p[0]:w);} }
@@ -647,7 +651,7 @@
         const upG=(isFinite(tgt)&&curPrice)?((tgt/curPrice-1)*100):null;
         if($('aiVerdict'))$('aiVerdict').textContent=name+' 요약';
         if($('aiBrief'))$('aiBrief').innerHTML=name+'('+T+')은 현재 <b>$'+(curPrice?curPrice.toLocaleString('en-US',{maximumFractionDigits:2}):'—')+'</b> (<b class="'+(chgP>=0?'up':'down')+'">'+(chgP>=0?'+':'')+chgP.toFixed(2)+'%</b>) 입니다. '+(sector?'업종은 <b>'+sector+'</b>. ':'')+(isFinite(tgt)?'월가 1년 목표가 <b>$'+tgt.toLocaleString('en-US',{maximumFractionDigits:0})+'</b>'+(upG!=null?'(상승여력 '+(upG>=0?'+':'')+upG.toFixed(0)+'%)':'')+'. ':'')+'<span style="color:var(--txt-3)">시세·차트·시총·목표가·배당은 실제 데이터이며, 상세 수급·재무·공시는 준비 중입니다. (투자권유 아님)</span>';
-        const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·52주·배당·1년 목표가·업종은 '+name+' 실제 시장 데이터</b>(Yahoo Finance·Nasdaq)입니다. 상세 기관수급·재무·공시·토론은 준비 중입니다. 정보 제공용이며 투자권유가 아닙니다.';
+        const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·52주·배당·1년 목표가·업종은 '+name+' 실제 시장 데이터</b>(Yahoo Finance·Nasdaq)입니다. 상세 기관수급·재무·공시는 준비 중이며 커뮤니티 작성 글은 현재 브라우저에 저장됩니다. 정보 제공용이며 투자권유가 아닙니다.';
       }
     }
     setupChartInteract();
@@ -722,6 +726,16 @@
     }
     async function futures(){ await oneFut('NQ=F','nqPx','nqCh'); await oneFut('ES=F','esPx','esCh'); }
     futures(); setInterval(futures, 15000);
+  })();
+</script>
+<script src="community.js"></script>
+<script src="price-alert.js"></script>
+<script>
+  (function(){
+    const p=new URLSearchParams(location.search),ticker=(p.get('t')||'NVDA').toUpperCase().replace(/[^A-Z.\-]/g,'');
+    const mount=(name,sector)=>RichflowCommunity.mount('#talk',{market:'us',entityType:'stock',entityId:ticker,ticker,stockName:name||ticker,sector:sector||'기타'});
+    window.addEventListener('richflow:stock-ready',event=>{const d=event.detail||{};if(d.market==='us'&&d.ticker===ticker)mount(d.name,d.sector);});
+    mount(ticker==='NVDA'?'NVIDIA':ticker,'기타');
   })();
 </script>
 </body>

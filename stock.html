@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="community.css">
 <title>삼성전자 005930 · RICHFLOW 종목 허브</title>
 <style>
   :root{
@@ -38,7 +39,8 @@
 
   .stock-head{padding:24px 0 8px}
   .sh-top{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
-  .sh-logo{width:56px;height:56px;border-radius:16px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--brand)}
+  .sh-logo{width:56px;height:56px;border-radius:16px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--brand);overflow:hidden;box-shadow:var(--shadow-sm)}
+  .sh-logo img{width:100%;height:100%;object-fit:contain;padding:6px}.sh-logo.has-image{background:#fff}.sh-logo.has-image .sh-logo-letter{display:none}.sh-logo-letter{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
   .sh-name h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
   .sh-name .code{font-size:13px;color:var(--txt-3);font-weight:600;margin-top:3px}
   .sh-name .mk{font-size:11px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
@@ -237,7 +239,7 @@
         <div class="c mono" id="shChg"></div>
         <div id="shTime" style="font-size:10px;color:var(--txt-3);font-weight:600;margin-top:3px"></div>
       </div>
-      <div class="sh-btns"><div class="icon-btn">☆</div><div class="icon-btn">🔔</div></div>
+      <div class="sh-btns"><div class="icon-btn">☆</div><button class="icon-btn" id="priceAlertBtn" data-market="kr" type="button" aria-label="가격 알림 설정">🔔</button></div>
     </div>
     <div class="stats">
       <div class="stat"><div class="k">시가총액</div><div class="v" id="stMcap">—</div></div>
@@ -483,6 +485,7 @@
   </div>
 </div>
 
+<script src="stock-logo.js"></script>
 <script>
   document.querySelectorAll('.tabrow').forEach(t=>t.querySelectorAll('button').forEach(b=>{b.onclick=()=>{t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');};}));
   (function(){ const fp=document.getElementById('finPane'), ft=document.getElementById('finTabs'); if(fp&&ft){ const fc={'실적추이':fp.innerHTML,'손익':`<table class="tbl fin-tables"><tr><td class="k">매출액</td><td class="v">301조</td><td class="v up">+7.9%</td></tr><tr><td class="k">영업이익</td><td class="v">38.4조</td><td class="v up">+17.4%</td></tr><tr><td class="k">당기순이익</td><td class="v">29.6조</td><td class="v up">+12.1%</td></tr></table>`,'재무상태':`<table class="tbl fin-tables"><tr><td class="k">자산총계</td><td class="v">512조</td></tr><tr><td class="k">부채총계</td><td class="v">99조</td></tr><tr><td class="k">자본총계</td><td class="v">413조</td></tr><tr><td class="k">부채비율</td><td class="v">24%</td></tr></table>`}; ft.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{fp.innerHTML=fc[b.textContent]||fc['실적추이'];})); } })();
@@ -574,16 +577,27 @@
 
     /* --- 로더 --- */
     async function loadStock(){
-      if(!CODE){ const nm=params.get('name'); if(nm){ const ac=await fetchJSON('https://ac.stock.naver.com/ac?q='+encodeURIComponent(nm)+'&target=stock'); const it=ac&&ac.items&&ac.items.find(x=>/^\d{6}$/.test(x.code)); if(it)CODE=it.code; } }
-      CODE=CODE||'005930';
+      const requestedName=params.get('name');
+      if(!CODE&&requestedName){ const ac=await fetchJSON('https://ac.stock.naver.com/ac?q='+encodeURIComponent(requestedName)+'&target=stock'); const it=ac&&ac.items&&ac.items.find(x=>/^\d{6}$/.test(x.code)); if(it)CODE=it.code; }
+      if(!CODE&&!requestedName)CODE='005930';
+      if(!CODE){
+        if($('shName'))$('shName').textContent=requestedName||'종목';
+        if($('shCode'))$('shCode').textContent='종목코드를 확인하지 못했습니다 · 검색을 다시 시도해주세요';
+        if($('shPx'))$('shPx').textContent='—';
+        if($('aiVerdict')){$('aiVerdict').textContent='종목 확인 필요';$('aiVerdict').className='verdict mixed';}
+        if($('aiBrief'))$('aiBrief').textContent='정확한 종목명이나 6자리 종목코드로 다시 검색해주세요. 확인되지 않은 종목에는 다른 회사의 정보를 대신 표시하지 않습니다.';
+        document.title=(requestedName||'종목')+' 조회 오류 · RICHFLOW';
+        return;
+      }
       let bs=null; for(let a=0;a<3;a++){ bs=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/basic'); if(bs&&bs.stockName)break; await sleep(1200); }
       if(!bs||!bs.stockName){ if($('shName'))$('shName').textContent=CODE; if($('shCode'))$('shCode').textContent='데이터를 불러오지 못했어요 (새로고침 해주세요)'; return; }
       const nv=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/integration');
       const name=bs.stockName, mk=(bs.stockExchangeType&&bs.stockExchangeType.code)||'KS'; YT=CODE+(mk==='KQ'?'.KQ':'.KS');
-      if($('shLogo'))$('shLogo').textContent=name.slice(0,1);
+      if($('shLogo'))RichflowStockLogo.set($('shLogo'),'kr',CODE,name);
       if($('shName'))$('shName').innerHTML=name+' <span class="mk">'+(mk==='KQ'?'KOSDAQ':'KOSPI')+'</span>';
       if($('shCode'))$('shCode').textContent=CODE+(mk==='KQ'?' · 코스닥':' · 코스피');
       document.title=name+' '+CODE+' · RICHFLOW 종목 허브';
+      window.dispatchEvent(new CustomEvent('richflow:stock-ready',{detail:{market:'kr',ticker:CODE,name}}));
       const info={}; ((nv&&nv.totalInfos)||[]).forEach(x=>{info[x.key]=x.value;});
       if($('stMcap'))$('stMcap').textContent=info['시총']||'—';
       if($('stVol'))$('stVol').textContent=info['대금']||'—';
@@ -604,10 +618,10 @@
         const pct=pnum(bs.fluctuationsRatio),up=pct>=0;
         if($('aiVerdict')){$('aiVerdict').textContent=name+' 요약';$('aiVerdict').className='verdict '+(up?'buy':'mixed');}
         if($('aiBrief'))$('aiBrief').innerHTML=name+'('+CODE+')은 현재 <b>'+(bs.closePrice||'—')+'원</b> (<b class="'+(up?'up':'down')+'">'+(pct>=0?'+':'')+pct.toFixed(2)+'%</b>) 입니다. 시총 <b>'+(info['시총']||'-')+'</b> · PER <b>'+(info['PER']||'-')+'</b> · 배당수익률 <b>'+(info['배당수익률']||'-')+'</b>. <span style="color:var(--txt-3)">시세·차트·시총·PER·배당·52주는 네이버·야후 실데이터이며, 상세 수급·공시·재무는 준비 중입니다. (투자권유 아님)</span>';
-        const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·PER·PBR·배당·52주는 '+name+' 실제 데이터</b>(네이버 금융·야후 파이낸스)입니다. 상세 투자자수급·공시·재무·토론은 준비 중입니다. 정보 제공용이며 투자권유가 아닙니다.';
+        const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·PER·PBR·배당·52주는 '+name+' 실제 데이터</b>(네이버 금융·야후 파이낸스)입니다. 상세 투자자수급·공시·재무는 준비 중이며 커뮤니티 작성 글은 현재 브라우저에 저장됩니다. 정보 제공용이며 투자권유가 아닙니다.';
       }
     }
-    async function live(){ const bs=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/basic'); if(bs&&bs.closePrice)applyPrice(bs); }
+    async function live(){ if(!CODE)return; const bs=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/basic'); if(bs&&bs.closePrice)applyPrice(bs); }
 
     setupChartInteract();
     loadStock();
@@ -618,6 +632,17 @@
     const _sr=$('stockSearch'), _drop=$('searchDrop'); let _st, _res=[];
     async function doSearch(q){ if(!q){ if(_drop){_drop.classList.remove('on');_drop.innerHTML='';} _res=[]; return; } const ac=await fetchJSON('https://ac.stock.naver.com/ac?q='+encodeURIComponent(q)+'&target=stock'); _res=((ac&&ac.items)||[]).filter(x=>/^\d{6}$/.test(x.code)).slice(0,7); if(!_drop)return; if(!_res.length){_drop.classList.remove('on');_drop.innerHTML='';return;} _drop.innerHTML=_res.map(x=>'<a href="stock.html?code='+x.code+'"><span class="sym">'+x.code+'</span><span class="nm">'+(x.name||'')+'</span><span class="ex">'+(x.typeName||x.typeCode||'')+'</span></a>').join(''); _drop.classList.add('on'); }
     if(_sr){ _sr.addEventListener('input',()=>{clearTimeout(_st);const v=_sr.value.trim();_st=setTimeout(()=>doSearch(v),250);}); _sr.addEventListener('keydown',e=>{ if(e.key==='Enter'&&_res[0])location.href='stock.html?code='+_res[0].code; }); _sr.addEventListener('blur',()=>setTimeout(()=>{if(_drop)_drop.classList.remove('on');},200)); }
+  })();
+</script>
+<script src="community.js"></script>
+<script src="price-alert.js"></script>
+<script>
+  (function(){
+    const p=new URLSearchParams(location.search),direct=(p.get('code')||'').replace(/[^0-9]/g,''),talk=document.getElementById('talk');
+    const mount=(ticker,name)=>RichflowCommunity.mount('#talk',{market:'kr',entityType:'stock',entityId:ticker,ticker,stockName:name||ticker,sector:'기타'});
+    window.addEventListener('richflow:stock-ready',event=>{const d=event.detail||{};if(d.market==='kr')mount(d.ticker,d.name);});
+    if(direct)mount(direct,direct==='005930'?'삼성전자':direct);
+    else if(talk){talk.style.display='block';talk.innerHTML='<div class="rf-community"><div class="rf-panel"><div class="rf-empty">종목 정보를 확인해 토론을 연결하고 있습니다.</div></div></div>';}
   })();
 </script>
 </body>

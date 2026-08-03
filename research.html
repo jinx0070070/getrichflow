@@ -31,6 +31,9 @@
   .phead{padding:26px 0 6px}
   .phead h1{font-size:28px;font-weight:800;letter-spacing:-.03em}
   .phead p{color:var(--txt-2);font-size:14px;margin-top:6px}
+  .market-tabs{display:flex;gap:6px;margin-top:14px}
+  .market-tabs a{padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:750;color:var(--txt-2);box-shadow:var(--shadow-sm)}
+  .market-tabs a.on{background:var(--brand);border-color:var(--brand);color:#fff}
 
   /* featured hero */
   .feat{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin:18px 0}
@@ -47,6 +50,14 @@
   .fs .th{width:56px;height:56px;border-radius:11px;background:var(--card-2);border:1px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--brand)}
   .fs .b .c{font-size:10px;font-weight:800;color:var(--brand);margin-bottom:3px}
   .fs .b h4{font-size:13.5px;font-weight:700;line-height:1.4}
+
+  /* selectable research universe */
+  .picker{margin:22px 0;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow-sm);scroll-margin-top:82px}
+  .picker-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:14px}.picker-head h2{font-size:19px;font-weight:850}.picker-head p{font-size:12.5px;color:var(--txt-2);margin-top:4px}.universe-count{margin-left:auto;background:var(--brand);color:#fff;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:850;white-space:nowrap}
+  .picker-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.universe-search{width:210px;border:1px solid var(--line);background:var(--card-2);border-radius:10px;padding:9px 12px;font:inherit;font-size:12.5px;outline:none}.industry-select{border:1px solid var(--line);background:var(--card-2);color:var(--txt-2);border-radius:10px;padding:9px 30px 9px 11px;font:inherit;font-size:12px;font-weight:700;outline:none}.universe-cats{display:flex;gap:5px;flex-wrap:wrap}.universe-cats button{border:1px solid var(--line);background:var(--card-2);color:var(--txt-2);border-radius:9px;padding:7px 10px;font:inherit;font-size:11px;font-weight:750;cursor:pointer}.universe-cats button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .universe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:510px;overflow:auto;padding:2px}.pick{min-height:108px;text-align:left;border:1px solid var(--line);background:var(--card-2);border-radius:13px;padding:12px;cursor:pointer;font-family:inherit;transition:.15s;position:relative}.pick:hover{border-color:var(--brand-2);transform:translateY(-1px)}.pick.on{background:#fff;border:2px solid var(--brand);padding:11px}.pick .top{display:flex;align-items:center;gap:7px}.pick .name{font-size:13px;font-weight:850}.pick .code{font:700 10px ui-monospace,monospace;color:var(--txt-3)}.pick .kind{margin-left:auto;font-size:9px;font-weight:800;color:var(--brand);background:var(--card);padding:2px 5px;border-radius:5px}.pick .focus{font-size:11.5px;color:var(--txt-2);line-height:1.45;margin-top:7px}.pick.on:after{content:'✓';position:absolute;right:9px;bottom:8px;width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+  .picker-action{display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}.picker-action .selection{font-size:12.5px;color:var(--txt-2)}.picker-action .selection b{color:var(--txt)}.research-btn{margin-left:auto;border:0;border-radius:11px;background:var(--brand);color:#fff;padding:11px 17px;font:inherit;font-size:13px;font-weight:850;cursor:pointer}.research-btn:disabled{opacity:.38;cursor:not-allowed}
+  .universe-foot{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:11px;font-size:11px;color:var(--txt-3)}.universe-more{border:1px solid var(--line);background:var(--card-2);border-radius:9px;padding:7px 11px;font:inherit;font-size:11px;font-weight:800;color:var(--txt-2);cursor:pointer}
 
   /* controls */
   .ctrl{display:flex;align-items:center;gap:10px;margin:22px 0 14px;flex-wrap:wrap}
@@ -70,6 +81,9 @@
   .art p{font-size:12.5px;color:var(--txt-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.55}
   .art .meta{font-size:11px;color:var(--txt-3);margin-top:8px;display:flex;gap:12px}
   .art .badge-new{position:absolute;top:14px;right:16px;font-size:10px;font-weight:800;color:var(--amber)}
+  .data-stamp{display:inline-flex;align-items:center;gap:5px;color:var(--txt-3);font-size:11px;font-weight:650}
+  .data-stamp:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--up)}
+  .empty{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:44px 20px;text-align:center;color:var(--txt-3);font-size:14px}
   .loadmore{text-align:center;margin-top:14px}
   .loadmore button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:11px 24px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
 
@@ -89,7 +103,8 @@
   .tags a{font-size:12px;font-weight:600;color:var(--txt-2);background:var(--card-2);border:1px solid var(--line);padding:5px 11px;border-radius:20px}
   .tags a:hover{color:var(--txt)}
   .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:16px 2px 44px}
-  @media(max-width:900px){.feat,.layout{grid-template-columns:1fr}aside{position:static}nav.menu,.search{display:none}}
+  @media(max-width:900px){.feat,.layout{grid-template-columns:1fr}.universe-grid{grid-template-columns:repeat(2,1fr)}aside{position:static}nav.menu,.search{display:none}}
+  @media(max-width:560px){.universe-grid{grid-template-columns:1fr}.picker{padding:15px}.picker-head{gap:8px}.picker-action{align-items:stretch;flex-direction:column}.research-btn{margin-left:0;width:100%}.universe-search{width:100%}}
 </style>
 </head>
 <body>
@@ -102,41 +117,39 @@
 </symbol></svg>
 
 <header class="nav"><div class="wrap nav-in">
-  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html" class="logo" id="homeLink"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
   <nav class="menu">
-    <a href="whale.html">큰손 수급</a><a href="leaders.html">대표주</a><a href="idea.html">커넥션</a><a href="forecast.html">확률 통계</a>
-    <a href="research.html" class="on">리서치</a><a href="theme.html">테마·흐름</a><a href="screener.html">종목탐색</a><a href="calendar.html">캘린더</a>
+    <a href="whale.html" id="navWhale">큰손 수급</a><a href="leaders.html" id="navLeaders">대표주</a><a href="idea.html" id="navIdea">커넥션</a><a href="forecast.html" id="navForecast">확률 통계</a>
+    <a href="research.html" class="on" id="navResearch">리서치</a><a href="community.html" id="navCommunity">커뮤니티</a><a href="theme.html" id="navTheme">테마·흐름</a><a href="screener.html" id="navScreener">종목탐색</a><a href="calendar.html" id="navCalendar">캘린더</a>
   </nav>
-  <div class="nav-right"><div class="search">🔍<input placeholder="아티클 검색"></div></div>
+  <div class="nav-right"><div class="search">🔍<input id="searchInput" placeholder="아티클 검색" aria-label="아티클 검색"></div></div>
 </div></header>
 
 <div class="wrap">
   <section class="phead">
-    <h1>📰 리서치</h1>
-    <p>AI가 공시·수급·뉴스를 읽고 쓴 종목·거시·ETF 분석을 매일 발행합니다.</p>
+    <h1 id="pageTitle">📰 국내 리서치</h1>
+    <p id="pageDescription">공시·수급·뉴스를 교차 확인한 한국 종목·거시·산업 분석입니다.</p>
+    <div class="market-tabs" aria-label="리서치 시장 선택">
+      <a href="research.html" id="marketKr">🇰🇷 국장</a>
+      <a href="research.html?m=us" id="marketUs">🇺🇸 미장</a>
+    </div>
   </section>
 
   <!-- featured -->
-  <div class="feat">
-    <div class="feat-main" onclick="location.href='article.html'">
-      <div class="thumb">MS</div>
-      <div class="body">
-        <div class="cat"><span>종목분석</span> · 미국주식 · 7분 전</div>
-        <h2>마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다</h2>
-        <p>1,900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화, OpenAI 의존 리스크가 겹치며 52주 고점 대비 약 30% 하락. 7월 29일 실적이 다음 방향을 가를 분수령이다.</p>
-      </div>
-    </div>
-    <div class="feat-side">
-      <div class="fs" onclick="location.href='article.html'"><div class="th">₿</div><div class="b"><div class="c">거시·정책</div><h4>클래리티 액트, 통과되면 진짜 뭐가 바뀌나</h4></div></div>
-      <div class="fs" onclick="location.href='article.html'"><div class="th">SK</div><div class="b"><div class="c">종목분석</div><h4>SK하이닉스 HBM4 퀄 임박, 목표주가 상향 러시</h4></div></div>
-      <div class="fs" onclick="location.href='article.html'"><div class="th">ETF</div><div class="b"><div class="c">ETF·배당</div><h4>SCHD 월배당 아니라 분기배당, 2026 지급일정 총정리</h4></div></div>
-    </div>
-  </div>
+  <div class="feat" id="featured"></div>
+
+  <section class="picker" id="research-picker">
+    <div class="picker-head"><div><h2>한 종목만 골라서 딥리서치</h2><p>전체 상장기업에서 하나를 선택하면 그 종목 전용 분석 화면이 바로 열립니다. 검색 결과는 100개씩 표시됩니다.</p></div><span class="universe-count" id="universeCount">전체 종목</span></div>
+    <div class="picker-tools"><input class="universe-search" id="universeSearch" placeholder="종목명·티커 검색" aria-label="리서치 종목 검색"><select class="industry-select" id="universeIndustry" aria-label="세부 산업 선택"><option>전체 산업</option></select><div class="universe-cats" id="universeCats"></div></div>
+    <div class="universe-grid" id="universeGrid"></div>
+    <div class="universe-foot"><span id="universeResult"></span><button class="universe-more" id="universeMore" type="button">100개 더 보기</button></div>
+    <div class="picker-action"><div class="selection" id="selectionText">리서치할 종목을 <b>1개</b> 선택하세요.</div><button class="research-btn" id="researchRequest" disabled>이 종목 리서치 →</button></div>
+  </section>
 
   <!-- controls -->
   <div class="ctrl">
     <div class="cats" id="cats">
-      <button class="on">전체</button><button>종목분석</button><button>거시·정책</button><button>ETF·배당</button><button>선물·지수</button><button>산업분석</button>
+      <button class="on">전체</button><button>종목분석</button><button>테마·수급</button><button>거시·정책</button><button>산업분석</button>
     </div>
     <div class="sort" id="sort"><button class="on">추천순</button><button>최신순</button><button>인기순</button></div>
   </div>
@@ -149,72 +162,150 @@
 
     <aside>
       <div class="card">
-        <h3>🔥 인기 아티클 <span style="margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500">주간</span></h3>
-        <div class="pop" onclick="location.href='article.html'"><span class="rk">1</span><div><div class="pt">엔비디아 주가 전망 2026, AI 수요와 실적 기대치 점검</div><div class="pm">종목분석 · 조회 4.2만</div></div></div>
-        <div class="pop" onclick="location.href='article.html'"><span class="rk">2</span><div><div class="pt">삼성전자 주가 전망 2026, 목표주가 51만원의 근거</div><div class="pm">종목분석 · 조회 3.8만</div></div></div>
-        <div class="pop" onclick="location.href='article.html'"><span class="rk">3</span><div><div class="pt">미국 배당 ETF 추천 6선, 목적별로 골라야 돈 된다</div><div class="pm">ETF·배당 · 조회 3.1만</div></div></div>
-        <div class="pop" onclick="location.href='article.html'"><span class="rk">4</span><div><div class="pt">비트코인 전망, 골든크로스는 떴지만 200일선은 멀다</div><div class="pm">거시·정책 · 조회 2.7만</div></div></div>
-        <div class="pop" onclick="location.href='article.html'"><span class="rk">5</span><div><div class="pt">해외주식 양도소득세 신고 방법 한 번에 정리</div><div class="pm">거시·정책 · 조회 2.4만</div></div></div>
+        <h3>📌 데이터 리서치 <span style="margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500">최신</span></h3>
+        <div id="popularList"></div>
       </div>
       <div class="card">
         <h3>🗂️ 카테고리</h3>
-        <div class="catlist">
-          <a>종목분석 <span>128</span></a><a>거시·정책 <span>64</span></a><a>ETF·배당 <span>52</span></a>
-          <a>선물·지수 <span>38</span></a><a>산업분석 <span>41</span></a><a>세금·제도 <span>29</span></a>
-        </div>
+        <div class="catlist" id="categoryList"></div>
       </div>
       <div class="card">
         <h3>🏷️ 인기 태그</h3>
-        <div class="tags"><a>#HBM</a><a>#AI반도체</a><a>#월배당</a><a>#금리인하</a><a>#조선</a><a>#전력기기</a><a>#비트코인ETF</a><a>#밸류업</a></div>
+        <div class="tags" id="popularTags"></div>
       </div>
     </aside>
   </div>
 
-  <div class="disc">본 리서치는 RICHFLOW AI가 공개 데이터·뉴스를 기반으로 작성하고 사람이 검수한 콘텐츠입니다. 정보 제공용이며 특정 종목의 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+  <div class="disc">본 리서치는 공개 시장 데이터와 기업 공시를 바탕으로 작성한 정보 제공용 콘텐츠이며 특정 종목의 매수·매도 권유가 아닙니다. 수치마다 기준 시각과 원문 출처를 상세 글에 표시하며, 장중 가격은 이후 달라질 수 있습니다.</div>
 </div>
 
+<script src="research-all-data.js"></script>
+<script src="research-universe.js"></script>
+<script src="research-data.js"></script>
 <script>
-  // [thumb, cat, market, title, desc, time(정렬용 분), views(만), new]
-  const ARTS=[
-    ['MS','종목분석','미국주식','마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다','1,900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화가 겹치며 52주 고점 대비 약 30% 하락. 7/29 실적이 분수령.',7,4.2,1],
-    ['SK','종목분석','한국주식','SK하이닉스 HBM4 퀄 임박, 목표주가 상향 러시','엔비디아 퀄 통과 기대감에 증권사 목표가가 잇따라 상향. 4분기 공급 물꼬가 관건.',29,3.5,1],
-    ['₿','거시·정책','코인','클래리티 액트, 통과되면 진짜 뭐가 바뀌나 — 지금 봐야 할 것','미국이 코인 시장 규칙을 통째로 다시 쓰는 중. 통과되면 내 자산은 어떻게 되는지 정리.',35,2.7,1],
-    ['TSLA','선물·지수','미국주식','나스닥 100 선물, 2만9000선까지 밀렸다 — 실적 쇼크의 여파','테슬라·알파벳 애프터마켓 급락과 풋옵션 우세 속 변동성 확대.',120,1.8,0],
-    ['AVGO','종목분석','미국주식','브로드컴 주가 전망: 396달러대에서 반등, 관건은 9월 실적','월가 목표주가 평균 509달러. 9월 2일 실적에서 AI 반도체 매출이 반등 지속 여부를 가른다.',180,2.1,0],
-    ['ETF','ETF·배당','미국주식','SCHD 월배당 아니라 분기배당이다 — 2026 지급일정과 수익률 총정리','3·6·9·12월 분기배당, TTM 배당수익률 약 3.19%. 월배당 원하면 국내 상장 대안 ETF.',240,3.1,0],
-    ['한','종목분석','한국주식','한화오션 주가 전망 2026: 캐나다 잠수함 이후에도 매수가 유지되는 이유','조선 슈퍼사이클과 방산 수주로 목표주가 유지. 수주잔고 3년치 확보.',300,1.5,0],
-    ['NV','종목분석','미국주식','엔비디아 주가 전망 2026, AI 수요와 실적 기대치 점검','블랙웰 램프업과 데이터센터 자본지출이 실적을 좌우. 밸류에이션 논쟁 지속.',360,4.2,0],
-    ['금','ETF·배당','한국주식','금 ETF 완전 정복, 국내외 상품 비교와 세금·계좌 절세 전략','KRX금현물·해외금 ETF·골드뱅킹 비교. 매매차익 세금 0원 조건 정리.',420,2.2,0],
-    ['⚡','산업분석','한국주식','AI 데이터센터 전력 수요 급증, 변압기 3사 수주잔고 사상 최대','전력 인프라가 구조적 수혜 구간. 큰손 수급에서 전력기기 신규 진입 포착.',480,2.6,0],
-    ['세','세금·제도','한국주식','해외주식 양도소득세 신고 방법: 신고 시기·세율, 가산세까지','연 250만원 기본공제와 22% 세율. 신고 시기 놓치면 가산세.',540,2.4,0],
-    ['BTC','거시·정책','코인','비트코인 전망: 골든크로스는 떴지만 200일선은 아직 멀다','단기 반등 신호에도 주요 저항선이 남아있다. 온체인 지표로 본 다음 방향.',600,2.7,0],
-    ['현','종목분석','한국주식','현대차 주가 전망 2026: 하락 이유와 실적 체크포인트','환율·수요 둔화 우려 속 배당 매력. 2분기 실적이 방향을 가른다.',660,1.3,0],
-    ['JEP','ETF·배당','미국주식','JEPI JEPQ 차이 완전 정리, 배당률·수익률·위험도 한눈에 비교','커버드콜 ETF의 구조와 위험. 월배당 매력 뒤의 원금 손실 가능성.',720,1.9,0]
-  ];
-  const CATC={'전체':'','종목분석':'종목분석','거시·정책':'거시·정책','ETF·배당':'ETF·배당','선물·지수':'선물·지수','산업분석':'산업분석'};
-  // 인덱스: 0=thumb 1=cat 2=market 3=title 4=desc 5=time(분) 6=views(만) 7=new
+  const params=new URLSearchParams(location.search);
+  const market=params.get('m')==='us'?'us':'kr';
+  const sectorForKr=industry=>{
+    const value=String(industry||'');
+    if(/반도체|소프트웨어|정보 서비스|정보서비스|자료처리|컴퓨터 프로그래밍|시스템 통합|컴퓨터 및 주변장치|전자부품|통신 및 방송 장비|마그네틱 및 광학 매체|영상 및 음향기기|정밀기기/.test(value))return '기술';
+    if(/금융|은행|보험|신탁|증권|연금|투자/.test(value))return '금융';
+    if(/의약|바이오|의료|보건|병원/.test(value))return '헬스케어';
+    if(/식료품|음료|담배|농업|어업|축산|사료|도축|육류|수산물|곡물|작물|농·축산물/.test(value))return '필수소비재';
+    if(/자동차|섬유|의복|가죽|신발|가구|숙박|음식점|여행|레저|스포츠|개인 및 가정용품|소매업|교육|오락|예술|화장품/.test(value))return '경기소비재';
+    if(/부동산/.test(value))return '부동산';
+    if(/전기업|증기, 냉·온수|수도|하수|폐기물/.test(value))return '유틸리티';
+    if(/석유|가스 제조|연료|에너지/.test(value))return '에너지';
+    if(/화학|철강|금속|비금속|광물|종이|목재|플라스틱|고무|유리|시멘트/.test(value))return '소재';
+    if(/출판|방송|영화|오디오|광고|전기 통신업|우편|창작/.test(value))return '커뮤니케이션';
+    if(/기계|장비|건설|운송|선박|항공|창고|물류|전기장비|공사업|엔지니어링|시설/.test(value))return '산업재';
+    return '기타';
+  };
+  const ARTS=market==='us'?(window.RICHFLOW_US_ARTICLES || []):(window.RICHFLOW_ARTICLES || []);
+  const CURATED=(window.RICHFLOW_RESEARCH_UNIVERSE||{})[market]||[];
+  const CURATED_BY_CODE=new Map(CURATED.map(x=>[x.code,x]));
+  const RAW_UNIVERSE=(window.RICHFLOW_ALL_LISTED||{})[market]||[];
+  const UNIVERSE=RAW_UNIVERSE.map(row=>{
+    const base=market==='us'
+      ?{code:row[0],name:row[1],exchange:row[2]||'US',sector:row[4]||'기타',segment:row[4]||'기타',category:row[4]||'기타',industry:row[5]||'미분류',cik:row[3],focus:(row[5]||'미분류')+' · 최근 실적·현금흐름·공시 이벤트',risk:'실적 추정치와 업종 사이클'}
+      :{code:row[0],name:row[1],exchange:row[2],sector:sectorForKr(row[3]),segment:sectorForKr(row[3]),category:sectorForKr(row[3]),industry:row[3]||'미분류',product:row[4]||'',focus:(row[3]||'미분류')+' · 최근 실적·현금흐름·공시 이벤트',risk:'최근 공시와 업종 사이클'};
+    return {...base,...(CURATED_BY_CODE.get(base.code)||{}),sector:base.sector,segment:base.sector,category:base.sector,industry:base.industry};
+  });
   let cat='전체',sort='추천순',limit=6;
+  let universeCat='전체',universeIndustry='전체 산업',selectedCode='',universeLimit=100;
+
+  const articleUrl=id=>'article.html?m='+market+'&id='+encodeURIComponent(id);
+  const marketQuery=market==='us'?'?m=us':'';
+  document.title=(market==='us'?'미국 리서치':'국내 리서치')+' · RICHFLOW';
+  document.getElementById('pageTitle').textContent=market==='us'?'🇺🇸 미국 리서치':'🇰🇷 국내 리서치';
+  document.getElementById('pageDescription').textContent=market==='us'
+    ?'미국 전체 상장기업을 검색하고, 한 종목만 골라 공식 IR과 SEC 공시 중심으로 딥리서치할 수 있습니다.'
+    :'국내 전체 상장기업을 검색하고, 한 종목만 골라 DART·KRX 공시 중심으로 딥리서치할 수 있습니다.';
+  document.getElementById('marketKr').classList.toggle('on',market==='kr');
+  document.getElementById('marketUs').classList.toggle('on',market==='us');
+  document.getElementById('homeLink').href='index.html'+marketQuery;
+  document.getElementById('navResearch').href='research.html'+marketQuery;
+  document.getElementById('navCommunity').href='community.html?m='+market;
+  if(market==='us'){
+    document.getElementById('navWhale').href='whale-us.html';
+    document.getElementById('navLeaders').href='leaders-us.html';
+    document.getElementById('navIdea').href='idea-us.html';
+    document.getElementById('navForecast').href='forecast-us.html';
+    document.getElementById('navTheme').href='theme-us.html';
+    document.getElementById('navScreener').href='screener-us.html';
+    document.getElementById('navCalendar').href='calendar-us.html';
+  }
+  function renderUniverse(){
+    const q=document.getElementById('universeSearch').value.trim().toLowerCase();
+    const matches=UNIVERSE.filter(x=>(universeCat==='전체'||x.sector===universeCat)&&(universeIndustry==='전체 산업'||x.industry===universeIndustry)&&(!q||(x.name+' '+x.code+' '+x.focus+' '+(x.industry||'')+' '+(x.product||'')+' '+(x.exchange||'')).toLowerCase().includes(q)));
+    const list=matches.slice(0,universeLimit);
+    document.getElementById('universeCount').textContent=UNIVERSE.length.toLocaleString('ko-KR')+'종목';
+    document.getElementById('universeGrid').innerHTML=list.length?list.map(x=>`<button type="button" class="pick ${x.code===selectedCode?'on':''}" data-code="${x.code}"><span class="top"><span class="name">${x.name}</span><span class="code">${x.code}</span><span class="kind">${x.sector}</span></span><span class="focus">${x.industry} · ${x.focus}</span></button>`).join(''):'<div class="empty">해당 종목이 없습니다.</div>';
+    document.getElementById('universeResult').textContent='검색 결과 '+list.length.toLocaleString('ko-KR')+' / '+matches.length.toLocaleString('ko-KR');
+    document.getElementById('universeMore').style.display=matches.length>list.length?'inline-block':'none';
+    document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{selectedCode=b.dataset.code;const x=UNIVERSE.find(v=>v.code===selectedCode);document.getElementById('selectionText').innerHTML=`선택: <b>${x.name} (${x.code})</b> · 이 종목만 분석합니다.`;document.getElementById('researchRequest').disabled=false;renderUniverse();});
+  }
+  function renderIndustryOptions(){
+    const select=document.getElementById('universeIndustry');
+    const industries=[...new Set(UNIVERSE.filter(x=>universeCat==='전체'||x.sector===universeCat).map(x=>x.industry).filter(Boolean))].sort((a,b)=>a.localeCompare(b,market==='us'?'en':'ko'));
+    select.innerHTML=['전체 산업',...industries].map(x=>`<option value="${x}">${x}</option>`).join('');
+    universeIndustry='전체 산업';select.value=universeIndustry;
+  }
+  function setupUniverse(){
+    const order=['기술','금융','헬스케어','경기소비재','필수소비재','산업재','소재','에너지','유틸리티','부동산','커뮤니케이션','기타'];
+    const available=new Set(UNIVERSE.map(x=>x.sector));
+    const cats=['전체',...order.filter(x=>available.has(x))];
+    document.getElementById('universeCats').innerHTML=cats.map((x,i)=>`<button type="button" class="${i===0?'on':''}" data-cat="${x}">${x}</button>`).join('');
+    document.querySelectorAll('#universeCats button').forEach(b=>b.onclick=()=>{universeCat=b.dataset.cat;universeLimit=100;document.querySelectorAll('#universeCats button').forEach(x=>x.classList.toggle('on',x===b));renderIndustryOptions();renderUniverse();});
+    document.getElementById('universeIndustry').addEventListener('change',e=>{universeIndustry=e.target.value;universeLimit=100;renderUniverse();});
+    document.getElementById('universeSearch').addEventListener('input',()=>{universeLimit=100;renderUniverse();});
+    document.getElementById('universeMore').onclick=()=>{universeLimit+=100;renderUniverse();};
+    document.getElementById('researchRequest').onclick=()=>{if(selectedCode)location.href='research-request.html?m='+market+'&code='+encodeURIComponent(selectedCode);};
+    renderIndustryOptions();renderUniverse();
+  }
+  function renderFeatured(){
+    if(!ARTS.length)return;
+    const [main,...side]=ARTS;
+    document.getElementById('featured').innerHTML=`
+      <div class="feat-main" onclick="location.href='${articleUrl(main.id)}'">
+        <div class="thumb">${main.thumb}</div><div class="body">
+          <div class="cat"><span>${main.category}</span> · ${main.market} · ${main.published}</div>
+          <h2>${main.title}</h2><p>${main.summary}</p>
+        </div>
+      </div>
+      <div class="feat-side">${side.slice(0,3).map(a=>`<div class="fs" onclick="location.href='${articleUrl(a.id)}'">
+        <div class="th">${a.thumb}</div><div class="b"><div class="c">${a.category} · ${a.published.slice(5,10)}</div><h4>${a.title}</h4></div>
+      </div>`).join('')}</div>`;
+  }
+
   function render(){
-    let list=ARTS.filter(a=>cat==='전체'||a[1]===cat);
-    if(sort==='최신순')list=[...list].sort((a,b)=>a[5]-b[5]);
-    else if(sort==='인기순')list=[...list].sort((a,b)=>b[6]-a[6]);
+    const q=document.getElementById('searchInput').value.trim().toLowerCase();
+    let list=ARTS.filter(a=>(cat==='전체'||a.category===cat)&&(!q||(a.title+' '+a.summary+' '+a.tags.join(' ')).toLowerCase().includes(q)));
+    if(sort==='최신순')list=[...list].sort((a,b)=>b.published.localeCompare(a.published));
+    else if(sort==='인기순')list=[...list].sort((a,b)=>(b.keyStats.length+b.sources.length)-(a.keyStats.length+a.sources.length));
     const feed=document.getElementById('feed');
-    feed.innerHTML=list.slice(0,limit).map(a=>{
-      const m=a[5];const t=m<60?m+'분 전':(m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전');
-      return `<div class="art" onclick="location.href='article.html'">
-        ${a[6]>=3?'<span class="badge-new">🔥 인기</span>':(a[7]?'<span class="badge-new">NEW</span>':'')}
-        <div class="thumb">${a[0]}</div>
+    feed.innerHTML=list.length?list.slice(0,limit).map(a=>`<div class="art" onclick="location.href='${articleUrl(a.id)}'">
+        <span class="badge-new">${a.badge}</span><div class="thumb">${a.thumb}</div>
         <div class="body">
-          <div class="cat"><span class="tag">${a[1]}</span> · ${a[2]}</div>
-          <h3>${a[3]}</h3><p>${a[4]}</p>
-          <div class="meta"><span>🕐 ${t}</span><span>👁 ${a[6]}만</span></div>
-        </div></div>`;
-    }).join('');
+          <div class="cat"><span class="tag">${a.category}</span> · ${a.market}</div>
+          <h3>${a.title}</h3><p>${a.summary}</p>
+          <div class="meta"><span class="data-stamp">${a.published} 기준</span><span>읽기 ${a.readTime}</span></div>
+        </div></div>`).join(''):'<div class="empty">검색 결과가 없습니다.</div>';
     document.getElementById('more').style.display=list.length>limit?'inline-block':'none';
+  }
+  function renderSidebar(){
+    document.getElementById('popularList').innerHTML=ARTS.map((a,i)=>`<div class="pop" onclick="location.href='${articleUrl(a.id)}'"><span class="rk">${i+1}</span><div><div class="pt">${a.title}</div><div class="pm">${a.category} · ${a.published.slice(5,10)} 데이터</div></div></div>`).join('');
+    const counts=ARTS.reduce((m,a)=>(m[a.category]=(m[a.category]||0)+1,m),{});
+    document.getElementById('categoryList').innerHTML=Object.entries(counts).map(([k,v])=>`<a href="#" data-cat="${k}">${k}<span>${v}</span></a>`).join('');
+    document.querySelectorAll('#categoryList a').forEach(a=>a.onclick=e=>{e.preventDefault();const btn=[...document.querySelectorAll('#cats button')].find(b=>b.textContent===a.dataset.cat);if(btn)btn.click();});
+    const tags=[...new Set(ARTS.flatMap(a=>a.tags))].slice(0,8);
+    document.getElementById('popularTags').innerHTML=tags.map(t=>`<a href="#" data-tag="${t}">${t}</a>`).join('');
+    document.querySelectorAll('#popularTags a').forEach(a=>a.onclick=e=>{e.preventDefault();document.getElementById('searchInput').value=a.dataset.tag;render();});
   }
   document.getElementById('cats').querySelectorAll('button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#cats button').forEach(x=>x.classList.remove('on'));b.classList.add('on');cat=b.textContent;limit=6;render();});
   document.getElementById('sort').querySelectorAll('button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#sort button').forEach(x=>x.classList.remove('on'));b.classList.add('on');sort=b.textContent;render();});
   document.getElementById('more').onclick=()=>{limit+=6;render();};
+  document.getElementById('searchInput').addEventListener('input',render);
+  setupUniverse();renderFeatured();renderSidebar();
   render();
 </script>
 </body>

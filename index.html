@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RICHFLOW · 큰손 추적 · AI 리서치 · 실시간 시황</title>
+<link rel="stylesheet" href="community.css">
 <style>
   :root{
     /* soft-robot greyscale theme */
@@ -178,23 +179,40 @@
     background:linear-gradient(90deg,#a63a47,#b44f5b,#c46b74,#8b919b,#4bab77,#1fa15c,#148f4f)}
   .heatboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:12px;margin-top:4px}
   .sector{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 13px;box-shadow:var(--shadow-sm)}
-  .slabel{font-size:12px;font-weight:800;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center}
+  .slabel{font-size:12px;font-weight:800;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border-radius:8px;padding:2px 3px;transition:background .15s}
+  .slabel:hover,.slabel:focus-visible{background:var(--card-2);outline:none}
+  .slabel::after{content:'상세 ›';font-size:9px;color:var(--txt-3);font-weight:700;margin-left:6px;order:2}
   .slabel span{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px}
-  .stiles{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:38px;gap:3px}
+  .stiles{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:42px;gap:3px}
   .htile{border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    color:#fff;font-size:9px;font-weight:700;text-align:center;padding:2px;overflow:hidden;cursor:pointer;
+    position:relative;color:#fff;font-size:9px;font-weight:700;text-align:center;padding:2px;overflow:hidden;cursor:pointer;
     line-height:1.15;transition:transform .12s}
   .htile:hover{transform:scale(1.05)}
   .htile b{font-size:9px;font-weight:800;opacity:.95}
   .htile.big{grid-column:span 2;grid-row:span 2;font-size:12.5px;border-radius:9px}
   .htile.big b{font-size:13px}
   .htile.wide{grid-column:span 2}
+  .heat-tile-logo,.heat-detail-logo{display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(255,255,255,.94);color:#404752;box-shadow:0 2px 7px rgba(0,0,0,.13)}
+  .heat-tile-logo{position:absolute;left:4px;top:4px;width:14px;height:14px;border-radius:5px}.htile.big .heat-tile-logo{width:23px;height:23px;border-radius:7px;left:6px;top:6px}.heat-tile-logo img,.heat-detail-logo img{width:100%;height:100%;object-fit:contain}.heat-tile-logo i,.heat-detail-logo i{display:none;font-style:normal;font-weight:900}.heat-tile-logo.logo-fallback i,.heat-detail-logo.logo-fallback i{display:block}.heat-tile-logo i{font-size:7px}.htile.big .heat-tile-logo i{font-size:10px}
   .u3{background:#148f4f}.u2{background:#1fa15c}.u1{background:#4bab77}
   .fl{background:#8b919b}.d1{background:#c46b74}.d2{background:#b44f5b}.d3{background:#a63a47}
   .sec-hidden{display:none}
   .heat-more{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;
     padding:11px 22px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
   .heat-more:hover{color:var(--txt);border-color:var(--line-2)}
+  .heat-detail-layer{position:fixed;inset:0;z-index:1200;background:rgba(18,21,27,.58);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:22px}
+  .heat-detail{width:min(920px,100%);max-height:min(840px,92vh);overflow:auto;background:#f5f6f8;border:1px solid rgba(255,255,255,.55);border-radius:26px;box-shadow:0 32px 90px rgba(0,0,0,.3);scrollbar-width:thin;scrollbar-color:#c4c8cf transparent}
+  .heat-detail-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;padding:22px 24px 18px;background:rgba(245,246,248,.92);backdrop-filter:blur(14px);border-bottom:1px solid #e2e4e8}
+  .heat-detail-icon{width:46px;height:46px;flex:0 0 46px;display:flex;align-items:center;justify-content:center;border-radius:15px;background:linear-gradient(145deg,#20242d,#3a414e);color:#fff;font-size:21px;box-shadow:0 8px 22px rgba(30,35,44,.2)}
+  .heat-detail-eyebrow{font-size:9px;font-weight:850;letter-spacing:.13em;color:#8a9099;margin-bottom:3px}.heat-detail-head h2{font-size:21px;letter-spacing:-.025em}.heat-detail-head p{font-size:11px;color:#7c838d;margin-top:4px}.heat-detail-close{margin-left:auto;width:38px;height:38px;border:1px solid #d9dce1;border-radius:50%;background:#fff;font:inherit;font-size:20px;cursor:pointer;color:#4e5560;box-shadow:0 3px 12px rgba(0,0,0,.06);transition:transform .15s,background .15s}.heat-detail-close:hover{transform:rotate(6deg);background:#eceef1}
+  .heat-detail-summary{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:15px 24px 2px}.heat-detail-summary span{font-size:10px;font-weight:750;color:#606773;background:#fff;border:1px solid #e1e3e7;padding:7px 10px;border-radius:999px;box-shadow:0 2px 7px rgba(0,0,0,.025)}.heat-detail-summary .heat-detail-progress{color:#16864b}.heat-detail-summary .heat-detail-progress::before{content:'';display:inline-block;width:6px;height:6px;margin-right:5px;border-radius:50%;background:#24a661;box-shadow:0 0 0 3px rgba(36,166,97,.12)}
+  .heat-detail-legend{margin-left:auto;display:flex;align-items:center;gap:7px;color:#8b919a;font-size:9px;font-weight:750}.heat-detail-legend i{display:block;width:90px;height:7px;border-radius:99px;background:linear-gradient(90deg,#ad4552 0%,#ce7a84 35%,#a5aab1 50%,#66b88a 68%,#168f50 100%)}
+  .heat-detail-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:82px;grid-auto-flow:dense;gap:7px;padding:15px 24px 26px}
+  .heat-detail-stock{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:9px 7px;border:1px solid rgba(255,255,255,.28);border-radius:13px;background:#8b919b;color:#fff;text-align:center;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 5px 14px rgba(28,34,43,.09);transition:transform .16s,filter .16s,box-shadow .16s}
+  .heat-detail-stock::after{content:'';position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.11),transparent 48%,rgba(0,0,0,.07));pointer-events:none}
+  .heat-detail-stock.u3{background:linear-gradient(145deg,#169858,#087a42)}.heat-detail-stock.u2{background:linear-gradient(145deg,#2da96a,#198e54)}.heat-detail-stock.u1{background:linear-gradient(145deg,#65bb8b,#45a975)}.heat-detail-stock.d1{background:linear-gradient(145deg,#d07b85,#bd626e)}.heat-detail-stock.d2{background:linear-gradient(145deg,#bd5c69,#a94452)}.heat-detail-stock.d3{background:linear-gradient(145deg,#a84250,#8f303d)}.heat-detail-stock.fl{background:linear-gradient(145deg,#a2a7ae,#858b94)}
+  .heat-detail-stock:hover{z-index:1;transform:translateY(-2px) scale(1.018);filter:brightness(1.04);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px rgba(28,34,43,.17)}.heat-detail-stock.hd-big{grid-column:span 2;grid-row:span 2;border-radius:16px}.heat-detail-stock.hd-wide{grid-column:span 2}.heat-detail-rank{position:absolute;z-index:1;left:8px;top:7px;min-width:17px;height:17px;padding:0 4px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(0,0,0,.12);font-size:8px;font-weight:850;opacity:.9}.heat-detail-logo{position:absolute;z-index:1;right:8px;top:7px;width:23px;height:23px;border-radius:7px}.heat-detail-logo i{font-size:9px}.heat-detail-name,.heat-detail-price{position:relative;z-index:1;max-width:100%}.heat-detail-name b{display:block;font-size:11px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.heat-detail-name small{display:block;color:inherit;opacity:.7;font-size:8px;margin-top:3px}.heat-detail-price{font-size:10px;font-weight:720;margin-top:5px;line-height:1.25;opacity:.96}.heat-detail-price strong{display:block;color:inherit!important;font-size:11px;margin-top:2px}.heat-detail-stock.hd-big .heat-detail-logo{width:38px;height:38px;border-radius:11px;right:12px;top:11px}.heat-detail-stock.hd-big .heat-detail-logo i{font-size:14px}.heat-detail-stock.hd-big .heat-detail-name b{font-size:17px}.heat-detail-stock.hd-big .heat-detail-name small{font-size:10px}.heat-detail-stock.hd-big .heat-detail-price{font-size:13px;margin-top:8px}.heat-detail-stock.hd-big .heat-detail-price strong{font-size:16px}.heat-detail-stock.hd-wide .heat-detail-name b{font-size:12px}
+  @media(max-width:640px){.heat-detail-layer{padding:0}.heat-detail{height:100%;max-height:none;border:0;border-radius:0}.heat-detail-head{padding:18px 16px 15px}.heat-detail-icon{width:40px;height:40px;flex-basis:40px;border-radius:13px;font-size:18px}.heat-detail-head h2{font-size:19px}.heat-detail-summary{padding:13px 15px 2px}.heat-detail-legend{width:100%;margin:3px 0 0}.heat-detail-legend i{flex:1}.heat-detail-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:82px;gap:6px;padding:13px 15px 24px}.heat-detail-stock.hd-big{grid-column:span 2;grid-row:span 2}.heat-detail-stock.hd-wide{grid-column:span 1}.heat-detail-stock.hd-wide .heat-detail-name b{font-size:11px}}
 
   /* theme flow */
   .theme-row{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px}
@@ -290,7 +308,8 @@
       <a href="leaders.html" id="navLeaders">대표주</a>
       <a href="idea.html" id="navIdea">커넥션</a>
       <a href="forecast.html" id="navForecast">확률 통계</a>
-      <a href="research.html">리서치</a>
+      <a href="research.html" id="navResearch">리서치</a>
+      <a href="community.html" id="navCommunity">커뮤니티</a>
       <a href="theme.html" id="navTheme">테마·흐름</a>
       <a href="screener.html" id="navScreener">종목탐색</a>
       <a href="calendar.html" id="navCal">캘린더</a>
@@ -391,7 +410,7 @@
   <section class="sec">
     <div class="sec-head">
       <h2>🗺️ 산업별 히트맵</h2>
-      <span style="font-size:12px;color:var(--txt-3)">오후 02:53 · 시총 비례 · 타일 클릭 = 종목 허브</span>
+      <span id="heatTime" style="font-size:12px;color:var(--txt-3)">최근 시세 계산 중 · 대표 종목 단순평균 · 60초 자동 갱신</span>
       <div class="heat-legend" style="margin-left:auto"><span>-3%</span><div class="scale"></div><span>+3%</span></div>
     </div>
     <div class="heatboard" id="heatboard">
@@ -483,7 +502,7 @@
           <a class="htile wide u3" href="stock.html">HD한국조선<b>+4.1%</b></a>
           <a class="htile u2" href="stock.html">삼성중공업<b>+2.2%</b></a>
           <a class="htile u2" href="stock.html">HD현대중공업<b>+3.0%</b></a>
-          <a class="htile u2" href="stock.html">HD현대미포<b>+1.8%</b></a>
+          <a class="htile u2" href="stock.html">HD현대마린솔루션<b>+1.8%</b></a>
         </div>
       </div>
 
@@ -610,45 +629,37 @@
         </div>
       </div>
       <div class="feed" id="articleFeed">
-        <div class="art">
+        <div class="art" data-id="dbhitek-q1-2026">
           <span class="badge-new">NEW</span>
-          <div class="thumb">MS</div>
+          <div class="thumb">DB</div>
           <div class="body">
-            <div class="cat"><span class="tag">종목분석</span> · 7분 전</div>
-            <h4>마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다</h4>
-            <p>1900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화, OpenAI 의존 리스크가 겹치며 52주 고점 대비 약 30% 하락. 7월 29일 실적이 분수령.</p>
+            <div class="cat"><span class="tag">종목분석</span> · 08:20 데이터</div>
+            <h4>DB하이텍 16.7% 급등, 실적과 기대 사이를 숫자로 점검했다</h4>
+            <p>1분기 매출 3,746억원·영업이익 637억원. 실적 회복과 목표가 괴리를 함께 살펴본다.</p>
           </div>
         </div>
-        <div class="art">
-          <div class="thumb">₿</div>
+        <div class="art" data-id="robot-theme-20260803">
+          <div class="thumb">RB</div>
           <div class="body">
-            <div class="cat"><span class="tag">거시·정책</span> · 29분 전</div>
-            <h4>클래리티 액트, 통과되면 진짜 뭐가 바뀌나 — 지금 봐야 할 것</h4>
-            <p>미국이 코인 시장 규칙을 통째로 다시 쓰는 중. "통과되면 내 자산은 어떻게 되냐"에 제대로 답하는 정리.</p>
+            <div class="cat"><span class="tag">테마·수급</span> · 08:05 데이터</div>
+            <h4>로봇 테마 +23%, 강한 주가와 아직 약한 이익을 분리해서 봐야 한다</h4>
+            <p>티엑스알로보틱스 등 주도주 상승과 적자 실적을 한 화면에서 비교했다.</p>
           </div>
         </div>
-        <div class="art">
-          <div class="thumb">TSLA</div>
+        <div class="art" data-id="glass-substrate-20260803">
+          <div class="thumb">GL</div>
           <div class="body">
-            <div class="cat"><span class="tag">선물·지수</span> · 7시간 전</div>
-            <h4>나스닥 100 선물, 2만9000선까지 밀렸다 — 테슬라·알파벳 실적 쇼크의 여파</h4>
-            <p>NQ 29,086.75, 52주 고점 대비 -6.07%. 애프터마켓 급락과 풋옵션 우세 속 변동성 확대.</p>
+            <div class="cat"><span class="tag">산업분석</span> · 07:55 데이터</div>
+            <h4>유리기판 +3.3%, 4,602억원 거래대금의 98%가 한 종목에 몰렸다</h4>
+            <p>삼성전기 집중도를 계산하고 태성의 급등과 적자 실적을 함께 점검했다.</p>
           </div>
         </div>
-        <div class="art">
-          <div class="thumb">AVGO</div>
+        <div class="art" data-id="morning-brief-20260803">
+          <div class="thumb">AM</div>
           <div class="body">
-            <div class="cat"><span class="tag">종목분석</span> · 7시간 전</div>
-            <h4>브로드컴 주가 전망: 396달러대에서 반등, 관건은 9월 실적</h4>
-            <p>52주 고점 대비 20% 낮은 396.81달러에서 반등. 월가 목표주가 평균 509.82달러. 9월 2일 실적이 관건.</p>
-          </div>
-        </div>
-        <div class="art">
-          <div class="thumb">ETF</div>
-          <div class="body">
-            <div class="cat"><span class="tag">ETF·배당</span> · 8시간 전</div>
-            <h4>SCHD 월배당 아니라 분기배당이다 — 2026년 지급일정과 수익률 총정리</h4>
-            <p>3·6·9·12월 분기배당, TTM 배당수익률 약 3.19%. 월배당 원하면 국내 상장 미국배당다우존스 ETF가 대안.</p>
+            <div class="cat"><span class="tag">장전 브리핑</span> · 07:40 데이터</div>
+            <h4>8월 3일 장전 브리핑: 미국 기술주 강세와 유가 급락의 국내 영향</h4>
+            <p>반도체·운송의 우호 요인과 개장 후 반드시 확인할 수급 지표를 정리했다.</p>
           </div>
         </div>
         <div style="text-align:center;padding:14px"><a class="more" href="research.html" style="font-size:13px;color:var(--brand);font-weight:600">피드에서 더 보기 →</a></div>
@@ -698,6 +709,8 @@
     </aside>
   </div>
 
+  <section id="homeCommunity"></section>
+
   <!-- AI TERMINAL CTA -->
   <section class="terminal">
     <div class="in">
@@ -736,6 +749,7 @@
   </div>
 </footer>
 
+<script src="community.js"></script>
 <script>
   /* ===== helpers ===== */
   function tcls(p){return p>=5?'u3':p>=2?'u2':p>=0?'u1':p>-1.5?'d1':p>-3?'d2':'d3';}
@@ -745,7 +759,7 @@
     return `<div class="sector"><div class="slabel">${s.n} <span class="${chip}" style="color:#fff">${s.avg>0?'+':''}${s.avg}%</span></div><div class="stiles">${tiles}</div></div>`;
   }).join('');}
   function srows(list){return list.map(r=>{const px=r[6]?` data-px="${r[6]}"`:'';const cg=r[6]?` data-chg="${r[6]}"`:'';const href='stock.html'+(r[7]?'?t='+r[7]:'');return `<a class="srow" href="${href}"><div class="logo-sq">${r[0]}</div><div class="info"><div class="n">${r[1]}</div><div class="c">${r[2]}</div></div><div class="px"><div class="p mono"${px}>${r[3]}</div><div class="r ${r[5]?'up':'down'} mono"${cg}>${r[4]}</div></div></a>`;}).join('');}
-  function artsHTML(list){return list.map((a,i)=>`<div class="art">${i===0?'<span class="badge-new">NEW</span>':''}<div class="thumb">${a[0]}</div><div class="body"><div class="cat"><span class="tag">${a[1]}</span> · ${a[2]}</div><h4>${a[3]}</h4><p>${a[4]}</p></div></div>`).join('')+`<div style="text-align:center;padding:14px"><a class="more" href="research.html" style="font-size:13px;color:var(--brand);font-weight:600">피드에서 더 보기 →</a></div>`;}
+  function artsHTML(list){return list.map((a,i)=>`<div class="art"${a[5]?` data-id="${a[5]}"`:''}>${i===0?'<span class="badge-new">NEW</span>':''}<div class="thumb">${a[0]}</div><div class="body"><div class="cat"><span class="tag">${a[1]}</span> · ${a[2]}</div><h4>${a[3]}</h4><p>${a[4]}</p></div></div>`).join('')+`<div style="text-align:center;padding:14px"><a class="more" href="research.html" style="font-size:13px;color:var(--brand);font-weight:600">피드에서 더 보기 →</a></div>`;}
   function themeRows(list){return list.map(r=>`<div class="theme-row"><span class="tn">${r[0]}</span><div class="theme-bar"><i style="width:${r[2]}%;background:var(--${r[3]?'up':'down'})"></i></div><span class="tv ${r[3]?'up':'down'}">${r[1]}</span></div>`).join('');}
   function calRows(list){return list.map(r=>`<div class="cal-row"><span class="d">${r[0]}</span><span class="e">${r[1]}</span><span class="t">${r[2]}</span></div>`).join('');}
   function tickerHTML(items){return items.map(([n,v,c,up])=>`<span class="tk">${n} <b>${v}</b> <span class="${up?'up':'down'}">${c}</span></span>`).join('');}
@@ -795,10 +809,10 @@
       {n:'전기차',avg:-2.6,t:[['테슬라',-4.1,'TSLA'],['리비안',-2.2,'RIVN'],['루시드',-1.5,'LCID']]}
     ]),
     articleFeed:artsHTML([
-      ['MS','종목분석','7분 전','마이크로소프트 주가 하락 이유, AI 투자비 부담과 애저 성장 둔화가 겹쳤다','1900억 달러로 늘어난 AI 자본지출과 애저 성장 둔화가 겹치며 52주 고점 대비 약 30% 하락. 7/29 실적이 분수령.'],
-      ['PLTR','종목분석','1시간 전','팔란티어 124달러, 하루새 6% 급락한 이유','밸류에이션 부담과 차익실현 매물이 겹치며 급락. 다만 정부·상업 수주는 견조.'],
-      ['NVDA','종목분석','3시간 전','엔비디아 주가 전망 2026, AI 수요와 실적 기대치 점검','블랙웰 수요와 데이터센터 자본지출이 실적을 좌우. 밸류에이션 논쟁 지속.'],
-      ['AVGO','종목분석','7시간 전','브로드컴 396달러대 반등, 관건은 9월 실적','월가 목표주가 평균 509달러. AI 반도체 매출과 가이던스가 관건.']
+      ['MS','종목분석','FY26 Q3','마이크로소프트, 애저 40% 성장과 AI 투자 회수의 조건','매출 829억달러와 애저 성장률을 공식 IR 기준으로 점검합니다.','msft-fy26-q3'],
+      ['PLTR','종목분석','2026 Q1','팔란티어, 매출 85% 성장 뒤의 미국 상업 부문','미국 상업 매출 133% 성장과 영업 레버리지를 분리해서 봅니다.','pltr-q1-2026'],
+      ['NVDA','종목분석','FY27 Q1','엔비디아, 데이터센터 752억달러가 말해주는 AI 수요','사상 최대 매출과 74.9% 총마진을 공식 실적으로 확인합니다.','nvda-fy27-q1'],
+      ['AVGO','산업분석','FY26 Q2','브로드컴, AI 반도체 매출 108억달러의 의미','커스텀 가속기·AI 네트워킹과 현금흐름을 함께 분석합니다.','avgo-fy26-q2']
     ]),
     todayTitle:`🔥 오늘의 종목 <span class="hint">거래대금</span>`,
     todayStocks:srows([['NV','엔비디아','NVDA · $30B','$196.51','▼5.0%',0,'','NVDA'],['AM','AMD','AMD · $16B','$494.95','▼5.2%',0,'','AMD'],['B','브로드컴','AVGO · $6B','$383.22','▲0.3%',1,'','AVGO'],['A','애플','AAPL · $52B','$341.25','▲0.3%',1,'','AAPL']]),
@@ -867,24 +881,37 @@
       nlead.textContent='대표주';nlead.href=nl.leaders;
     }
     document.getElementById('navIdea').href=nl.idea;document.getElementById('navForecast').href=nl.forecast;
+    document.getElementById('navResearch').href=m==='us'?'research.html?m=us':'research.html';
+    document.getElementById('navCommunity').href=m==='us'?'community.html?m=us':m==='kr'?'community.html?m=kr':'community.html';
     document.getElementById('navTheme').href=nl.theme;document.getElementById('navScreener').href=nl.screener;document.getElementById('navCal').href=nl.cal;
+    RichflowCommunity.mountPreview('#homeCommunity',{market:m==='coin'?'all':m});
     document.getElementById('aiCtaLink').href=nl.ai;
     const p=AI_PROMPT[m];document.getElementById('aiPromptQ').textContent=p[0];document.getElementById('aiPromptA').innerHTML=p[1];
-    initHeatboard();wireArticles();
+    initHeatboard();wireArticles(m);updateHeatmap(m);
   }
   function initHeatboard(){
     const board=document.getElementById('heatboard');
     const secs=Array.from(board.querySelectorAll('.sector'));
-    const val=s=>parseFloat(s.querySelector('.slabel span').textContent.replace('%',''));
+    const val=s=>parseFloat(s.querySelector('.slabel span').textContent.replace('−','-').replace('%',''));
     secs.sort((a,b)=>val(b)-val(a));
     secs.forEach(s=>board.appendChild(s));
     const VIS=6, btn=document.getElementById('heatMoreBtn');
-    secs.forEach((s,i)=>s.classList.toggle('sec-hidden',i>=VIS));
-    let open=false;
-    btn.textContent='＋ 전체 산업 보기 ('+secs.length+'개)';
-    btn.onclick=()=>{open=!open;secs.forEach((s,i)=>{if(i>=VIS)s.classList.toggle('sec-hidden',!open)});btn.textContent=open?'− 접기':'＋ 전체 산업 보기 ('+secs.length+'개)';};
+    let open=board.dataset.open==='1';
+    secs.forEach(sec=>{const label=sec.querySelector('.slabel');if(!label)return;label.setAttribute('role','button');label.setAttribute('tabindex','0');label.title='산업별 대형 종목 더 보기';label.onclick=()=>openHeatDetail(sec);label.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openHeatDetail(sec);}};});
+    decorateHeatLogos(board,activeMarket());
+    secs.forEach((s,i)=>s.classList.toggle('sec-hidden',i>=VIS&&!open));
+    btn.textContent=open?'− 접기':'＋ 전체 산업 보기 ('+secs.length+'개)';
+    btn.onclick=()=>{open=!open;board.dataset.open=open?'1':'0';secs.forEach((s,i)=>{if(i>=VIS)s.classList.toggle('sec-hidden',!open)});btn.textContent=open?'− 접기':'＋ 전체 산업 보기 ('+secs.length+'개)';};
   }
-  function wireArticles(){document.querySelectorAll('#articleFeed .art').forEach(a=>a.onclick=()=>location.href='article.html');}
+  function wireArticles(m='kr'){
+    const researchHref=m==='us'?'research.html?m=us':'research.html';
+    const articleMarket=m==='us'?'us':'kr';
+    document.querySelectorAll('#articleFeed .art').forEach(a=>a.onclick=()=>location.href=a.dataset.id
+      ?'article.html?m='+articleMarket+'&id='+encodeURIComponent(a.dataset.id)
+      :researchHref);
+    const more=document.querySelector('#articleFeed .more');
+    if(more)more.href=researchHref;
+  }
 
   /* ===== market switch ===== */
   const MK=['kr','us','coin'];
@@ -895,6 +922,99 @@
   const IDX_PROX=[u=>'https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url='+encodeURIComponent(u),u=>'https://corsproxy.io/?url='+encodeURIComponent(u)];
   async function idxFetch(url){ for(const w of IDX_PROX){ try{ const c=new AbortController(),id=setTimeout(()=>c.abort(),6000); const r=await fetch(w(url),{cache:'no-store',signal:c.signal}); clearTimeout(id); if(!r.ok)continue; const t=await r.text(); if(!t||t[0]==='<')continue; return JSON.parse(t); }catch(e){} } return null; }
   const idxNum=s=>parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));
+  /* ===== 산업별 히트맵 최근 시세 ===== */
+  const HEAT_KR_CODES={
+    '삼성전자':'005930','SK하이닉스':'000660','삼성전기':'009150','한미반도체':'042700','DB하이텍':'000990','리노공업':'058470','원익IPS':'240810','이오테크닉스':'039030',
+    '동진쎄미켐':'005290','솔브레인':'357780','하나머티리얼즈':'166090','넥스틴':'348210','원익머트리얼즈':'104830','티씨케이':'064760',
+    'LG에너지솔루션':'373220','삼성SDI':'006400','포스코퓨처엠':'003670','에코프로비엠':'247540','엘앤에프':'066970','SKC':'011790','에코프로':'086520','나노신소재':'121600',
+    '현대차':'005380','기아':'000270','현대모비스':'012330','HL만도':'204320','삼성바이오':'207940','셀트리온':'068270','유한양행':'000100','한미약품':'128940',
+    'KB금융':'105560','신한지주':'055550','하나금융':'086790','삼성생명':'032830','NAVER':'035420','카카오':'035720','크래프톤':'259960','넷마블':'251270',
+    '한화오션':'042660','HD한국조선':'009540','삼성중공업':'010140','HD현대중공업':'329180','HD현대마린솔루션':'443060','한화에어로':'012450','LIG넥스원':'079550','현대로템':'064350','한국항공우주':'047810',
+    '두산에너빌리티':'034020','한국전력':'015760','HD현대일렉':'267260','LS ELECTRIC':'010120','제룡전기':'033100','SK이터닉스':'475150',
+    '레인보우로보틱스':'277810','두산로보틱스':'454910','삼성SDS':'018260','현대오토에버':'307950','아모레퍼시픽':'090430','LG생활건강':'051900','한국콜마':'161890','코스맥스':'192820','달바글로벌':'483650',
+    '하이브':'352820','에스엠':'041510','JYP Ent':'035900','YG엔터':'122870','CJ ENM':'035760','POSCO홀딩스':'005490','고려아연':'010130','현대제철':'004020','롯데케미칼':'011170',
+    '삼성물산':'028260','현대건설':'000720','GS건설':'006360','이마트':'139480','CJ제일제당':'097950','오리온':'271560','SK텔레콤':'017670','KT':'030200','LG유플러스':'032640',
+    'LS':'006260','CJ':'001040','SK':'034730','두산':'000150','한화':'000880','SK리츠':'395400','한화리츠':'451800','롯데리츠':'330590','ESR켄달':'365550'
+  };
+  const HEAT_COIN_SYMBOLS={'PEPE':'PEPEUSDT','도지':'DOGEUSDT','시바':'SHIBUSDT','TAO':'TAOUSDT','FET':'FETUSDT','RENDER':'RENDERUSDT','HNT':'HNTUSDT','UNI':'UNIUSDT','AAVE':'AAVEUSDT','MKR':'MKRUSDT','ONDO':'ONDOUSDT','ARB':'ARBUSDT','OP':'OPUSDT','MATIC':'POLUSDT','솔라나':'SOLUSDT','비트코인':'BTCUSDT','이더리움':'ETHUSDT','BNB':'BNBUSDT','에이다':'ADAUSDT','LDO':'LDOUSDT','RPL':'RPLUSDT'};
+  const HEAT_DETAIL_EXTRA={
+    kr:{
+      '반도체':[['SK스퀘어','402340'],['LX세미콘','108320'],['가온칩스','399720'],['제주반도체','080220'],['심텍','222800'],['두산테스나','131970'],['SFA반도체','036540'],['네패스','033640'],['칩스앤미디어','094360'],['어보브반도체','102120'],['텔레칩스','054450'],['동운아나텍','094170']],
+      '반도체 소부장':[['주성엔지니어링','036930'],['HPSP','403870'],['ISC','095340'],['테크윙','089030'],['파크시스템스','140860'],['유진테크','084370'],['피에스케이','319660'],['하나마이크론','067310'],['케이씨텍','281820'],['테스','095610'],['디아이','003160'],['에스앤에스텍','101490'],['코미코','183300']],
+      '2차전지':[['LG화학','051910'],['SK이노베이션','096770'],['금양','001570'],['대주전자재료','078600'],['엔켐','348370'],['천보','278280'],['코스모신소재','005070'],['성일하이텍','365340'],['피엔티','137400'],['윤성에프앤씨','372170'],['SFA넥셀','222080'],['롯데에너지머티리얼즈','020150']],
+      '자동차':[['현대글로비스','086280'],['한국타이어앤테크놀로지','161390'],['한온시스템','018880'],['현대위아','011210'],['에스엘','005850'],['성우하이텍','015750'],['현대공업','170030'],['화신','010690'],['서연이화','200880'],['명신산업','009900'],['SNT다이내믹스','003570']],
+      '바이오·제약':[['알테오젠','196170'],['HLB','028300'],['에스케이바이오팜','326030'],['SK바이오사이언스','302440'],['리가켐바이오','141080'],['펩트론','087010'],['클래시스','214150'],['셀트리온제약','068760'],['에이비엘바이오','298380'],['보로노이','310210'],['오스코텍','039200'],['파마리서치','214450'],['휴젤','145020']],
+      '금융':[['우리금융지주','316140'],['기업은행','024110'],['삼성화재해상보험','000810'],['메리츠금융지주','138040'],['미래에셋증권','006800'],['NH투자증권','005940'],['카카오뱅크','323410'],['DB손해보험','005830'],['키움증권','039490'],['한국금융지주','071050'],['BNK금융지주','138930'],['JB금융지주','175330'],['현대해상','001450']],
+      '인터넷·플랫폼':[['카카오페이','377300'],['카카오뱅크','323410'],['SOOP','067160'],['한컴','030520'],['안랩','053800'],['NHN','181710'],['NC','036570'],['넥슨게임즈','225570'],['펄어비스','263750'],['컴투스','078340'],['위메이드','112040'],['웹젠','069080'],['롯데이노베이트','286940']],
+      '조선':[['HD현대','267250'],['SK오션플랜트','100090'],['세진중공업','075580'],['동성화인텍','033500'],['태광','023160'],['성광벤드','014620'],['STX엔진','077970'],['HJ중공업','097230'],['HD현대마린엔진','071970'],['오리엔탈정공','014940'],['한국카본','017960']],
+      '방산':[['한화시스템','272210'],['풍산','103140'],['SNT모티브','064960'],['퍼스텍','010820'],['빅텍','065450'],['아이쓰리시스템','214430'],['코츠테크놀로지','448710'],['휴니드테크놀러지스','005870'],['스페코','013810'],['한일단조','024740'],['제노코','361390']],
+      '전력·에너지':[['효성중공업','298040'],['일진전기','103590'],['산일전기','062040'],['LS에코에너지','229640'],['대한전선','001440'],['한전기술','052690'],['한전KPS','051600'],['가온전선','000500'],['광명전기','017040'],['보성파워텍','006910'],['비츠로테크','042370'],['제일일렉트릭','199820']],
+      '로봇·SI':[['로보티즈','108490'],['뉴로메카','348340'],['유일로보틱스','388720'],['클로봇','466100'],['현대무벡스','319400'],['포스코DX','022100'],['LG씨엔에스','064400'],['에스피지','058610'],['로보스타','090360'],['티로보틱스','117730'],['해성에어로보틱스','059270'],['삼현','437730'],['하이젠알앤엠','160190']],
+      '화장품·소비재':[['에이피알','278470'],['브이티','018290'],['실리콘투','257720'],['클리오','237880'],['토니모리','214420'],['애경산업','018250'],['콜마홀딩스','024720'],['펌텍코리아','251970'],['잉글우드랩','950140'],['씨앤씨인터내셔널','352480'],['아이패밀리에스씨','114840'],['마녀공장','439090']],
+      '엔터·미디어':[['스튜디오드래곤','253450'],['제일기획','030000'],['콘텐트리중앙','036420'],['디어유','376300'],['큐브엔터','182360'],['쇼박스','086980'],['SBS','034120'],['와이랩','432430'],['SAMG엔터','419530'],['키이스트','054780'],['NEW','160550'],['팬엔터테인먼트','068050']],
+      '철강·화학':[['LG화학','051910'],['금호석유화학','011780'],['한화솔루션','009830'],['롯데정밀화학','004000'],['HS효성첨단소재','298050'],['세아베스틸지주','001430'],['포스코인터내셔널','047050'],['동국제강','460860'],['세아제강','306200'],['OCI홀딩스','010060'],['케이씨씨','002380'],['대한유화','006650'],['SK케미칼','285130']],
+      '건설·유통':[['현대백화점','069960'],['롯데쇼핑','023530'],['신세계','004170'],['BGF리테일','282330'],['GS리테일','007070'],['DL이앤씨','375500'],['대우건설','047040'],['IPARK현대산업개발','294870'],['코오롱글로벌','003070'],['한샘','009240'],['호텔신라','008770'],['롯데하이마트','071840'],['CJ대한통운','000120']],
+      '통신':[['SK스퀘어','402340'],['LG헬로비전','037560'],['세종텔레콤','036630'],['쏠리드','050890'],['RFHIC','218410'],['케이엠더블유','032500'],['LIG아큐버','073490'],['오이솔루션','138080'],['다산네트웍스','039560'],['유비쿼스','264450'],['에치에프알','230240'],['머큐리','100590']],
+      '지주':[['LG','003550'],['GS','078930'],['HD현대','267250'],['롯데지주','004990'],['한진칼','180640'],['코오롱','002020'],['DL','000210'],['LX홀딩스','383800'],['HDC','012630'],['AK홀딩스','006840'],['세아홀딩스','058650'],['NICE','034310']],
+      '리츠':[['맥쿼리인프라','088980'],['신한알파리츠','293940'],['제이알글로벌리츠','348950'],['코람코라이프인프라리츠','357120'],['이리츠코크렙','088260'],['디앤디플랫폼리츠','377190'],['NH올원리츠','400760'],['삼성FN리츠','448730'],['마스턴프리미어리츠','357430'],['KB스타리츠','432320'],['미래에셋글로벌리츠','396690'],['신한서부티엔디리츠','404990']]
+    },
+    us:{
+      '에너지':[['ConocoPhillips','COP'],['Schlumberger','SLB'],['EOG Resources','EOG'],['Marathon Petroleum','MPC'],['Phillips 66','PSX'],['Occidental','OXY'],['Kinder Morgan','KMI'],['Williams','WMB'],['Valero','VLO'],['Halliburton','HAL'],['Cheniere Energy','LNG']],
+      '금융':[['Wells Fargo','WFC'],['Citigroup','C'],['Morgan Stanley','MS'],['American Express','AXP'],['BlackRock','BLK'],['Charles Schwab','SCHW'],['PNC Financial','PNC'],['U.S. Bancorp','USB'],['CME Group','CME'],['Intercontinental Exchange','ICE'],['S&P Global','SPGI']],
+      '헬스케어':[['AbbVie','ABBV'],['Merck','MRK'],['Thermo Fisher','TMO'],['Abbott','ABT'],['Amgen','AMGN'],['Intuitive Surgical','ISRG'],['Bristol Myers','BMY'],['Gilead','GILD'],['CVS Health','CVS'],['Medtronic','MDT'],['Stryker','SYK'],['Danaher','DHR']],
+      '빅테크':[['NVIDIA','NVDA'],['Oracle','ORCL'],['Netflix','NFLX'],['Tesla','TSLA'],['Salesforce','CRM'],['Adobe','ADBE'],['IBM','IBM'],['ServiceNow','NOW'],['Intuit','INTU'],['Palo Alto Networks','PANW'],['Palantir','PLTR']],
+      '소비재':[['Walmart','WMT'],['Home Depot','HD'],['Lowe\'s','LOW'],['Starbucks','SBUX'],['PepsiCo','PEP'],['Coca-Cola','KO'],['P&G','PG'],['Target','TGT'],['Booking','BKNG'],['TJX','TJX'],['Disney','DIS'],['Philip Morris','PM']],
+      '반도체':[['Qualcomm','QCOM'],['Texas Instruments','TXN'],['Applied Materials','AMAT'],['Lam Research','LRCX'],['KLA','KLAC'],['Intel','INTC'],['Arm','ARM'],['Marvell','MRVL'],['Analog Devices','ADI'],['NXP','NXPI'],['Microchip','MCHP'],['ON Semiconductor','ON'],['Monolithic Power','MPWR']],
+      '전기차':[['General Motors','GM'],['Ford','F'],['Li Auto','LI'],['NIO','NIO'],['XPeng','XPEV'],['Toyota','TM'],['Honda','HMC'],['Stellantis','STLA']]
+    }
+  };
+  const HEAT_BUSY={kr:false,us:false,coin:false};
+  function activeMarket(){const btns=[...document.querySelectorAll('.market-switch button')],i=btns.findIndex(x=>x.classList.contains('on'));return MK[i]||'kr';}
+  function heatTileName(tile){const node=[...tile.childNodes].find(x=>x.nodeType===3&&x.textContent.trim());return(node&&node.textContent||'').trim();}
+  function heatPctText(p){if(Math.abs(p)<.005)p=0;const s=Math.abs(p).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');return (p>0?'+':p<0?'−':'')+s+'%';}
+  function applyHeatPct(tile,p){if(Math.abs(p)<.005)p=0;tile.dataset.livePct=String(p);tile.classList.remove('u1','u2','u3','d1','d2','d3','fl');tile.classList.add(tcls(p));const b=tile.querySelector('b');if(b)b.textContent=heatPctText(p);}
+  function updateHeatSectorAverages(board){
+    board.querySelectorAll('.sector').forEach(sec=>{const vals=[...sec.querySelectorAll('.htile[data-live-pct]')].map(x=>+x.dataset.livePct).filter(Number.isFinite);if(!vals.length)return;const avg=vals.reduce((a,b)=>a+b,0)/vals.length,label=sec.querySelector('.slabel span');if(!label)return;label.textContent=heatPctText(avg);label.className=avg>=3?'u3':avg>=0?'u2':avg<=-3?'d3':avg<=-1.5?'d2':'d1';label.style.color='#fff';label.title='실시간 반영 '+vals.length+'개 종목 단순평균';});
+  }
+  async function heatMapLimit(items,limit,work){let cursor=0;async function worker(){while(cursor<items.length){const index=cursor++,item=items[index];await work(item,index);}}await Promise.all(Array.from({length:Math.min(limit,items.length)},worker));}
+  async function heatStockQuote(m,key,force){
+    if(m==='kr'){const j=await idxFetch('https://m.stock.naver.com/api/stock/'+key+'/basic'+(force?'?_='+Date.now():''));const p=idxNum(j&&j.fluctuationsRatio);if(!j||!j.closePrice||!Number.isFinite(p))return null;return{price:j.closePrice+'원',pct:p};}
+    if(m==='coin'){try{const r=await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol='+encodeURIComponent(key),{cache:'no-store'}),j=await r.json(),p=+j.priceChangePercent,price=+j.lastPrice;if(!Number.isFinite(p)||!Number.isFinite(price))return null;return{price:fmtPrice(price),pct:p};}catch(e){return null;}}
+    const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(key)+'?interval=1d&range=1d'+(force?'&_='+Date.now():''));const meta=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta;if(!meta||!meta.regularMarketPrice)return null;const prev=meta.chartPreviousClose||meta.previousClose;if(!prev)return null;return{price:'$'+Number(meta.regularMarketPrice).toLocaleString('en-US',{maximumFractionDigits:2}),pct:(meta.regularMarketPrice-prev)/prev*100};
+  }
+  async function heatStockPct(m,key,force){const q=await heatStockQuote(m,key,force);return q?q.pct:null;}
+  function heatEsc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function heatSectorName(sec){return (sec.querySelector('.slabel')?.childNodes[0]?.textContent||'산업').trim();}
+  function heatSectorIcon(sector){return({'반도체':'◈','반도체 소부장':'◇','2차전지':'⚡','자동차':'◆','바이오·제약':'✚','금융':'₩','인터넷·플랫폼':'◎','조선':'⚓','방산':'▲','전력·에너지':'ϟ','로봇·SI':'✦','화장품·소비재':'✿','엔터·미디어':'▶','철강·화학':'⬢','건설·유통':'▦','통신':'◉','지주':'▣','리츠':'⌂','에너지':'◆','헬스케어':'✚','빅테크':'◎','소비재':'●','전기차':'⚡'}[sector]||'▦');}
+  function heatLogoUrl(m,key){if(m==='kr')return'https://ssl.pstatic.net/imgstock/fn/real/logo/stock/Stock'+encodeURIComponent(key)+'.svg';if(m==='us')return'https://financialmodelingprep.com/image-stock/'+encodeURIComponent(key)+'.png';const coin=String(key||'').replace(/USDT$/,'').toLowerCase();return'https://assets.coincap.io/assets/icons/'+coin+'@2x.png';}
+  function heatLogoMarkup(m,key,name,cls){return`<span class="${cls}"><img src="${heatLogoUrl(m,key)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add('logo-fallback');this.remove()"><i>${heatEsc(String(name||key).slice(0,1).toUpperCase())}</i></span>`;}
+  function decorateHeatLogos(board,m){board.querySelectorAll('.htile').forEach(tile=>{if(tile.querySelector('.heat-tile-logo'))return;const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:m==='us'?new URL(tile.href).searchParams.get('t'):HEAT_COIN_SYMBOLS[name];if(key)tile.insertAdjacentHTML('afterbegin',heatLogoMarkup(m,key,name,'heat-tile-logo'));});}
+  function heatDetailItems(sec,m){
+    const sector=heatSectorName(sec),base=[...sec.querySelectorAll('.htile')].map(tile=>{const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:m==='us'?new URL(tile.href).searchParams.get('t'):HEAT_COIN_SYMBOLS[name];return[name,key];}).filter(x=>x[1]),extras=(HEAT_DETAIL_EXTRA[m]&&HEAT_DETAIL_EXTRA[m][sector])||[],seen=new Set();
+    return [...base,...extras].filter(x=>{if(seen.has(x[1]))return false;seen.add(x[1]);return true;});
+  }
+  function closeHeatDetail(layer){layer.remove();document.body.style.overflow='';}
+  async function openHeatDetail(sec){
+    document.querySelector('.heat-detail-layer')?.remove();const m=activeMarket(),sector=heatSectorName(sec),items=heatDetailItems(sec,m),layer=document.createElement('div');layer.className='heat-detail-layer';layer.setAttribute('role','dialog');layer.setAttribute('aria-modal','true');layer.setAttribute('aria-label',sector+' 상세 종목');
+    const marketLabel=m==='kr'?'국장':m==='us'?'미장':'코인';layer.innerHTML=`<section class="heat-detail"><div class="heat-detail-head"><span class="heat-detail-icon">${heatEsc(heatSectorIcon(sector))}</span><div><div class="heat-detail-eyebrow">SECTOR HEATMAP</div><h2>${heatEsc(sector)}</h2><p>${marketLabel} · 대형주·대표주 우선 구성</p></div><button class="heat-detail-close" type="button" aria-label="상세 닫기">×</button></div><div class="heat-detail-summary"><span>${items.length}개 종목</span><span>현재가·등락률 최신 조회</span><span class="heat-detail-progress">불러오는 중…</span><div class="heat-detail-legend"><span>하락</span><i></i><span>상승</span></div></div><div class="heat-detail-grid">${items.map((x,i)=>{const href=m==='kr'?'stock.html?code='+encodeURIComponent(x[1]):m==='us'?'stock-us.html?t='+encodeURIComponent(x[1]):'stock-coin.html',size=i===0?' hd-big':i<3?' hd-wide':'';return`<a class="heat-detail-stock fl${size}" data-detail-index="${i}" href="${href}">${heatLogoMarkup(m,x[1],x[0],'heat-detail-logo')}<span class="heat-detail-rank">${i+1}</span><span class="heat-detail-name"><b>${heatEsc(x[0])}</b><small>${heatEsc(x[1])}</small></span><span class="heat-detail-price">불러오는 중…</span></a>`;}).join('')}</div></section>`;
+    document.body.appendChild(layer);document.body.style.overflow='hidden';const close=()=>closeHeatDetail(layer);layer.querySelector('.heat-detail-close').onclick=close;layer.onclick=e=>{if(e.target===layer)close();};layer.onkeydown=e=>{if(e.key==='Escape')close();};layer.querySelector('.heat-detail-close').focus();let done=0,ok=0;
+    await heatMapLimit(items,6,async(item,i)=>{const q=await heatStockQuote(m,item[1],true);done++;if(q)ok++;if(!layer.isConnected)return;const card=layer.querySelector('[data-detail-index="'+i+'"]'),price=card&&card.querySelector('.heat-detail-price');if(q&&card){card.classList.remove('u1','u2','u3','d1','d2','d3','fl');card.classList.add(tcls(q.pct));}if(price)price.innerHTML=q?`${heatEsc(q.price)}<strong>${heatPctText(q.pct)}</strong>`:'<strong>시세 확인 실패</strong>';const progress=layer.querySelector('.heat-detail-progress');if(progress)progress.textContent=done<items.length?done+'/'+items.length+' 확인':'방금 갱신 · '+ok+'/'+items.length;});
+  }
+  async function updateHeatmap(m=activeMarket(),force=false){
+    const board=document.getElementById('heatboard'),status=document.getElementById('heatTime');if(!board||HEAT_BUSY[m])return;HEAT_BUSY[m]=true;if(status)status.textContent='최근 시세 갱신 중… · 대표 종목 단순평균';
+    const tiles=[...board.querySelectorAll('.htile')];let updated=0;
+    try{
+      if(m==='coin'){
+        const syms=[...new Set(tiles.map(t=>HEAT_COIN_SYMBOLS[heatTileName(t)]).filter(Boolean))],url='https://api.binance.com/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(syms));
+        const res=await fetch(url,{cache:'no-store'}),data=await res.json(),map={};if(Array.isArray(data))data.forEach(x=>map[x.symbol]=+x.priceChangePercent);
+        tiles.forEach(tile=>{const p=map[HEAT_COIN_SYMBOLS[heatTileName(tile)]];if(Number.isFinite(p)){applyHeatPct(tile,p);updated++;}});
+      }else{
+        await heatMapLimit(tiles,m==='kr'?8:6,async tile=>{const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:new URL(tile.href).searchParams.get('t');if(!key)return;const p=await heatStockPct(m,key,force);if(Number.isFinite(p)&&document.getElementById('heatboard')===board){applyHeatPct(tile,p);updated++;}});
+      }
+      if(document.getElementById('heatboard')===board){updateHeatSectorAverages(board);initHeatboard();if(status){const tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});status.textContent=updated?tm+' 갱신 · '+updated+'/'+tiles.length+'종목 · 대표 종목 단순평균 · 60초 자동 갱신':'시세 연결 실패 · 기존 값 유지 · 새로고침으로 재시도';}}
+    }catch(e){if(document.getElementById('heatboard')===board&&status)status.textContent='시세 연결 실패 · 기존 값 유지 · 새로고침으로 재시도';}
+    finally{HEAT_BUSY[m]=false;}
+  }
   async function updateIndexRow(force){
     const cells=[...document.querySelectorAll('#indexRow .idx[data-sym]')];
     const R={}; let anyNaver=false;
@@ -981,7 +1101,7 @@
   })();
   updateIndexRow(); setInterval(updateIndexRow, 10000);
   updateTicker(); setInterval(updateTicker, 20000);
-  (function(){ const rb=document.getElementById('refreshBtn'); if(rb)rb.onclick=()=>{ rb.style.transform='rotate(360deg)'; updateIndexRow(true); updateTicker(); updateLive(); updateCoinIndicators(); setTimeout(()=>{rb.style.transition='none';rb.style.transform='rotate(0deg)';setTimeout(()=>rb.style.transition='transform .5s',30);},550); }; })();
+  (function(){ const rb=document.getElementById('refreshBtn'); if(rb)rb.onclick=()=>{ rb.style.transform='rotate(360deg)'; updateIndexRow(true); updateTicker(); updateLive(); updateCoinIndicators(); updateHeatmap(activeMarket(),true); setTimeout(()=>{rb.style.transition='none';rb.style.transform='rotate(0deg)';setTimeout(()=>rb.style.transition='transform .5s',30);},550); }; })();
 
   /* ===== 실시간 코인 시세 (Binance, 무료·키불필요) ===== */
   function fmtPrice(p){if(p>=1000)return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});if(p>=1)return '$'+p.toFixed(2);return '$'+p.toFixed(p<0.01?4:3);}
@@ -1004,8 +1124,11 @@
   }
   setInterval(()=>{updateLive();updateCoinIndicators();},10000);
 
-  /* init KR */
-  setTicker(TICK_KR);initHeatboard();wireArticles();
+  /* init current market */
+  const initialMarket=(new URLSearchParams(location.search).get('m')||'kr').toLowerCase();
+  if(initialMarket==='kr')setTicker(TICK_KR);
+  RichflowCommunity.mountPreview('#homeCommunity',{market:initialMarket==='coin'?'all':initialMarket});
+  initHeatboard();wireArticles(initialMarket);updateHeatmap(initialMarket);setInterval(()=>updateHeatmap(activeMarket()),60000);
 </script>
 </body>
 </html>
