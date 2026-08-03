@@ -750,6 +750,26 @@
   function calRows(list){return list.map(r=>`<div class="cal-row"><span class="d">${r[0]}</span><span class="e">${r[1]}</span><span class="t">${r[2]}</span></div>`).join('');}
   function tickerHTML(items){return items.map(([n,v,c,up])=>`<span class="tk">${n} <b>${v}</b> <span class="${up?'up':'down'}">${c}</span></span>`).join('');}
   function setTicker(items){const t=document.getElementById('tk');const h=tickerHTML(items);t.innerHTML=h+h;}
+  /* ===== 상단 티커 실시간 (혼합시장: 국장·미장·코인) ===== */
+  const TICKER_LIVE=[
+    {n:'코스피',src:'nidx',sym:'KOSPI'},{n:'코스닥',src:'nidx',sym:'KOSDAQ'},{n:'원/달러',src:'nfx',sym:'FX_USDKRW'},
+    {n:'삼성전자',src:'nstk',sym:'005930'},{n:'SK하이닉스',src:'nstk',sym:'000660'},
+    {n:'비트코인',src:'bnc',sym:'BTCUSDT'},{n:'이더리움',src:'bnc',sym:'ETHUSDT'},
+    {n:'엔비디아',src:'yh',sym:'NVDA',pfx:'$'},{n:'테슬라',src:'yh',sym:'TSLA',pfx:'$'},{n:'나스닥선물',src:'yh',sym:'NQ=F',dec:0},
+  ];
+  const pctStr=p=>(p>=0?'+':'')+p.toFixed(2)+'%';
+  async function tkOne(it){
+    try{
+      if(it.src==='nidx'){ const j=await idxFetch('https://m.stock.naver.com/api/index/'+it.sym+'/basic'); if(j&&j.closePrice){const p=idxNum(j.fluctuationsRatio);return [it.n,j.closePrice,pctStr(p),p>=0?1:0];} }
+      else if(it.src==='nfx'){ const j=await idxFetch('https://api.stock.naver.com/marketindex/exchange/'+it.sym); const e=j&&j.exchangeInfo; if(e&&e.closePrice){const p=idxNum(e.fluctuationsRatio);return [it.n,e.closePrice,pctStr(p),p>=0?1:0];} }
+      else if(it.src==='nstk'){ const j=await idxFetch('https://m.stock.naver.com/api/stock/'+it.sym+'/basic'); if(j&&j.closePrice){const p=idxNum(j.fluctuationsRatio);return [it.n,j.closePrice,pctStr(p),p>=0?1:0];} }
+      else if(it.src==='bnc'){ const r=await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol='+it.sym,{cache:'no-store'}); const j=await r.json(); const pr=parseFloat(j.lastPrice),p=parseFloat(j.priceChangePercent); return [it.n,'$'+pr.toLocaleString('en-US',{maximumFractionDigits:pr>=100?0:2}),pctStr(p),p>=0?1:0]; }
+      else { const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(it.sym)+'?interval=1d&range=1d'); const m=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta; if(m&&m.regularMarketPrice){const pr=m.regularMarketPrice,pv=m.chartPreviousClose||pr,p=pv?(pr-pv)/pv*100:0; return [it.n,(it.pfx||'')+pr.toLocaleString('en-US',{maximumFractionDigits:it.dec!=null?it.dec:2}),pctStr(p),p>=0?1:0];} }
+    }catch(e){}
+    return null;
+  }
+  let _tkBusy=false;
+  async function updateTicker(){ if(_tkBusy)return; _tkBusy=true; try{ const out=[]; for(const it of TICKER_LIVE){ const r=await tkOne(it); if(r)out.push(r); } if(out.length)setTicker(out); }finally{ _tkBusy=false; } }
 
   const TICK_KR=[['코스피','7,052','+3.74%',1],['코스닥','788','+4.87%',1],['삼성전자','267,750','+2.8%',1],['SK하이닉스','1,898,000','+3.7%',1],['원/달러','1,467','-0.62%',0],['비트코인','$118,240','+1.9%',1],['테슬라','$377','-4.1%',0],['엔비디아','$196.51','-4.99%',0],['나스닥선물','29,229','-0.8%',0],['금(oz)','$3,412','+0.6%',1]];
 
@@ -869,7 +889,7 @@
   /* ===== market switch ===== */
   const MK=['kr','us','coin'];
   document.querySelectorAll('.market-switch button').forEach((b,i)=>{
-    b.onclick=()=>{document.querySelectorAll('.market-switch button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(MK[i]);updateLive();updateCoinIndicators();wireKR();updateIndexRow();};
+    b.onclick=()=>{document.querySelectorAll('.market-switch button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(MK[i]);updateLive();updateCoinIndicators();wireKR();updateIndexRow();updateTicker();};
   });
   /* ===== 홈 지수 라이브 (코스피·코스닥·원달러 / S&P·나스닥·다우) — 야후, 워커 경유 ===== */
   const IDX_PROX=[u=>'https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url='+encodeURIComponent(u),u=>'https://corsproxy.io/?url='+encodeURIComponent(u)];
@@ -946,7 +966,8 @@
     }
   })();
   updateIndexRow(); setInterval(updateIndexRow, 10000);
-  (function(){ const rb=document.getElementById('refreshBtn'); if(rb)rb.onclick=()=>{ rb.style.transform='rotate(360deg)'; updateIndexRow(true); updateLive(); updateCoinIndicators(); setTimeout(()=>{rb.style.transition='none';rb.style.transform='rotate(0deg)';setTimeout(()=>rb.style.transition='transform .5s',30);},550); }; })();
+  updateTicker(); setInterval(updateTicker, 20000);
+  (function(){ const rb=document.getElementById('refreshBtn'); if(rb)rb.onclick=()=>{ rb.style.transform='rotate(360deg)'; updateIndexRow(true); updateTicker(); updateLive(); updateCoinIndicators(); setTimeout(()=>{rb.style.transition='none';rb.style.transform='rotate(0deg)';setTimeout(()=>rb.style.transition='transform .5s',30);},550); }; })();
 
   /* ===== 실시간 코인 시세 (Binance, 무료·키불필요) ===== */
   function fmtPrice(p){if(p>=1000)return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});if(p>=1)return '$'+p.toFixed(2);return '$'+p.toFixed(p<0.01?4:3);}
