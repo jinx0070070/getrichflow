@@ -926,7 +926,21 @@
         R[nm]={price:price.toLocaleString('en-US',{maximumFractionDigits:dec}),pct:pct,up:up};
       }
     }
-    if(anyNaver)buildKRBrief(R);
+    if(R['코스피'])buildKRBrief(R);
+    else if(R['나스닥']||R['S&P 500'])buildUSBrief(R);
+  }
+  function buildUSBrief(R){
+    const ul=document.getElementById('briefList'); if(!ul)return;
+    const sp=R['S&P 500'], nq=R['나스닥'], dj=R['다우']; if(!nq)return;
+    const sc=p=>p>=0?'up':'down', sg=p=>(p>=0?'+':'')+p.toFixed(2)+'%';
+    let li='';
+    li+='<li>나스닥 <b class="'+sc(nq.pct)+'">'+sg(nq.pct)+'</b> '+dirWord(nq.pct)+' — <b>'+nq.price+'</b>'+(sp?', S&P 500 <b class="'+sc(sp.pct)+'">'+sg(sp.pct)+'</b>':'')+(dj?', 다우 <b class="'+sc(dj.pct)+'">'+sg(dj.pct)+'</b>':'')+'</li>';
+    const up=nq.up&&(sp?sp.up:true);
+    li+='<li>지수 '+(up?'동반 상승':(nq.up?'혼조':'동반 하락'))+'으로 '+(up?'위험자산 선호':(nq.up?'업종별 차별화':'위험 회피'))+' 심리</li>';
+    li+='<li>기술주(나스닥) vs 가치주(다우) 흐름 — 개별 종목은 미장 종목 페이지에서 실시간 확인</li>';
+    li+='<li style="color:var(--txt-3)">S&P·나스닥·다우 <b>실시간 지수 기준</b> 자동 요약 · 상세 수급·뉴스는 준비 중</li>';
+    ul.innerHTML=li;
+    const bt=document.getElementById('briefTime'); if(bt)bt.textContent='⟳ '+new Date().toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'})+' 기준';
   }
   function dirWord(p){ return p<=-2?'급락':p<-0.4?'하락':p<0.4?'보합':p<2?'상승':'급등'; }
   function buildKRBrief(R){
