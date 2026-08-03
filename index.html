@@ -323,7 +323,7 @@
             <div class="val mono">788.42</div>
             <div class="chg up mono">▲ 36.6 (+4.87%)</div>
           </div>
-          <div class="idx" data-sym="KRW=X" data-dec="1">
+          <div class="idx" data-src="naverfx" data-sym="FX_USDKRW">
             <div class="name">원/달러</div>
             <div class="val mono">1,467.5</div>
             <div class="chg down mono">▼ 9.2 (-0.62%)</div>
@@ -889,6 +889,14 @@
         if(val)val.textContent=j.closePrice;
         if(c){ c.textContent=(up?'▲ ':'▼ ')+Math.abs(chg).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)'; c.className='chg mono '+(up?'up':'down'); }
         R[nm]={price:j.closePrice,pct:pct,up:up};
+      } else if(src==='naverfx'){
+        anyNaver=true;
+        const j=await idxFetch('https://api.stock.naver.com/marketindex/exchange/'+sym+(force?'?_='+Date.now():''));
+        const e=j&&j.exchangeInfo; if(!e||!e.closePrice)continue;
+        const chg=idxNum(e.fluctuations); let pct=idxNum(e.fluctuationsRatio); const up=chg>=0;
+        if(val)val.textContent=e.closePrice;
+        if(c){ c.textContent=(up?'▲ ':'▼ ')+Math.abs(chg).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)'; c.className='chg mono '+(up?'up':'down'); }
+        R[nm]={price:e.closePrice,pct:pct,up:up};
       } else {
         const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d'+(force?'&_='+Date.now():''));
         const m=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta; if(!m||!m.regularMarketPrice)continue;
