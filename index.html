@@ -340,7 +340,7 @@
       </div>
 
       <div class="brief">
-        <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 시황 브리핑 <span class="hint" style="margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500">14:58 기준</span></h3>
+        <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 시황 브리핑 <span class="hint" id="briefTime" style="margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:500">실시간</span></h3>
         <ul id="briefList">
           <li>코스피 <b>+4.28%</b> 급등 — 외국인 <b class="up">1.97조</b>·기관 <b class="up">2,373억</b> 순매수 주도</li>
           <li>대형 반도체·AI 강세, <b>SK이터닉스·폴라리스AI</b> +30%대 급등이 지수 견인</li>
@@ -877,23 +877,42 @@
   const idxNum=s=>parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));
   async function updateIndexRow(force){
     const cells=[...document.querySelectorAll('#indexRow .idx[data-sym]')];
+    const R={}; let anyNaver=false;
     for(const cell of cells){
       const sym=cell.getAttribute('data-sym'), src=cell.getAttribute('data-src'), dec=+(cell.getAttribute('data-dec')||2);
-      const val=cell.querySelector('.val'), c=cell.querySelector('.chg');
+      const nm=cell.querySelector('.name').textContent.trim(), val=cell.querySelector('.val'), c=cell.querySelector('.chg');
       if(src==='naver'){
+        anyNaver=true;
         const j=await idxFetch('https://m.stock.naver.com/api/index/'+sym+'/basic'+(force?'?_='+Date.now():''));
         if(!j||!j.closePrice)continue;
         const price=idxNum(j.closePrice), chg=idxNum(j.compareToPreviousClosePrice); let pct=idxNum(j.fluctuationsRatio); if(!isFinite(pct)&&price-chg)pct=chg/(price-chg)*100; const up=chg>=0;
         if(val)val.textContent=j.closePrice;
         if(c){ c.textContent=(up?'▲ ':'▼ ')+Math.abs(chg).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)'; c.className='chg mono '+(up?'up':'down'); }
+        R[nm]={price:j.closePrice,pct:pct,up:up};
       } else {
         const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d'+(force?'&_='+Date.now():''));
         const m=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta; if(!m||!m.regularMarketPrice)continue;
         const price=m.regularMarketPrice, prev=m.chartPreviousClose||m.previousClose||price, chg=price-prev, pct=prev?chg/prev*100:0, up=chg>=0;
         if(val)val.textContent=price.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});
         if(c){ c.textContent=(up?'▲ ':'▼ ')+Math.abs(chg).toLocaleString('en-US',{maximumFractionDigits:dec})+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)'; c.className='chg mono '+(up?'up':'down'); }
+        R[nm]={price:price.toLocaleString('en-US',{maximumFractionDigits:dec}),pct:pct,up:up};
       }
     }
+    if(anyNaver)buildKRBrief(R);
+  }
+  function dirWord(p){ return p<=-2?'급락':p<-0.4?'하락':p<0.4?'보합':p<2?'상승':'급등'; }
+  function buildKRBrief(R){
+    const ul=document.getElementById('briefList'); if(!ul)return;
+    const ks=R['코스피'], kq=R['코스닥'], fx=R['원/달러']; if(!ks)return;
+    const sc=p=>p>=0?'up':'down', sg=p=>(p>=0?'+':'')+p.toFixed(2)+'%';
+    let li='';
+    li+='<li>코스피 <b class="'+sc(ks.pct)+'">'+sg(ks.pct)+'</b> '+dirWord(ks.pct)+' — <b>'+ks.price+'</b>선'+(kq?', 코스닥은 <b class="'+sc(kq.pct)+'">'+sg(kq.pct)+'</b> '+(ks.up===kq.up?'동반 '+dirWord(kq.pct):(kq.up?'상대적 선방':'약세')):'')+'</li>';
+    if(fx)li+='<li>원/달러 <b>'+fx.price+'원</b> <b class="'+sc(fx.pct)+'">'+sg(fx.pct)+'</b> — 원화 '+(fx.pct<0?'강세':'약세')+'</li>';
+    const both=ks.up&&(kq?kq.up:true);
+    li+='<li>지수 '+(both?'동반 상승':(ks.up?'혼조':(kq&&kq.up?'혼조':'동반 하락')))+'으로 '+(both?'위험자산 선호':(ks.up?'업종별 차별화':'위험 회피'))+' 심리가 우세</li>';
+    li+='<li style="color:var(--txt-3)">코스피·코스닥·환율 <b>실시간 지수 기준</b> 자동 요약 · 상세 수급·뉴스는 준비 중</li>';
+    ul.innerHTML=li;
+    const bt=document.getElementById('briefTime'); if(bt)bt.textContent='⟳ '+new Date().toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'})+' 기준';
   }
   /* 국장 종목 링크: 이름으로 stock.html?name= 연결 (100여개 종목 클릭 시 해당 종목으로) */
   function wireKR(){
