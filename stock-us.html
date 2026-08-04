@@ -715,12 +715,12 @@
       if(lastPx==null){lastPx=regPrice;lastTs=m.regularMarketTime;}
       const ctp=m.currentTradingPeriod||{}, pre=ctp.pre||{}, reg=ctp.regular||{}, post=ctp.post||{};
       const now=Math.floor(Date.now()/1000);
-      let ref=prev, label='정규장', amber=false;
-      if(reg.start&&now>=reg.start&&now<reg.end){ label='정규장'; ref=prev; }
-      else if(post.start&&now>=post.start&&now<post.end){ label='장후'; ref=regPrice; amber=true; }
-      else if(pre.start&&now>=pre.start&&now<pre.end){ label='장전'; ref=prev; amber=true; }
-      else { label='장마감'; ref=regPrice; amber=true; }
-      const price=lastPx, chg=price-ref, pct=ref?chg/ref*100:0, up=chg>=0;
+      let ref=prev, label='정규장', amber=false, price=lastPx;
+      if(reg.start&&now>=reg.start&&now<reg.end){ label='정규장'; ref=prev; price=lastPx; }
+      else if(post.start&&now>=post.start&&now<post.end){ label='장후'; ref=regPrice; amber=true; price=lastPx; }
+      else if(pre.start&&now>=pre.start&&now<pre.end){ label='장전'; ref=prev; amber=true; price=lastPx; }
+      else { label='장마감'; ref=prev; amber=true; price=regPrice; } /* 마감=당일 등락(정규장 종가 vs 전일) */
+      const chg=price-ref, pct=ref?chg/ref*100:0, up=chg>=0;
       pxEl.textContent='$'+price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
       chEl.textContent=(up?'▲ ':'▼ ')+Math.abs(chg).toFixed(2)+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)';
       chEl.className='c mono '+(up?'up':'down');
