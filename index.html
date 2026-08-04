@@ -410,7 +410,7 @@
   <section class="sec">
     <div class="sec-head">
       <h2>🗺️ 산업별 히트맵</h2>
-      <span id="heatTime" style="font-size:12px;color:var(--txt-3)">최근 시세 계산 중 · 대표 종목 단순평균 · 60초 자동 갱신</span>
+      <span id="heatTime" style="font-size:12px;color:var(--txt-3)">시세 불러오는 중…</span>
       <div class="heat-legend" style="margin-left:auto"><span>-3%</span><div class="scale"></div><span>+3%</span></div>
     </div>
     <div class="heatboard" id="heatboard">
@@ -1018,7 +1018,7 @@
     await heatMapLimit(items,6,async(item,i)=>{const q=await heatStockQuote(m,item[1],true);done++;if(q)ok++;if(!layer.isConnected)return;const card=layer.querySelector('[data-detail-index="'+i+'"]'),price=card&&card.querySelector('.heat-detail-price');if(q&&card){card.classList.remove('u1','u2','u3','d1','d2','d3','fl');card.classList.add(tcls(q.pct));}if(price)price.innerHTML=q?`${heatEsc(q.price)}<strong>${heatPctText(q.pct)}</strong>`:'<strong>시세 확인 실패</strong>';const progress=layer.querySelector('.heat-detail-progress');if(progress)progress.textContent=done<items.length?done+'/'+items.length+' 확인':'방금 갱신 · '+ok+'/'+items.length;});
   }
   async function updateHeatmap(m=activeMarket(),force=false){
-    const board=document.getElementById('heatboard'),status=document.getElementById('heatTime');if(!board||HEAT_BUSY[m])return;HEAT_BUSY[m]=true;if(status)status.textContent='최근 시세 갱신 중… · 대표 종목 단순평균';
+    const board=document.getElementById('heatboard'),status=document.getElementById('heatTime');if(!board||HEAT_BUSY[m])return;HEAT_BUSY[m]=true;if(status)status.textContent='갱신 중…';
     const tiles=[...board.querySelectorAll('.htile')];let updated=0;
     try{
       if(m==='coin'){
@@ -1028,7 +1028,7 @@
       }else{
         await heatMapLimit(tiles,m==='kr'?8:6,async tile=>{const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:new URL(tile.href).searchParams.get('t');if(!key)return;const p=await heatStockPct(m,key,force);if(Number.isFinite(p)&&document.getElementById('heatboard')===board){applyHeatPct(tile,p);updated++;}});
       }
-      if(document.getElementById('heatboard')===board){updateHeatSectorAverages(board);initHeatboard();if(status){const tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});status.textContent=updated?tm+' 갱신 · '+updated+'/'+tiles.length+'종목 · 대표 종목 단순평균 · 60초 자동 갱신':'시세 연결 실패 · 기존 값 유지 · 새로고침으로 재시도';}}
+      if(document.getElementById('heatboard')===board){updateHeatSectorAverages(board);initHeatboard();if(status){const tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});status.textContent=updated?tm+' 갱신':'시세 연결 실패';}}
     }catch(e){if(document.getElementById('heatboard')===board&&status)status.textContent='시세 연결 실패 · 기존 값 유지 · 새로고침으로 재시도';}
     finally{HEAT_BUSY[m]=false;}
   }

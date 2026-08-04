@@ -572,7 +572,7 @@
     }
 
     /* --- 시세/세션 --- */
-    function updateSession(){ if(!$('shTime'))return; const kst=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const day=kst.getDay(),t=kst.getHours()*60+kst.getMinutes(); const open=(day>=1&&day<=5&&t>=540&&t<=930); if($('liveLbl'))$('liveLbl').textContent=open?'실시간':'장마감'; if($('liveDot'))$('liveDot').style.background=open?'var(--up)':'var(--amber)'; $('shTime').textContent='⟳ '+(open?'실시간 장중':'장 마감')+' · '+kst.toLocaleTimeString('ko-KR',{hour12:false})+' 갱신'; }
+    function updateSession(){ if(!$('shTime'))return; const kst=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const day=kst.getDay(),t=kst.getHours()*60+kst.getMinutes(); const open=(day>=1&&day<=5&&t>=540&&t<=930); if($('liveLbl'))$('liveLbl').textContent=open?'실시간':'장마감'; if($('liveDot'))$('liveDot').style.background=open?'var(--up)':'var(--amber)'; $('shTime').textContent=kst.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 갱신'; }
     function applyPrice(nv){ if($('shPx'))$('shPx').textContent=nv.closePrice||'—'; const pct=pnum(nv.fluctuationsRatio),up=pct>=0,won=Math.abs(pnum(nv.compareToPreviousClosePrice)); if($('shChg')){ $('shChg').textContent=(up?'▲ ':'▼ ')+(isFinite(won)?won.toLocaleString('ko-KR'):'')+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)'; $('shChg').className='c mono '+(up?'up':'down'); } }
 
     /* --- 로더 --- */
