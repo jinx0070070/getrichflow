@@ -678,7 +678,32 @@
 
     const pxEl=document.getElementById('shPx'), chEl=document.getElementById('shChg');
     const dotEl=document.getElementById('liveDot'), lblEl=document.getElementById('liveLbl'), tmEl=document.getElementById('shTime');
+    /* ===== 네이버 US 실시간(지연0) — 장중엔 야후(15분지연) 대신 사용 ===== */
+    let NAVER_RCODE=null, NAVER_LIVE=false;
+    async function resolveNaverRcode(){
+      try{
+        const j=await fetchJSON('https://ac.stock.naver.com/ac?q='+encodeURIComponent(T)+'&target=stock');
+        const its=(j&&j.items)||[];
+        const it=its.find(x=>(x.code||'').toUpperCase()===T&&x.nationCode==='USA')||its.find(x=>x.nationCode==='USA');
+        NAVER_RCODE=it?it.reutersCode:null;
+      }catch(e){}
+    }
+    async function naverBasic(){ if(!NAVER_RCODE)return null; return await fetchJSON('https://api.stock.naver.com/stock/'+encodeURIComponent(NAVER_RCODE)+'/basic'); }
     async function live(){
+      // 장중이면 네이버 실시간 우선
+      if(NAVER_RCODE){
+        const nb=await naverBasic();
+        if(nb&&nb.marketStatus==='OPEN'&&nb.closePrice){
+          const pct=num(nb.fluctuationsRatio), up=pct>=0, chgUsd=Math.abs(num(nb.compareToPreviousClosePrice));
+          pxEl.textContent='$'+num(nb.closePrice).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+          chEl.textContent=(up?'▲ ':'▼ ')+chgUsd.toFixed(2)+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)';
+          chEl.className='c mono '+(up?'up':'down');
+          if(lblEl)lblEl.textContent='정규장';
+          if(dotEl)dotEl.style.background='var(--up)';
+          curLabel='정규장'; lastFetch=Date.now(); NAVER_LIVE=true; return;
+        }
+      }
+      NAVER_LIVE=false;
       const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+TICKER+'?interval=1m&range=1d&includePrePost=true');
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
       const m=res&&res.meta;
@@ -709,9 +734,9 @@
       const hhmmss=new Date().toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false});
       const head=curLabel==='장마감'?'장 마감 · 마지막 체결가':(curLabel==='정규장'?'실시간 정규장':'실시간 '+curLabel);
       const ago=lastFetch?Math.round((Date.now()-lastFetch)/1000):0;
-      tmEl.textContent='⟳ '+head+' · '+hhmmss+(lastFetch?' (야후 '+ago+'초 전 확인)':'');
+      tmEl.textContent='⟳ '+head+' · '+hhmmss+(lastFetch?' ('+(NAVER_LIVE?'네이버 실시간':'야후')+' '+ago+'초 전)':'');
     }
-    live(); setInterval(live, 15000); tick(); setInterval(tick, 1000);
+    resolveNaverRcode().then(live); setInterval(live, 15000); tick(); setInterval(tick, 1000);
 
     /* ===== 미국 지수 선물 (24시간, 아시아 시간대에도 거래) ===== */
     async function oneFut(sym,pxId,chId){
