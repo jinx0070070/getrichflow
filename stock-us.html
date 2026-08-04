@@ -196,10 +196,11 @@
       <div class="stat"><div class="k">1년 목표가</div><div class="v" id="stTgt">—</div></div>
     </div>
     <div class="futbar" id="futbar">
-      <span class="fk">🌏 미국 선물 <b>24시간</b></span>
-      <span class="fitem">나스닥 <b id="nqPx">—</b> <span id="nqCh" class="mono">—</span></span>
+      <span class="fk">🌏 <b>24시간</b> 시세</span>
+      <span class="fitem" id="tokItem" style="display:none">🪙 <b id="tokName">·</b> <b id="tokPx">—</b> <span id="tokCh" class="mono">—</span></span>
+      <span class="fitem">나스닥선물 <b id="nqPx">—</b> <span id="nqCh" class="mono">—</span></span>
       <span class="fitem">S&amp;P <b id="esPx">—</b> <span id="esCh" class="mono">—</span></span>
-      <span class="fnote"><span class="fdot"></span>아시아 시간대에도 거래 중</span>
+      <span class="fnote"><span class="fdot"></span>미국장 마감에도 거래 중</span>
     </div>
   </section>
 </div>
@@ -725,7 +726,21 @@
       if(ce){ce.textContent=(up?'▲':'▼')+Math.abs(pct).toFixed(2)+'%';ce.className='mono '+(up?'up':'down');}
     }
     async function futures(){ await oneFut('NQ=F','nqPx','nqCh'); await oneFut('ES=F','esPx','esCh'); }
-    futures(); setInterval(futures, 15000);
+    /* ===== 토큰화 주식(xStocks) 24시간 실시간 — 바이비트, 미국장 마감에도 거래 ===== */
+    const XSTOCKS=new Set(['AAPL','AMZN','COIN','CRCL','GOOGL','HOOD','MCD','META','NVDA','TSLA']);
+    async function tokenPrice(){
+      const it=$('tokItem'); if(!XSTOCKS.has(T)){ if(it)it.style.display='none'; return; }
+      try{
+        const r=await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol='+T+'XUSDT',{cache:'no-store'});
+        const j=await r.json(); const x=j&&j.result&&j.result.list&&j.result.list[0]; if(!x)return;
+        const p=parseFloat(x.lastPrice), pct=parseFloat(x.price24hPcnt)*100, up=pct>=0;
+        if(it)it.style.display='';
+        if($('tokName'))$('tokName').textContent=T+'x';
+        if($('tokPx'))$('tokPx').textContent='$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        const ce=$('tokCh'); if(ce){ ce.textContent=(up?'▲':'▼')+Math.abs(pct).toFixed(2)+'%'; ce.className='mono '+(up?'up':'down'); }
+      }catch(e){}
+    }
+    futures(); tokenPrice(); setInterval(()=>{futures();tokenPrice();}, 12000);
   })();
 </script>
 <script src="community.js"></script>
