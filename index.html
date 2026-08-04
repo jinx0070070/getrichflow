@@ -977,12 +977,22 @@
     board.querySelectorAll('.sector').forEach(sec=>{const vals=[...sec.querySelectorAll('.htile[data-live-pct]')].map(x=>+x.dataset.livePct).filter(Number.isFinite);if(!vals.length)return;const avg=vals.reduce((a,b)=>a+b,0)/vals.length,label=sec.querySelector('.slabel span');if(!label)return;label.textContent=heatPctText(avg);label.className=avg>=3?'u3':avg>=0?'u2':avg<=-3?'d3':avg<=-1.5?'d2':'d1';label.style.color='#fff';label.title='실시간 반영 '+vals.length+'개 종목 단순평균';});
   }
   async function heatMapLimit(items,limit,work){let cursor=0;async function worker(){while(cursor<items.length){const index=cursor++,item=items[index];await work(item,index);}}await Promise.all(Array.from({length:Math.min(limit,items.length)},worker));}
-  const US_TOKENS=new Set(['AAPL','AMZN','COIN','CRCL','GM','GOOGL','HOOD','MCD','META','NVDA','TSLA']);
+  /* 하이퍼리퀴드 xyz dex(24시간 주식 perp ~40종목: MSFT·AAPL·NVDA 등) — 한 번 받아 캐시 */
+  let HL_CACHE=null, HL_TS=0;
+  async function hlPrices(){
+    if(HL_CACHE&&Date.now()-HL_TS<10000)return HL_CACHE;
+    try{
+      const r=await fetch('https://api.hyperliquid.xyz/info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'metaAndAssetCtxs',dex:'xyz'}),cache:'no-store'});
+      const j=await r.json(),uni=j[0].universe,ctxs=j[1],map={};
+      uni.forEach((u,i)=>{const nm=u.name.replace('xyz:',''),c=ctxs[i],px=+c.markPx,pv=+(c.prevDayPx||px);if(px)map[nm]={px:px,pct:pv?(px-pv)/pv*100:0,chg:px-pv};});
+      HL_CACHE=map;HL_TS=Date.now();return map;
+    }catch(e){return HL_CACHE||{};}
+  }
   async function heatStockQuote(m,key,force){
     if(m==='kr'){const j=await idxFetch('https://m.stock.naver.com/api/stock/'+key+'/basic'+(force?'?_='+Date.now():''));const p=idxNum(j&&j.fluctuationsRatio);if(!j||!j.closePrice||!Number.isFinite(p))return null;return{price:j.closePrice+'원',pct:p};}
     if(m==='coin'){try{const r=await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol='+encodeURIComponent(key),{cache:'no-store'}),j=await r.json(),p=+j.priceChangePercent,price=+j.lastPrice;if(!Number.isFinite(p)||!Number.isFinite(price))return null;return{price:fmtPrice(price),pct:p};}catch(e){return null;}}
-    // 토큰화 주식(xStocks) 24시간 실시간 — 미국장 마감에도 움직임 반영
-    if(US_TOKENS.has(key)){try{const r=await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol='+key+'XUSDT',{cache:'no-store'}),bj=await r.json(),x=bj&&bj.result&&bj.result.list&&bj.result.list[0];if(x){const p=+x.lastPrice,pc=+x.price24hPcnt*100;if(Number.isFinite(pc))return{price:'$'+p.toLocaleString('en-US',{maximumFractionDigits:2}),pct:pc,token:true};}}catch(e){}}
+    // 하이퍼리퀴드 24시간 주식 perp — 미국장 마감에도 움직임 반영(MSFT 등 ~40종)
+    {const hl=await hlPrices();if(hl[key]&&Number.isFinite(hl[key].pct))return{price:'$'+hl[key].px.toLocaleString('en-US',{maximumFractionDigits:2}),pct:hl[key].pct,token:true};}
     const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(key)+'?interval=1d&range=1d'+(force?'&_='+Date.now():''));const meta=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta;if(!meta||!meta.regularMarketPrice)return null;const prev=meta.chartPreviousClose||meta.previousClose;if(!prev)return null;return{price:'$'+Number(meta.regularMarketPrice).toLocaleString('en-US',{maximumFractionDigits:2}),pct:(meta.regularMarketPrice-prev)/prev*100};
   }
   async function heatStockPct(m,key,force){const q=await heatStockQuote(m,key,force);return q?q.pct:null;}
