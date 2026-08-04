@@ -981,12 +981,16 @@
   let HL_CACHE=null, HL_TS=0;
   async function hlPrices(){
     if(HL_CACHE&&Date.now()-HL_TS<10000)return HL_CACHE;
-    try{
-      const r=await fetch('https://api.hyperliquid.xyz/info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'metaAndAssetCtxs',dex:'xyz'}),cache:'no-store'});
-      const j=await r.json(),uni=j[0].universe,ctxs=j[1],map={};
-      uni.forEach((u,i)=>{const nm=u.name.replace('xyz:',''),c=ctxs[i],px=+c.markPx,pv=+(c.prevDayPx||px);if(px)map[nm]={px:px,pct:pv?(px-pv)/pv*100:0,chg:px-pv};});
-      HL_CACHE=map;HL_TS=Date.now();return map;
-    }catch(e){return HL_CACHE||{};}
+    const map={};
+    for(const dex of ['xyz','para']){
+      try{
+        const r=await fetch('https://api.hyperliquid.xyz/info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'metaAndAssetCtxs',dex}),cache:'no-store'});
+        const j=await r.json(),uni=j[0].universe,ctxs=j[1];
+        uni.forEach((u,i)=>{const nm=u.name.split(':').pop(),c=ctxs[i],px=+c.markPx,pv=+(c.prevDayPx||px);if(px&&!map[nm])map[nm]={px:px,pct:pv?(px-pv)/pv*100:0,chg:px-pv};});
+      }catch(e){}
+    }
+    if(Object.keys(map).length){HL_CACHE=map;HL_TS=Date.now();}
+    return HL_CACHE||map;
   }
   async function heatStockQuote(m,key,force){
     if(m==='kr'){const j=await idxFetch('https://m.stock.naver.com/api/stock/'+key+'/basic'+(force?'?_='+Date.now():''));const p=idxNum(j&&j.fluctuationsRatio);if(!j||!j.closePrice||!Number.isFinite(p))return null;return{price:j.closePrice+'원',pct:p};}
