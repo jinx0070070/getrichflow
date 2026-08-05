@@ -226,6 +226,8 @@
             <button id="drawBtn" class="toolbtn" title="추세선: 드래그로 사선">✏️ 선</button>
             <button id="hlineBtn" class="toolbtn" title="수평선(지지/저항): 클릭한 가격에 가로선">➖ 수평선</button>
             <button id="clearBtn" class="toolbtn" title="그린 선 모두 지우기">🗑️</button>
+            <button id="logBtn" class="toolbtn" title="로그 스케일(장기 차트에 유용)">log</button>
+            <button id="resetBtn" class="toolbtn" title="차트 원위치(확대·이동 초기화)">⟳ 리셋</button>
             <button id="magBtn" class="toolbtn" title="자석: 커서가 캔들 고저종에 딱 붙음">🧲 무자석</button>
           </div>
           <div class="tf-tabs" id="chartTabs">
@@ -458,13 +460,14 @@
     function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
     /* ===== 캔들 차트 엔진 (드래그 이동 + 휠 확대/축소) ===== */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,bb:false,draws:[],sel:-1,tool:'trend'};
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,bb:false,log:false,draws:[],sel:-1,tool:'trend'};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
     function niceStep(raw){ if(!(raw>0))return 1; const p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<1.5?1:f<3?2:f<7?5:10)*p; }
     function fmtPx(p){ return p>=1000? p.toLocaleString('en-US',{maximumFractionDigits:0}) : (p>=1?p.toFixed(2):p.toFixed(4)); }
     function xCenter(i){ return CH.mL + CH.slot*(i+0.5); }
     function xAbs(abs){ return CH.mL + CH.slot*((abs-CH.i0)+0.5); }
-    function yPrice(p){ const cY=CH.mT+CH.plotH/2, base=CH.mT+(CH.hi-p)/((CH.hi-CH.lo)||1)*CH.plotH; return cY+(base-cY)*CH.yScale+CH.yShift; }
+    function tp(p){ return CH.log?Math.log10(Math.max(1e-9,p)):p; }
+    function yPrice(p){ const cY=CH.mT+CH.plotH/2, H=tp(CH.hi), L=tp(CH.lo), base=CH.mT+(H-tp(p))/((H-L)||1)*CH.plotH; return cY+(base-cY)*CH.yScale+CH.yShift; }
     function sma(period){ const f=CH.full,out=new Array(f.length).fill(null); let sum=0; for(let i=0;i<f.length;i++){ sum+=f[i].c; if(i>=period)sum-=f[i-period].c; if(i>=period-1)out[i]=sum/period; } return out; }
     function bollinger(period,mult){ const f=CH.full,mid=sma(period),up=new Array(f.length).fill(null),lo=new Array(f.length).fill(null); for(let i=period-1;i<f.length;i++){ let s=0; for(let j=i-period+1;j<=i;j++){ const d=f[j].c-mid[i]; s+=d*d; } const sd=Math.sqrt(s/period); up[i]=mid[i]+mult*sd; lo[i]=mid[i]-mult*sd; } return {mid:mid,up:up,lo:lo}; }
     function fmtT(sec){
@@ -557,7 +560,7 @@
       const dd=CH.data; if(dd.length){ const first=dd[0].o, last=dd[dd.length-1].c, pc=first?(last-first)/first*100:0, oh=$('chartOhlc');
         if(oh)oh.innerHTML='<span>'+cfg.lbl+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">드래그·휠·Shift+드래그</span>'; }
     }
-    function priceAt(y){ const cY=CH.mT+CH.plotH/2, base=(y-CH.yShift-cY)/(CH.yScale||1)+cY; return CH.hi-(base-CH.mT)/CH.plotH*(CH.hi-CH.lo); }
+    function priceAt(y){ const cY=CH.mT+CH.plotH/2, H=tp(CH.hi), L=tp(CH.lo), base=(y-CH.yShift-cY)/(CH.yScale||1)+cY, tv=H-(base-CH.mT)/CH.plotH*(H-L); return CH.log?Math.pow(10,tv):tv; }
     function setupChartInteract(){
       const box=$('chartBox'), svg=$('pxChart'), tip=$('chartTip'); if(!box||!svg)return;
       box.style.cursor='crosshair';
@@ -670,6 +673,8 @@
       if(drawBtn)drawBtn.onclick=()=>setTool('trend');
       if(hlineBtn)hlineBtn.onclick=()=>setTool('hline');
       const clearBtn=$('clearBtn'); if(clearBtn)clearBtn.onclick=()=>{ CH.draws=[]; CH._prev=null; CH.sel=-1; redraw(); };
+      const logBtn=$('logBtn'); if(logBtn)logBtn.onclick=()=>{ CH.log=!CH.log; logBtn.classList.toggle('on',CH.log); CH.yShift=0; CH.yScale=1; redraw(); };
+      const resetBtn=$('resetBtn'); if(resetBtn)resetBtn.onclick=()=>{ CH.yShift=0; CH.yScale=1; const cfg=TF[CH.tf]||TF['1d'], n=CH.full.length, vis=Math.min(cfg.vis,n); CH.i1=n; CH.i0=Math.max(0,n-vis); redraw(); };
     }
 
     async function loadStock(){
