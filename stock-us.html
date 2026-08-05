@@ -230,7 +230,7 @@
             <button data-tf="5m">5분</button><button data-tf="15m">15분</button><button data-tf="30m">30분</button><button data-tf="1h">1시간</button><button data-tf="2h">2시간</button><button data-tf="4h">4시간</button><button data-tf="12h">12시간</button><button data-tf="1d" class="on">일</button><button data-tf="1wk">주</button><button data-tf="1mo">월</button>
           </div>
         </div>
-        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축 드래그·휠=세로확대(눈금 자동) · Shift+드래그=구간측정 · ✏️선: 드래그로 그리기(Shift=수평/수직) · 선 클릭=선택 후 ×로 삭제 · 더블클릭=원위치</div>
+        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축 드래그·휠=세로확대(눈금 자동) · Shift+드래그=구간측정 · ✏️선: 드래그로 그리기(Shift=수평/수직) · 선 클릭=선택 후 ×로 삭제 · 더블클릭=원위치 · 📱한 손가락=이동/작도, 두 손가락=확대</div>
         <div class="chart-ohlc" id="chartOhlc"><span class="ph">차트에 마우스를 올리면 상세 정보가 표시됩니다</span></div>
         <div class="chartbox" id="chartBox">
           <svg viewBox="0 0 720 320" id="pxChart" xmlns="http://www.w3.org/2000/svg"><text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text></svg>
@@ -637,10 +637,25 @@
       box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring&&!drawing&&!yscaling)hide(); });
       box.addEventListener('wheel',e=>{ e.preventDefault(); if(isAxis(e.clientX))yZoom(e.deltaY>0?0.9:1.1); else zoom(e.clientX, e.deltaY>0?1:-1); },{passive:false});
       box.addEventListener('dblclick',e=>{ CH.yShift=0; CH.yScale=1; redraw(); });
-      let tX=0,tY=0,tI0=0,tYS=0;
-      box.addEventListener('touchstart',e=>{ if(e.touches[0]){tX=e.touches[0].clientX;tY=e.touches[0].clientY;tI0=CH.i0;tYS=CH.yShift;} },{passive:true});
-      box.addEventListener('touchmove',e=>{ if(!e.touches[0])return; const cx=e.touches[0].clientX, cy=e.touches[0].clientY; if(Math.abs(cx-tX)>6||Math.abs(cy-tY)>6){ dragX=tX; dragY=tY; dragI0=tI0; dragYShift=tYS; pan(cx,cy);} else showCross(cx,cy); },{passive:true});
-      box.addEventListener('touchend',()=>setTimeout(hide,1500));
+      let tI0=0,tYS=0,tYScale=1,tVis=0,tDX0=20,tDY0=20,tSX=0,tSY=0,tMode='',tMoved=false;
+      box.addEventListener('touchstart',e=>{
+        if(e.touches.length>=2){ const a=e.touches[0],b=e.touches[1]; tMode='pinch'; tDX0=Math.max(20,Math.abs(a.clientX-b.clientX)); tDY0=Math.max(20,Math.abs(a.clientY-b.clientY)); tVis=CH.i1-CH.i0; tI0=CH.i0; tYScale=CH.yScale; hide(); hideMeas(); return; }
+        const t=e.touches[0]; if(!t)return; tSX=t.clientX; tSY=t.clientY; tMoved=false;
+        if(CH.drawMode){ if(badgeHit(t.clientX,t.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); tMode='none'; return; } tMode='draw'; const a=absAt(t.clientX),p=drawP(t.clientX,t.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; return; }
+        if(isAxis(t.clientX)){ tMode='yscale'; tYScale=CH.yScale; return; }
+        tMode='pan'; tI0=CH.i0; tYS=CH.yShift;
+      },{passive:false});
+      box.addEventListener('touchmove',e=>{
+        if(tMode==='pinch'&&e.touches.length>=2){ e.preventDefault(); const a=e.touches[0],b=e.touches[1]; const dx=Math.max(20,Math.abs(a.clientX-b.clientX)), dy=Math.max(20,Math.abs(a.clientY-b.clientY)); let nv=Math.round(tVis*(tDX0/dx)); nv=Math.max(15,Math.min(Math.min(CH.full.length,500),nv)); let ni0=Math.round((tI0+tVis/2)-nv/2); ni0=Math.max(0,Math.min(CH.full.length-nv,ni0)); CH.i0=ni0; CH.i1=ni0+nv; CH.yScale=Math.max(0.25,Math.min(8,tYScale*(dy/tDY0))); redraw(); return; }
+        const t=e.touches[0]; if(!t)return; const cx=t.clientX,cy=t.clientY; if(Math.abs(cx-tSX)>4||Math.abs(cy-tSY)>4)tMoved=true;
+        if(tMode==='draw'&&CH._prev){ e.preventDefault(); CH._prev.a1=absAt(cx); CH._prev.p1=drawP(cx,cy); redraw(); return; }
+        if(tMode==='yscale'){ e.preventDefault(); const r=svg.getBoundingClientRect(); const d=(tSY-cy)/Math.max(40,r.height); CH.yScale=Math.max(0.25,Math.min(8,tYScale*(1+d*3))); redraw(); return; }
+        if(tMode==='pan'){ if(tMoved){ e.preventDefault(); dragX=tSX;dragY=tSY;dragI0=tI0;dragYShift=tYS; pan(cx,cy); } else showCross(cx,cy); return; }
+      },{passive:false});
+      box.addEventListener('touchend',e=>{
+        if(tMode==='draw'){ if(!tMoved){ CH._prev=null; CH.sel=hitDraw(tSX,tSY); redraw(); } else if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; CH.sel=-1; redraw(); } }
+        tMode=''; setTimeout(hide,1500);
+      },{passive:true});
       const magBtn=$('magBtn'); CH.magnet=false;
       if(magBtn)magBtn.onclick=()=>{ CH.magnet=!CH.magnet; magBtn.classList.toggle('on',CH.magnet); magBtn.textContent=CH.magnet?'🧲 자석 ON':'🧲 무자석'; };
       const typeBtn=$('typeBtn'); if(typeBtn)typeBtn.onclick=()=>{ CH.type=CH.type==='candle'?'line':'candle'; typeBtn.textContent=CH.type==='candle'?'📊 캔들':'📈 라인'; typeBtn.classList.toggle('on',CH.type==='line'); redraw(); };
