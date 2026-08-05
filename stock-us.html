@@ -230,7 +230,7 @@
             <button data-tf="5m">5분</button><button data-tf="15m">15분</button><button data-tf="30m">30분</button><button data-tf="1h">1시간</button><button data-tf="2h">2시간</button><button data-tf="4h">4시간</button><button data-tf="12h">12시간</button><button data-tf="1d" class="on">일</button><button data-tf="1wk">주</button><button data-tf="1mo">월</button>
           </div>
         </div>
-        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축 드래그=세로확대 · Shift+드래그=구간측정 · 더블클릭=원위치</div>
+        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축에서 드래그·휠=세로확대 · Shift+드래그=구간측정 · ✏️선 그린 뒤 그 선 클릭=삭제 · 더블클릭=원위치</div>
         <div class="chart-ohlc" id="chartOhlc"><span class="ph">차트에 마우스를 올리면 상세 정보가 표시됩니다</span></div>
         <div class="chartbox" id="chartBox">
           <svg viewBox="0 0 720 320" id="pxChart" xmlns="http://www.w3.org/2000/svg"><text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text></svg>
@@ -530,7 +530,7 @@
       '2h':{iv:'1h',rg:'1y',vis:60,intra:1,aggH:2,lbl:'2시간'},
       '4h':{iv:'1h',rg:'2y',vis:60,intra:1,aggH:4,lbl:'4시간'},
       '12h':{iv:'1h',rg:'2y',vis:60,intra:1,aggH:12,lbl:'12시간'},
-      '1d':{iv:'1d',rg:'2y',vis:60,lbl:'일봉'},
+      '1d':{iv:'1d',rg:'5y',vis:200,lbl:'일봉'},
       '1wk':{iv:'1wk',rg:'10y',vis:60,ym:1,lbl:'주봉'},
       '1mo':{iv:'1mo',rg:'max',vis:60,ym:1,lbl:'월봉'}
     };
@@ -602,26 +602,30 @@
       const isAxis=cx=>{ const r=svg.getBoundingClientRect(); if(!r.width)return false; const vbX=(cx-r.left)/r.width*CH.vbW; return vbX>=CH.mL+CH.plotW-2; };
       const absAt=cx=>CH.i0+idxAt(cx);
       const drawP=(cx,cy)=>CH.magnet?CH.data[idxAt(cx)].c:priceAt(vbYof(cy));
-      let dragging=false, dragX=0, dragY=0, dragI0=0, dragYShift=0, measuring=false, mI=0, mP=0, yscaling=false, ysY=0, ysScale=1, drawing=false;
+      const vbPt=(cx,cy)=>{ const r=svg.getBoundingClientRect(); return {x:(cx-r.left)/r.width*CH.vbW, y:(cy-r.top)/r.height*CH.vbH}; };
+      const segDist=(px,py,x0,y0,x1,y1)=>{ const dx=x1-x0,dy=y1-y0,L=dx*dx+dy*dy; let t=L?((px-x0)*dx+(py-y0)*dy)/L:0; t=Math.max(0,Math.min(1,t)); const ex=x0+t*dx,ey=y0+t*dy; return Math.hypot(px-ex,py-ey); };
+      const hitDraw=(cx,cy)=>{ const p=vbPt(cx,cy); for(let k=CH.draws.length-1;k>=0;k--){ const d=CH.draws[k]; if(segDist(p.x,p.y,xAbs(d.a0),yPrice(d.p0),xAbs(d.a1),yPrice(d.p1))<5)return k; } return -1; };
+      const yZoom=f=>{ CH.yScale=Math.max(0.25,Math.min(8,CH.yScale*f)); redraw(); };
+      let dragging=false, dragX=0, dragY=0, dragI0=0, dragYShift=0, measuring=false, mI=0, mP=0, yscaling=false, ysY=0, ysScale=1, drawing=false, drDownX=0, drDownY=0, drMoved=false;
       box.addEventListener('mousedown',e=>{
-        if(CH.drawMode){ drawing=true; const a=absAt(e.clientX),p=drawP(e.clientX,e.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; hide(); e.preventDefault(); return; }
+        if(CH.drawMode){ drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; const a=absAt(e.clientX),p=drawP(e.clientX,e.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; hide(); e.preventDefault(); return; }
         if(isAxis(e.clientX)){ yscaling=true; ysY=e.clientY; ysScale=CH.yScale; box.style.cursor='ns-resize'; hide(); e.preventDefault(); return; }
         if(e.shiftKey){ measuring=true; mI=idxAt(e.clientX); const c=CH.data[mI]; mP=CH.magnet?c.c:priceAt(vbYof(e.clientY)); hide(); e.preventDefault(); return; }
         hideMeas(); dragging=true; dragX=e.clientX; dragY=e.clientY; dragI0=CH.i0; dragYShift=CH.yShift; box.style.cursor='grabbing'; hide(); e.preventDefault();
       });
-      window.addEventListener('mouseup',()=>{
-        if(drawing){ drawing=false; if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; redraw(); } }
+      window.addEventListener('mouseup',e=>{
+        if(drawing){ drawing=false; if(!drMoved){ CH._prev=null; const k=hitDraw(e.clientX,e.clientY); if(k>=0)CH.draws.splice(k,1); redraw(); } else if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; redraw(); } }
         if(dragging){dragging=false; box.style.cursor='crosshair';}
         if(yscaling){yscaling=false; box.style.cursor='crosshair';}
         measuring=false;
       });
       box.addEventListener('mousemove',e=>{
-        if(drawing&&CH._prev){ CH._prev.a1=absAt(e.clientX); CH._prev.p1=drawP(e.clientX,e.clientY); redraw(); return; }
+        if(drawing&&CH._prev){ if(Math.abs(e.clientX-drDownX)>3||Math.abs(e.clientY-drDownY)>3)drMoved=true; CH._prev.a1=absAt(e.clientX); CH._prev.p1=drawP(e.clientX,e.clientY); redraw(); return; }
         if(yscaling){ const r=svg.getBoundingClientRect(); const dy=(ysY-e.clientY)/Math.max(40,r.height); CH.yScale=Math.max(0.25,Math.min(8,ysScale*(1+dy*3))); redraw(); return; }
         if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX,e.clientY); else showCross(e.clientX,e.clientY);
       });
       box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring&&!drawing&&!yscaling)hide(); });
-      box.addEventListener('wheel',e=>{ e.preventDefault(); zoom(e.clientX, e.deltaY>0?1:-1); },{passive:false});
+      box.addEventListener('wheel',e=>{ e.preventDefault(); if(isAxis(e.clientX))yZoom(e.deltaY>0?0.9:1.1); else zoom(e.clientX, e.deltaY>0?1:-1); },{passive:false});
       box.addEventListener('dblclick',e=>{ CH.yShift=0; CH.yScale=1; redraw(); });
       let tX=0,tY=0,tI0=0,tYS=0;
       box.addEventListener('touchstart',e=>{ if(e.touches[0]){tX=e.touches[0].clientX;tY=e.touches[0].clientY;tI0=CH.i0;tYS=CH.yShift;} },{passive:true});
