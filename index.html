@@ -1065,10 +1065,10 @@
   });
   function heatEsc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function heatSectorName(sec){return (sec.querySelector('.slabel')?.childNodes[0]?.textContent||'산업').trim();}
-  function heatSectorIcon(sector){return({'반도체':'◈','반도체 소부장':'◇','2차전지':'⚡','자동차':'◆','바이오·제약':'✚','금융':'₩','인터넷·플랫폼':'◎','조선':'⚓','방산':'▲','전력·에너지':'ϟ','로봇·SI':'✦','화장품·소비재':'✿','엔터·미디어':'▶','철강·화학':'⬢','건설·유통':'▦','통신':'◉','지주':'▣','리츠':'⌂','에너지':'◆','헬스케어':'✚','빅테크':'◎','소비재':'●','전기차':'⚡'}[sector]||'▦');}
+  function heatSectorIcon(sector){return({'반도체':'◈','반도체 소부장':'◇','2차전지':'⚡','자동차':'◆','바이오·제약':'✚','금융':'₩','인터넷·플랫폼':'◎','조선':'⚓','방산':'▲','전력·에너지':'ϟ','로봇·SI':'✦','화장품·소비재':'✿','엔터·미디어':'▶','철강·화학':'⬢','건설·유통':'▦','통신':'◉','지주':'▣','리츠':'⌂','에너지':'◆','헬스케어':'✚','빅테크':'◎','소비재':'●','전기차':'⚡','소프트웨어·클라우드':'❖','소셜·인터넷':'◎','전기차·모빌리티':'⚡','결제·핀테크':'₵','은행·금융':'₩','헬스케어·제약':'✚','소비재·리테일':'●','항공·방산':'▲','산업재':'⚙','통신·미디어':'◉','암호화 관련주':'₿','중국 ADR':'❋'}[sector]||'▦');}
   function heatLogoUrl(m,key){if(m==='kr')return'https://ssl.pstatic.net/imgstock/fn/real/logo/stock/Stock'+encodeURIComponent(key)+'.svg';if(m==='us')return'https://financialmodelingprep.com/image-stock/'+encodeURIComponent(key)+'.png';const coin=String(key||'').replace(/USDT$/,'').toLowerCase();return'https://assets.coincap.io/assets/icons/'+coin+'@2x.png';}
   function heatLogoMarkup(m,key,name,cls){return`<span class="${cls}"><img src="${heatLogoUrl(m,key)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add('logo-fallback');this.remove()"><i>${heatEsc(String(name||key).slice(0,1).toUpperCase())}</i></span>`;}
-  function decorateHeatLogos(board,m){board.querySelectorAll('.htile').forEach(tile=>{if(tile.querySelector('.heat-tile-logo'))return;const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:m==='us'?new URL(tile.href).searchParams.get('t'):HEAT_COIN_SYMBOLS[name];if(key)tile.insertAdjacentHTML('afterbegin',heatLogoMarkup(m,key,name,'heat-tile-logo'));});}
+  function decorateHeatLogos(board,m){board.querySelectorAll('.htile').forEach(tile=>{const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:m==='us'?new URL(tile.href).searchParams.get('t'):HEAT_COIN_SYMBOLS[name];if(m==='kr'&&key)tile.setAttribute('href','stock.html?code='+key);if(tile.querySelector('.heat-tile-logo'))return;if(key)tile.insertAdjacentHTML('afterbegin',heatLogoMarkup(m,key,name,'heat-tile-logo'));});}
   function heatDetailItems(sec,m){
     const sector=heatSectorName(sec),base=[...sec.querySelectorAll('.htile')].map(tile=>{const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:m==='us'?new URL(tile.href).searchParams.get('t'):HEAT_COIN_SYMBOLS[name];return[name,key];}).filter(x=>x[1]),extras=(HEAT_DETAIL_EXTRA[m]&&HEAT_DETAIL_EXTRA[m][sector])||[],seen=new Set();
     return [...base,...extras].filter(x=>{if(seen.has(x[1]))return false;seen.add(x[1]);return true;});
@@ -1159,6 +1159,8 @@
   /* 국장 종목 링크: 이름으로 stock.html?name= 연결 (100여개 종목 클릭 시 해당 종목으로) */
   function wireKR(){
     document.querySelectorAll('a[href="stock.html"]').forEach(a=>{
+      const codeM=a.textContent.match(/\b\d{6}\b/);
+      if(codeM){a.setAttribute('href','stock.html?code='+codeM[0]);return;}
       let nm=''; const n=a.querySelector('.n');
       if(n)nm=n.textContent.trim();
       else if(a.firstChild&&a.firstChild.nodeType===3)nm=a.firstChild.textContent.trim();
