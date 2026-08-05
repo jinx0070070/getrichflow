@@ -513,6 +513,7 @@
         +'<circle id="cvd" r="3.5" fill="#1b1e24"/>'
         +'<rect id="cpyBg" x="'+(CH.mL+CH.plotW)+'" width="'+CH.mR+'" height="15" fill="#1b1e24"/>'
         +'<text id="cpyTx" x="'+(CH.mL+CH.plotW+5)+'" fill="#fff" font-size="10" font-weight="700"></text>'
+        +'<rect id="cpxBg" height="14" fill="#1b1e24"/><text id="cpxTx" fill="#fff" font-size="9.5" font-weight="700" text-anchor="middle"></text>'
         +'</g>';
       g+='<g id="pxMeas" style="display:none">'
         +'<rect id="measRect" stroke-width="1" stroke-dasharray="4 3"/>'
@@ -575,7 +576,7 @@
           a.setAttribute('x1',x);a.setAttribute('x2',x);
           b.setAttribute('y1',yLine.toFixed(1));b.setAttribute('y2',yLine.toFixed(1));
           dt.setAttribute('cx',x);dt.setAttribute('cy',yLine.toFixed(1));
-          pbg.setAttribute('y',(yLine-7.5).toFixed(1)); ptx.setAttribute('y',(yLine+3).toFixed(1)); ptx.textContent=fmtPx(price); }
+          pbg.setAttribute('y',(yLine-7.5).toFixed(1)); ptx.setAttribute('y',(yLine+3).toFixed(1)); ptx.textContent=fmtPx(price); const xbg=document.getElementById('cpxBg'),xtx=document.getElementById('cpxTx'); if(xtx){ const lb=fmtT(c.t,CH.tf),w=lb.length*6+10; xtx.textContent=lb; xtx.setAttribute('x',x); xtx.setAttribute('y',(CH.mT+CH.plotH+12).toFixed(1)); xbg.setAttribute('width',w); xbg.setAttribute('x',(x-w/2).toFixed(1)); xbg.setAttribute('y',(CH.mT+CH.plotH+2).toFixed(1)); } }
         const abs=CH.i0+i, prev=(CH.full[abs-1]&&CH.full[abs-1].c)||c.o, up=c.c>=prev, pc=prev?((c.c-prev)/prev*100):0, cls=up?'up':'down';
         tip.innerHTML='<b>'+fmtT(c.t,CH.tf)+'</b><br>시 '+fmtPx(c.o)+' · 고 '+fmtPx(c.h)+'<br>저 '+fmtPx(c.l)+' · <b>종 '+fmtPx(c.c)+'</b><br><span class="'+cls+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'% (직전比)</span>';
         tip.style.display='block';
