@@ -199,6 +199,7 @@
       <span class="fk">🌏 미국 선물 <b>24시간</b></span>
       <span class="fitem">나스닥 <b id="nqPx">—</b> <span id="nqCh" class="mono">—</span></span>
       <span class="fitem">S&amp;P <b id="esPx">—</b> <span id="esCh" class="mono">—</span></span>
+      <span class="fitem">다우 <b id="ymPx">—</b> <span id="ymCh" class="mono">—</span></span>
       <span class="fnote"><span class="fdot"></span>장 마감에도 거래 중</span>
     </div>
   </section>
@@ -650,7 +651,7 @@
         const chgP=(curPrice&&prevC)?((curPrice-prevC)/prevC*100):0;
         const upG=(isFinite(tgt)&&curPrice)?((tgt/curPrice-1)*100):null;
         if($('aiVerdict'))$('aiVerdict').textContent=name+' 요약';
-        if($('aiBrief'))$('aiBrief').innerHTML=name+'('+T+')은 현재 <b>$'+(curPrice?curPrice.toLocaleString('en-US',{maximumFractionDigits:2}):'—')+'</b> (<b class="'+(chgP>=0?'up':'down')+'">'+(chgP>=0?'+':'')+chgP.toFixed(2)+'%</b>) 입니다. '+(sector?'업종은 <b>'+sector+'</b>. ':'')+(isFinite(tgt)?'월가 1년 목표가 <b>$'+tgt.toLocaleString('en-US',{maximumFractionDigits:0})+'</b>'+(upG!=null?'(상승여력 '+(upG>=0?'+':'')+upG.toFixed(0)+'%)':'')+'. ':'')+'<span style="color:var(--txt-3)">시세·차트·시총·목표가·배당은 실제 데이터이며, 상세 수급·재무·공시는 준비 중입니다. (투자권유 아님)</span>';
+        if($('aiBrief'))$('aiBrief').innerHTML=name+'('+T+')은 현재 <b id="aiPx">$'+(curPrice?curPrice.toLocaleString('en-US',{maximumFractionDigits:2}):'—')+'</b> (<b id="aiPct" class="'+(chgP>=0?'up':'down')+'">'+(chgP>=0?'+':'')+chgP.toFixed(2)+'%</b>) 입니다. '+(sector?'업종은 <b>'+sector+'</b>. ':'')+(isFinite(tgt)?'월가 1년 목표가 <b>$'+tgt.toLocaleString('en-US',{maximumFractionDigits:0})+'</b>'+(upG!=null?'(상승여력 '+(upG>=0?'+':'')+upG.toFixed(0)+'%)':'')+'. ':'')+'<span style="color:var(--txt-3)">시세·차트·시총·목표가·배당은 실제 데이터이며, 상세 수급·재무·공시는 준비 중입니다. (투자권유 아님)</span>';
         const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·52주·배당·1년 목표가·업종은 '+name+' 실제 시장 데이터</b>(Yahoo Finance·Nasdaq)입니다. 상세 기관수급·재무·공시는 준비 중이며 커뮤니티 작성 글은 현재 브라우저에 저장됩니다. 정보 제공용이며 투자권유가 아닙니다.';
       }
     }
@@ -712,7 +713,7 @@
           chEl.className='c mono '+(tup?'up':'down');
           if(lblEl)lblEl.textContent='24시간';
           if(dotEl)dotEl.style.background='var(--up)';
-          curLabel='24시간'; lastFetch=Date.now(); NAVER_LIVE=false; HL_LIVE=true; return;
+          curLabel='24시간'; lastFetch=Date.now(); NAVER_LIVE=false; HL_LIVE=true; liveP=pxEl.textContent; liveC=tpct; liveU=tup; syncBrief(); return;
         }
       }
       // 장중이면 네이버 실시간 우선
@@ -725,7 +726,7 @@
           chEl.className='c mono '+(up?'up':'down');
           if(lblEl)lblEl.textContent='정규장';
           if(dotEl)dotEl.style.background='var(--up)';
-          curLabel='정규장'; lastFetch=Date.now(); NAVER_LIVE=true; return;
+          curLabel='정규장'; lastFetch=Date.now(); NAVER_LIVE=true; liveP=pxEl.textContent; liveC=pct; liveU=up; syncBrief(); return;
         }
       }
       NAVER_LIVE=false;
@@ -751,12 +752,18 @@
       chEl.className='c mono '+(up?'up':'down');
       if(lblEl)lblEl.textContent=label;
       if(dotEl)dotEl.style.background=amber?'var(--amber)':'var(--up)';
-      curLabel=label; lastFetch=Date.now();
+      curLabel=label; lastFetch=Date.now(); liveP=pxEl.textContent; liveC=pct; liveU=up; syncBrief();
     }
-    let curLabel='정규장', lastFetch=0;
+    let curLabel='정규장', lastFetch=0, liveP='', liveC=0, liveU=true;
+    function syncBrief(){
+      const px=document.getElementById('aiPx'), pc=document.getElementById('aiPct');
+      if(px&&liveP)px.textContent=liveP;
+      if(pc&&liveP){pc.textContent=(liveU?'+':'')+liveC.toFixed(2)+'%'; pc.className=liveU?'up':'down';}
+    }
     function tick(){
       if(!tmEl)return;
       tmEl.textContent=lastFetch?new Date(lastFetch).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'})+' 갱신':'';
+      syncBrief();
     }
     resolveNaverRcode().then(live); setInterval(live, 15000); tick(); setInterval(tick, 1000);
 
@@ -772,7 +779,7 @@
       if(pe)pe.textContent=price.toLocaleString('en-US',{maximumFractionDigits:0});
       if(ce){ce.textContent=(up?'▲':'▼')+Math.abs(pct).toFixed(2)+'%';ce.className='mono '+(up?'up':'down');}
     }
-    async function futures(){ await oneFut('NQ=F','nqPx','nqCh'); await oneFut('ES=F','esPx','esCh'); }
+    async function futures(){ await oneFut('NQ=F','nqPx','nqCh'); await oneFut('ES=F','esPx','esCh'); await oneFut('YM=F','ymPx','ymCh'); }
     /* ===== 토큰화 주식(xStocks) 24시간 실시간 — 바이비트, 미국장 마감에도 거래 ===== */
     futures(); setInterval(futures, 15000);
   })();

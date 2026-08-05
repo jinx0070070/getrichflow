@@ -573,7 +573,7 @@
 
     /* --- 시세/세션 --- */
     function updateSession(){ if(!$('shTime'))return; const kst=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const day=kst.getDay(),t=kst.getHours()*60+kst.getMinutes(); const open=(day>=1&&day<=5&&t>=540&&t<=930); if($('liveLbl'))$('liveLbl').textContent=open?'실시간':'장마감'; if($('liveDot'))$('liveDot').style.background=open?'var(--up)':'var(--amber)'; $('shTime').textContent=kst.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 갱신'; }
-    function applyPrice(nv){ if($('shPx'))$('shPx').textContent=nv.closePrice||'—'; const pct=pnum(nv.fluctuationsRatio),up=pct>=0,won=Math.abs(pnum(nv.compareToPreviousClosePrice)); if($('shChg')){ $('shChg').textContent=(up?'▲ ':'▼ ')+(isFinite(won)?won.toLocaleString('ko-KR'):'')+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)'; $('shChg').className='c mono '+(up?'up':'down'); } }
+    function applyPrice(nv){ if($('shPx'))$('shPx').textContent=nv.closePrice||'—'; const pct=pnum(nv.fluctuationsRatio),up=pct>=0,won=Math.abs(pnum(nv.compareToPreviousClosePrice)); if($('shChg')){ $('shChg').textContent=(up?'▲ ':'▼ ')+(isFinite(won)?won.toLocaleString('ko-KR'):'')+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)'; $('shChg').className='c mono '+(up?'up':'down'); } const apx=document.getElementById('aiPx'); if(apx&&nv.closePrice)apx.textContent=nv.closePrice+'원'; const apc=document.getElementById('aiPct'); if(apc){apc.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%'; apc.className=up?'up':'down';} }
 
     /* --- 로더 --- */
     async function loadStock(){
@@ -617,7 +617,7 @@
       } else {
         const pct=pnum(bs.fluctuationsRatio),up=pct>=0;
         if($('aiVerdict')){$('aiVerdict').textContent=name+' 요약';$('aiVerdict').className='verdict '+(up?'buy':'mixed');}
-        if($('aiBrief'))$('aiBrief').innerHTML=name+'('+CODE+')은 현재 <b>'+(bs.closePrice||'—')+'원</b> (<b class="'+(up?'up':'down')+'">'+(pct>=0?'+':'')+pct.toFixed(2)+'%</b>) 입니다. 시총 <b>'+(info['시총']||'-')+'</b> · PER <b>'+(info['PER']||'-')+'</b> · 배당수익률 <b>'+(info['배당수익률']||'-')+'</b>. <span style="color:var(--txt-3)">시세·차트·시총·PER·배당·52주는 네이버·야후 실데이터이며, 상세 수급·공시·재무는 준비 중입니다. (투자권유 아님)</span>';
+        if($('aiBrief'))$('aiBrief').innerHTML=name+'('+CODE+')은 현재 <b id="aiPx">'+(bs.closePrice||'—')+'원</b> (<b id="aiPct" class="'+(up?'up':'down')+'">'+(pct>=0?'+':'')+pct.toFixed(2)+'%</b>) 입니다. 시총 <b>'+(info['시총']||'-')+'</b> · PER <b>'+(info['PER']||'-')+'</b> · 배당수익률 <b>'+(info['배당수익률']||'-')+'</b>. <span style="color:var(--txt-3)">시세·차트·시총·PER·배당·52주는 네이버·야후 실데이터이며, 상세 수급·공시·재무는 준비 중입니다. (투자권유 아님)</span>';
         const dc=document.querySelector('.disc'); if(dc)dc.innerHTML='<b style="color:var(--brand)">시세·차트·시가총액·PER·PBR·배당·52주는 '+name+' 실제 데이터</b>(네이버 금융·야후 파이낸스)입니다. 상세 투자자수급·공시·재무는 준비 중이며 커뮤니티 작성 글은 현재 브라우저에 저장됩니다. 정보 제공용이며 투자권유가 아닙니다.';
       }
     }
