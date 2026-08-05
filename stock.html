@@ -271,7 +271,8 @@
           <div class="chart-tools">
             <button id="typeBtn" class="toolbtn" title="캔들/라인 전환">📊 캔들</button>
             <button id="maBtn" class="toolbtn" title="이동평균선 20·60">📈 이평선</button>
-            <button id="drawBtn" class="toolbtn" title="추세선 그리기: 드래그로 선을 그어요">✏️ 선</button>
+            <button id="drawBtn" class="toolbtn" title="추세선: 드래그로 사선">✏️ 선</button>
+            <button id="hlineBtn" class="toolbtn" title="수평선(지지/저항): 클릭한 가격에 가로선">➖ 수평선</button>
             <button id="clearBtn" class="toolbtn" title="그린 선 모두 지우기">🗑️</button>
             <button id="magBtn" class="toolbtn" title="자석: 커서가 캔들 고저종에 딱 붙음">🧲 무자석</button>
           </div>
@@ -279,7 +280,7 @@
             <button data-tf="5m">5분</button><button data-tf="15m">15분</button><button data-tf="30m">30분</button><button data-tf="1h">1시간</button><button data-tf="2h">2시간</button><button data-tf="4h">4시간</button><button data-tf="12h">12시간</button><button data-tf="1d" class="on">일</button><button data-tf="1wk">주</button><button data-tf="1mo">월</button>
           </div>
         </div>
-        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축 드래그·휠=세로확대(눈금 자동) · Shift+드래그=구간측정 · ✏️선: 드래그로 그리기(Shift=수평/수직) · 선 클릭=선택 후 ×로 삭제 · 더블클릭=원위치 · 📱한 손가락=이동/작도, 두 손가락=확대</div>
+        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축 드래그·휠=세로확대(눈금 자동) · Shift+드래그=구간측정 · ✏️선: 드래그로 사선(Shift=수평/수직) · ➖수평선: 클릭한 가격에 가로선 · 선 클릭=선택 후 ×로 삭제 · 더블클릭=원위치 · 📱한 손가락=이동/작도, 두 손가락=확대</div>
         <div class="chart-ohlc" id="chartOhlc"><span class="ph">차트에 마우스를 올리면 상세 정보가 표시됩니다</span></div>
         <div class="chartbox" id="chartBox">
           <svg viewBox="0 0 720 320" id="pxChart" xmlns="http://www.w3.org/2000/svg"><text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text></svg>
@@ -514,7 +515,7 @@
     function pnum(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
     /* --- 캔들차트 엔진 --- */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,draws:[],sel:-1};
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,draws:[],sel:-1,tool:'trend'};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
     function niceStep(raw){ if(!(raw>0))return 1; const p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<1.5?1:f<3?2:f<7?5:10)*p; }
     function fmtPx(p){ return p>=1000? Math.round(p).toLocaleString('en-US') : (p>=1?p.toFixed(0):p.toFixed(2)); }
@@ -543,8 +544,8 @@
       }
       if(CH.ma){ [[20,'#e6a23c'],[60,'#8b5cf6']].forEach(pc=>{ const arr=sma(pc[0]); let pts=''; for(let i=0;i<n;i++){ const v=arr[CH.i0+i]; if(v==null)continue; pts+=xCenter(i).toFixed(1)+','+yPrice(v).toFixed(1)+' '; } if(pts)g+='<polyline points="'+pts.trim()+'" fill="none" stroke="'+pc[1]+'" stroke-width="1.2" opacity=".92"/>'; }); g+='<text x="'+(CH.mL+4)+'" y="'+(CH.mT+11)+'" font-size="9.5" font-weight="800"><tspan fill="#e6a23c">MA20</tspan> <tspan fill="#8b5cf6">MA60</tspan></text>'; }
       const labN=Math.min(6,n); for(let k=0;k<labN;k++){ const i=Math.round(k*(n-1)/((labN-1)||1)), x=xCenter(i); g+='<text x="'+x.toFixed(1)+'" y="'+(CH.vbH-8)+'" fill="#8a909b" font-size="9.5" font-weight="600" text-anchor="middle">'+fmtT(d[i].t)+'</text>'; }
-      CH.draws.forEach((dr,k)=>{ const x0=xAbs(dr.a0),y0=yPrice(dr.p0),x1=xAbs(dr.a1),y1=yPrice(dr.p1),seld=(k===CH.sel); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="'+(seld?2.4:1.5)+'"/>'; if(seld){ g+='<circle cx="'+x0.toFixed(1)+'" cy="'+y0.toFixed(1)+'" r="3.2" fill="#fff" stroke="#2f6df6" stroke-width="1.4"/><circle cx="'+x1.toFixed(1)+'" cy="'+y1.toFixed(1)+'" r="3.2" fill="#fff" stroke="#2f6df6" stroke-width="1.4"/>'; const bx=((x0+x1)/2).toFixed(1),by=((y0+y1)/2).toFixed(1); g+='<circle cx="'+bx+'" cy="'+by+'" r="7.5" fill="#d8455a"/><text x="'+bx+'" y="'+(+by+3.4).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">×</text>'; } });
-      if(CH._prev){ const p=CH._prev,x0=xAbs(p.a0),y0=yPrice(p.p0),x1=xAbs(p.a1),y1=yPrice(p.p1); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="1.5" stroke-dasharray="4 3"/>'; }
+      CH.draws.forEach((dr,k)=>{ const seld=(k===CH.sel); let x0,y0,x1,y1; if(dr.h){ x0=CH.mL; x1=CH.mL+CH.plotW; y0=y1=yPrice(dr.p); } else { x0=xAbs(dr.a0); y0=yPrice(dr.p0); x1=xAbs(dr.a1); y1=yPrice(dr.p1); } g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="'+(seld?2.4:1.5)+'"'+(dr.h?' stroke-dasharray="6 3"':'')+'/>'; if(dr.h)g+='<rect x="'+(CH.mL+CH.plotW)+'" y="'+(y0-7).toFixed(1)+'" width="'+CH.mR+'" height="14" fill="#2f6df6"/><text x="'+(CH.mL+CH.plotW+4)+'" y="'+(y0+3).toFixed(1)+'" fill="#fff" font-size="9.5" font-weight="800">'+fmtPx(dr.p)+'</text>'; if(seld){ if(!dr.h)g+='<circle cx="'+x0.toFixed(1)+'" cy="'+y0.toFixed(1)+'" r="3.2" fill="#fff" stroke="#2f6df6" stroke-width="1.4"/><circle cx="'+x1.toFixed(1)+'" cy="'+y1.toFixed(1)+'" r="3.2" fill="#fff" stroke="#2f6df6" stroke-width="1.4"/>'; const bx=((x0+x1)/2).toFixed(1),by=((y0+y1)/2).toFixed(1); g+='<circle cx="'+bx+'" cy="'+by+'" r="7.5" fill="#d8455a"/><text x="'+bx+'" y="'+(+by+3.4).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">×</text>'; } });
+      if(CH._prev){ const p=CH._prev; if(p.h){ const y=yPrice(p.p); g+='<line x1="'+CH.mL+'" y1="'+y.toFixed(1)+'" x2="'+(CH.mL+CH.plotW)+'" y2="'+y.toFixed(1)+'" stroke="#2f6df6" stroke-width="1.5" stroke-dasharray="4 3"/>'; } else { const x0=xAbs(p.a0),y0=yPrice(p.p0),x1=xAbs(p.a1),y1=yPrice(p.p1); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="1.5" stroke-dasharray="4 3"/>'; } }
       { const lastC=CH.full.length?CH.full[CH.full.length-1].c:(d[n-1]&&d[n-1].c), prevC=CH.full.length>1?CH.full[CH.full.length-2].c:(d[n-1]&&d[n-1].o); if(lastC!=null){ const y=yPrice(lastC); if(y>=CH.mT-0.5&&y<=CH.mT+CH.plotH+0.5){ const up=lastC>=prevC, col=up?'#1f9d57':'#d8455a'; g+='<line x1="'+CH.mL+'" y1="'+y.toFixed(1)+'" x2="'+(CH.mL+CH.plotW)+'" y2="'+y.toFixed(1)+'" stroke="'+col+'" stroke-width="1" stroke-dasharray="2 2" opacity=".85"/><rect x="'+(CH.mL+CH.plotW)+'" y="'+(y-7).toFixed(1)+'" width="'+CH.mR+'" height="14" fill="'+col+'"/><text x="'+(CH.mL+CH.plotW+4)+'" y="'+(y+3).toFixed(1)+'" fill="#fff" font-size="9.5" font-weight="800">'+fmtPx(lastC)+'</text>'; } } }
       g+='<g id="pxCross" style="display:none"><line id="cvx" y1="'+CH.mT+'" y2="'+(CH.mT+CH.plotH)+'" stroke="#5c6470" stroke-width="1" stroke-dasharray="3 3"/><line id="cvy" x1="'+CH.mL+'" x2="'+(CH.mL+CH.plotW)+'" stroke="#5c6470" stroke-width="1" stroke-dasharray="3 3"/><circle id="cvd" r="3.5" fill="#1b1e24"/><rect id="cpyBg" x="'+(CH.mL+CH.plotW)+'" width="'+CH.mR+'" height="15" fill="#1b1e24"/><text id="cpyTx" x="'+(CH.mL+CH.plotW+5)+'" fill="#fff" font-size="10" font-weight="700"></text></g>';
       g+='<g id="pxMeas" style="display:none"><rect id="measRect" stroke-width="1" stroke-dasharray="4 3"/><rect id="measBg" rx="4" width="92" height="30"/><text id="measT1" text-anchor="middle" font-size="11" font-weight="800" fill="#fff"></text><text id="measT2" text-anchor="middle" font-size="9" font-weight="600" fill="#fff" opacity=".85"></text></g>';
@@ -588,30 +589,27 @@
       const drawP=(cx,cy)=>CH.magnet?CH.data[idxAt(cx)].c:priceAt(vbYof(cy));
       const vbPt=(cx,cy)=>{ const r=svg.getBoundingClientRect(); return {x:(cx-r.left)/r.width*CH.vbW, y:(cy-r.top)/r.height*CH.vbH}; };
       const segDist=(px,py,x0,y0,x1,y1)=>{ const dx=x1-x0,dy=y1-y0,L=dx*dx+dy*dy; let t=L?((px-x0)*dx+(py-y0)*dy)/L:0; t=Math.max(0,Math.min(1,t)); const ex=x0+t*dx,ey=y0+t*dy; return Math.hypot(px-ex,py-ey); };
-      const hitDraw=(cx,cy)=>{ const p=vbPt(cx,cy); for(let k=CH.draws.length-1;k>=0;k--){ const d=CH.draws[k]; if(segDist(p.x,p.y,xAbs(d.a0),yPrice(d.p0),xAbs(d.a1),yPrice(d.p1))<6)return k; } return -1; };
+      const hitDraw=(cx,cy)=>{ const p=vbPt(cx,cy); for(let k=CH.draws.length-1;k>=0;k--){ const d=CH.draws[k]; const dist=d.h?Math.abs(p.y-yPrice(d.p)):segDist(p.x,p.y,xAbs(d.a0),yPrice(d.p0),xAbs(d.a1),yPrice(d.p1)); if(dist<6)return k; } return -1; };
+      const startDraw=(cx,cy)=>{ if(CH.tool==='hline'){ CH._prev={h:1,p:drawP(cx,cy)}; } else { const a=absAt(cx),p=drawP(cx,cy); CH._prev={a0:a,p0:p,a1:a,p1:p}; } };
+      const moveDraw=(cx,cy,shift)=>{ if(!CH._prev)return; if(CH._prev.h){ CH._prev.p=drawP(cx,cy); return; } const na=absAt(cx),np=drawP(cx,cy); if(shift){ const x0=xAbs(CH._prev.a0),y0=yPrice(CH._prev.p0),xc=xAbs(na),yc=yPrice(np); if(Math.abs(xc-x0)>=Math.abs(yc-y0)){ CH._prev.a1=na; CH._prev.p1=CH._prev.p0; } else { CH._prev.a1=CH._prev.a0; CH._prev.p1=np; } } else { CH._prev.a1=na; CH._prev.p1=np; } };
+      const endDraw=(cx,cy,moved)=>{ if(!CH._prev){ CH.sel=hitDraw(cx,cy); redraw(); return; } if(CH._prev.h){ if(!moved){ const k=hitDraw(cx,cy); if(k>=0){ CH._prev=null; CH.sel=k; redraw(); return; } } const pv=CH._prev.p; CH._prev=null; CH.draws.push({h:1,p:pv}); CH.sel=-1; redraw(); return; } if(moved){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; CH.sel=-1; redraw(); } else { CH._prev=null; CH.sel=hitDraw(cx,cy); redraw(); } };
       const yZoom=f=>{ CH.yScale=Math.max(0.25,Math.min(8,CH.yScale*f)); redraw(); };
-      const badgeHit=(cx,cy)=>{ if(CH.sel<0||CH.sel>=CH.draws.length)return false; const d=CH.draws[CH.sel],bx=(xAbs(d.a0)+xAbs(d.a1))/2,by=(yPrice(d.p0)+yPrice(d.p1))/2,p=vbPt(cx,cy); return Math.hypot(p.x-bx,p.y-by)<13; };
+      const badgeHit=(cx,cy)=>{ if(CH.sel<0||CH.sel>=CH.draws.length)return false; const d=CH.draws[CH.sel]; const bx=d.h?(CH.mL+CH.plotW/2):(xAbs(d.a0)+xAbs(d.a1))/2, by=d.h?yPrice(d.p):(yPrice(d.p0)+yPrice(d.p1))/2, p=vbPt(cx,cy); return Math.hypot(p.x-bx,p.y-by)<13; };
       let dragging=false,dragX=0,dragY=0,dragI0=0,dragYShift=0,measuring=false,mI=0,mP=0,yscaling=false,ysY=0,ysScale=1,drawing=false,drDownX=0,drDownY=0,drMoved=false;
       box.addEventListener('mousedown',e=>{
-        if(CH.drawMode){ if(badgeHit(e.clientX,e.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); e.preventDefault(); return; } drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; const a=absAt(e.clientX),p=drawP(e.clientX,e.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; hide();e.preventDefault();return; }
+        if(CH.drawMode){ if(badgeHit(e.clientX,e.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); e.preventDefault(); return; } drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; startDraw(e.clientX,e.clientY); hide();e.preventDefault();return; }
         if(isAxis(e.clientX)){ yscaling=true;ysY=e.clientY;ysScale=CH.yScale;box.style.cursor='ns-resize';hide();e.preventDefault();return; }
         if(e.shiftKey){measuring=true;mI=idxAt(e.clientX);const c=CH.data[mI];mP=CH.magnet?c.c:priceAt(vbYof(e.clientY));hide();e.preventDefault();return;}
         hideMeas();dragging=true;dragX=e.clientX;dragY=e.clientY;dragI0=CH.i0;dragYShift=CH.yShift;box.style.cursor='grabbing';hide();e.preventDefault();
       });
       window.addEventListener('mouseup',e=>{
-        if(drawing){ drawing=false;
-          if(drMoved){ if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); } CH._prev=null; CH.sel=-1; redraw(); }
-          else { CH._prev=null; CH.sel=hitDraw(e.clientX,e.clientY); redraw(); }
-        }
+        if(drawing){ drawing=false; endDraw(e.clientX,e.clientY,drMoved); }
         if(dragging){dragging=false;box.style.cursor='crosshair';}
         if(yscaling){yscaling=false;box.style.cursor='crosshair';}
         measuring=false;
       });
       box.addEventListener('mousemove',e=>{
-        if(drawing&&CH._prev){ if(Math.abs(e.clientX-drDownX)>3||Math.abs(e.clientY-drDownY)>3)drMoved=true; const na=absAt(e.clientX),np=drawP(e.clientX,e.clientY);
-          if(e.shiftKey){ const x0=xAbs(CH._prev.a0),y0=yPrice(CH._prev.p0),xc=xAbs(na),yc=yPrice(np); if(Math.abs(xc-x0)>=Math.abs(yc-y0)){ CH._prev.a1=na; CH._prev.p1=CH._prev.p0; } else { CH._prev.a1=CH._prev.a0; CH._prev.p1=np; } }
-          else { CH._prev.a1=na; CH._prev.p1=np; }
-          redraw(); return; }
+        if(drawing&&CH._prev){ if(Math.abs(e.clientX-drDownX)>3||Math.abs(e.clientY-drDownY)>3)drMoved=true; moveDraw(e.clientX,e.clientY,e.shiftKey); redraw(); return; }
         if(yscaling){ const r=svg.getBoundingClientRect(); const dy=(ysY-e.clientY)/Math.max(40,r.height); CH.yScale=Math.max(0.25,Math.min(8,ysScale*(1+dy*3))); redraw(); return; }
         if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX,e.clientY);
         else { if(CH.drawMode)box.style.cursor=(badgeHit(e.clientX,e.clientY)||hitDraw(e.clientX,e.clientY)>=0)?'pointer':'crosshair'; else box.style.cursor=isAxis(e.clientX)?'ns-resize':'crosshair'; showCross(e.clientX,e.clientY); }
@@ -620,29 +618,32 @@
       box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring&&!drawing&&!yscaling)hide(); });
       box.addEventListener('wheel',e=>{ e.preventDefault(); if(isAxis(e.clientX))yZoom(e.deltaY>0?0.9:1.1); else zoom(e.clientX,e.deltaY>0?1:-1); },{passive:false});
       box.addEventListener('dblclick',()=>{ CH.yShift=0; CH.yScale=1; redraw(); });
-      let tI0=0,tYS=0,tYScale=1,tVis=0,tDX0=20,tDY0=20,tSX=0,tSY=0,tMode='',tMoved=false;
+      let tI0=0,tYS=0,tYScale=1,tVis=0,tDX0=20,tDY0=20,tSX=0,tSY=0,tLX=0,tLY=0,tMode='',tMoved=false;
       box.addEventListener('touchstart',e=>{
         if(e.touches.length>=2){ const a=e.touches[0],b=e.touches[1]; tMode='pinch'; tDX0=Math.max(20,Math.abs(a.clientX-b.clientX)); tDY0=Math.max(20,Math.abs(a.clientY-b.clientY)); tVis=CH.i1-CH.i0; tI0=CH.i0; tYScale=CH.yScale; hide(); hideMeas(); return; }
-        const t=e.touches[0]; if(!t)return; tSX=t.clientX; tSY=t.clientY; tMoved=false;
-        if(CH.drawMode){ if(badgeHit(t.clientX,t.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); tMode='none'; return; } tMode='draw'; const a=absAt(t.clientX),p=drawP(t.clientX,t.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; return; }
+        const t=e.touches[0]; if(!t)return; tSX=t.clientX; tSY=t.clientY; tLX=t.clientX; tLY=t.clientY; tMoved=false;
+        if(CH.drawMode){ if(badgeHit(t.clientX,t.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); tMode='none'; return; } tMode='draw'; startDraw(t.clientX,t.clientY); return; }
         if(isAxis(t.clientX)){ tMode='yscale'; tYScale=CH.yScale; return; }
         tMode='pan'; tI0=CH.i0; tYS=CH.yShift;
       },{passive:false});
       box.addEventListener('touchmove',e=>{
         if(tMode==='pinch'&&e.touches.length>=2){ e.preventDefault(); const a=e.touches[0],b=e.touches[1]; const dx=Math.max(20,Math.abs(a.clientX-b.clientX)), dy=Math.max(20,Math.abs(a.clientY-b.clientY)); let nv=Math.round(tVis*(tDX0/dx)); nv=Math.max(15,Math.min(Math.min(CH.full.length,500),nv)); let ni0=Math.round((tI0+tVis/2)-nv/2); ni0=Math.max(0,Math.min(CH.full.length-nv,ni0)); CH.i0=ni0; CH.i1=ni0+nv; CH.yScale=Math.max(0.25,Math.min(8,tYScale*(dy/tDY0))); redraw(); return; }
-        const t=e.touches[0]; if(!t)return; const cx=t.clientX,cy=t.clientY; if(Math.abs(cx-tSX)>4||Math.abs(cy-tSY)>4)tMoved=true;
-        if(tMode==='draw'&&CH._prev){ e.preventDefault(); CH._prev.a1=absAt(cx); CH._prev.p1=drawP(cx,cy); redraw(); return; }
+        const t=e.touches[0]; if(!t)return; const cx=t.clientX,cy=t.clientY; tLX=cx; tLY=cy; if(Math.abs(cx-tSX)>4||Math.abs(cy-tSY)>4)tMoved=true;
+        if(tMode==='draw'&&CH._prev){ e.preventDefault(); moveDraw(cx,cy,false); redraw(); return; }
         if(tMode==='yscale'){ e.preventDefault(); const r=svg.getBoundingClientRect(); const d=(tSY-cy)/Math.max(40,r.height); CH.yScale=Math.max(0.25,Math.min(8,tYScale*(1+d*3))); redraw(); return; }
         if(tMode==='pan'){ if(tMoved){ e.preventDefault(); dragX=tSX;dragY=tSY;dragI0=tI0;dragYShift=tYS; pan(cx,cy); } else showCross(cx,cy); return; }
       },{passive:false});
       box.addEventListener('touchend',e=>{
-        if(tMode==='draw'){ if(!tMoved){ CH._prev=null; CH.sel=hitDraw(tSX,tSY); redraw(); } else if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; CH.sel=-1; redraw(); } }
+        if(tMode==='draw'){ endDraw(tLX,tLY,tMoved); }
         tMode=''; setTimeout(hide,1500);
       },{passive:true});
       const magBtn=$('magBtn'); CH.magnet=false; if(magBtn)magBtn.onclick=()=>{ CH.magnet=!CH.magnet; magBtn.classList.toggle('on',CH.magnet); magBtn.textContent=CH.magnet?'🧲 자석 ON':'🧲 무자석'; };
       const typeBtn=$('typeBtn'); if(typeBtn)typeBtn.onclick=()=>{ CH.type=CH.type==='candle'?'line':'candle'; typeBtn.textContent=CH.type==='candle'?'📊 캔들':'📈 라인'; typeBtn.classList.toggle('on',CH.type==='line'); redraw(); };
       const maBtn=$('maBtn'); if(maBtn)maBtn.onclick=()=>{ CH.ma=!CH.ma; maBtn.classList.toggle('on',CH.ma); redraw(); };
-      const drawBtn=$('drawBtn'); if(drawBtn)drawBtn.onclick=()=>{ CH.drawMode=!CH.drawMode; drawBtn.classList.toggle('on',CH.drawMode); box.style.cursor='crosshair'; };
+      const drawBtn=$('drawBtn'), hlineBtn=$('hlineBtn');
+      function setTool(tool){ if(CH.drawMode&&CH.tool===tool){ CH.drawMode=false; } else { CH.drawMode=true; CH.tool=tool; } if(drawBtn)drawBtn.classList.toggle('on',CH.drawMode&&CH.tool==='trend'); if(hlineBtn)hlineBtn.classList.toggle('on',CH.drawMode&&CH.tool==='hline'); box.style.cursor='crosshair'; CH.sel=-1; CH._prev=null; redraw(); }
+      if(drawBtn)drawBtn.onclick=()=>setTool('trend');
+      if(hlineBtn)hlineBtn.onclick=()=>setTool('hline');
       const clearBtn=$('clearBtn'); if(clearBtn)clearBtn.onclick=()=>{ CH.draws=[]; CH._prev=null; CH.sel=-1; redraw(); };
     }
 
