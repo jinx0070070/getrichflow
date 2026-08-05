@@ -221,7 +221,7 @@
   <div class="wrap nav-in">
     <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
     <a href="index.html" class="back">← 홈</a>
-    <div class="nav-right"><div class="search-wrap"><div class="search">🔍<input id="stockSearch" placeholder="종목 검색 (예: 삼성전자, 하이닉스)" autocomplete="off"></div><div class="search-drop" id="searchDrop"></div></div><button class="btn">＋ 관심종목</button></div>
+    <div class="nav-right"><div class="search-wrap"><div class="search">🔍<input id="stockSearch" placeholder="종목 검색 (예: 삼성전자, 하이닉스)" autocomplete="off"></div><div class="search-drop" id="searchDrop"></div></div><button class="btn" id="watchBtn">＋ 관심종목</button></div>
   </div>
 </header>
 
@@ -486,6 +486,7 @@
 </div>
 
 <script src="stock-logo.js"></script>
+<script src="watchlist.js"></script>
 <script>
   document.querySelectorAll('.tabrow').forEach(t=>t.querySelectorAll('button').forEach(b=>{b.onclick=()=>{t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');};}));
   (function(){ const fp=document.getElementById('finPane'), ft=document.getElementById('finTabs'); if(fp&&ft){ const fc={'실적추이':fp.innerHTML,'손익':`<table class="tbl fin-tables"><tr><td class="k">매출액</td><td class="v">301조</td><td class="v up">+7.9%</td></tr><tr><td class="k">영업이익</td><td class="v">38.4조</td><td class="v up">+17.4%</td></tr><tr><td class="k">당기순이익</td><td class="v">29.6조</td><td class="v up">+12.1%</td></tr></table>`,'재무상태':`<table class="tbl fin-tables"><tr><td class="k">자산총계</td><td class="v">512조</td></tr><tr><td class="k">부채총계</td><td class="v">99조</td></tr><tr><td class="k">자본총계</td><td class="v">413조</td></tr><tr><td class="k">부채비율</td><td class="v">24%</td></tr></table>`}; ft.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{fp.innerHTML=fc[b.textContent]||fc['실적추이'];})); } })();
@@ -495,6 +496,8 @@
   (function(){
     const params=new URLSearchParams(location.search);
     let CODE=(params.get('code')||'').replace(/[^0-9]/g,''), YT='';
+    window.__wcode=window.__wcode||CODE; window.__wname=window.__wname||(params.get('name')||CODE);
+    if(window.RichflowWatch)RichflowWatch.bindButton(document.getElementById('watchBtn'),function(){var c=window.__wcode||CODE; return c?{market:'kr',id:c,name:window.__wname||c,url:'stock.html?code='+encodeURIComponent(c)}:null;});
     const WORKER='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
     const PROXIES=[ u=>WORKER+encodeURIComponent(u), u=>'https://corsproxy.io/?url='+encodeURIComponent(u), u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u) ];
     async function fetchJSON(url){ for(const wrap of PROXIES){ try{ const c=new AbortController(); const id=setTimeout(()=>c.abort(),6000); const r=await fetch(wrap(url),{cache:'no-store',signal:c.signal}); clearTimeout(id); if(!r.ok)continue; const t=await r.text(); if(!t||t[0]==='<')continue; return JSON.parse(t); }catch(e){} } return null; }
@@ -593,6 +596,7 @@
       if(!bs||!bs.stockName){ if($('shName'))$('shName').textContent=CODE; if($('shCode'))$('shCode').textContent='데이터를 불러오지 못했어요 (새로고침 해주세요)'; return; }
       const nv=await fetchJSON('https://m.stock.naver.com/api/stock/'+CODE+'/integration');
       const name=bs.stockName, mk=(bs.stockExchangeType&&bs.stockExchangeType.code)||'KS'; YT=CODE+(mk==='KQ'?'.KQ':'.KS');
+      window.__wcode=CODE; window.__wname=name; try{window.dispatchEvent(new CustomEvent('richflow:watch-change'));}catch(e){}
       if($('shLogo'))RichflowStockLogo.set($('shLogo'),'kr',CODE,name);
       if($('shName'))$('shName').innerHTML=name+' <span class="mk">'+(mk==='KQ'?'KOSDAQ':'KOSPI')+'</span>';
       if($('shCode'))$('shCode').textContent=CODE+(mk==='KQ'?' · 코스닥':' · 코스피');

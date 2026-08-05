@@ -168,7 +168,7 @@
   <a href="index.html?m=us" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
   <span class="mkbadge">🇺🇸 미장</span>
   <a href="index.html?m=us" class="back">← 홈</a>
-  <div class="nav-right"><div class="search-wrap"><div class="search">🔍<input id="tickerSearch" placeholder="종목 검색 (이름·코드: apple, TSLA)" autocomplete="off"></div><div class="search-drop" id="searchDrop"></div></div><button class="btn">＋ 관심종목</button></div>
+  <div class="nav-right"><div class="search-wrap"><div class="search">🔍<input id="tickerSearch" placeholder="종목 검색 (이름·코드: apple, TSLA)" autocomplete="off"></div><div class="search-drop" id="searchDrop"></div></div><button class="btn" id="watchBtn">＋ 관심종목</button></div>
 </div></header>
 
 <div class="wrap">
@@ -408,6 +408,7 @@
 </div>
 
 <script src="stock-logo.js"></script>
+<script src="watchlist.js"></script>
 <script>
   document.querySelectorAll('.tabrow').forEach(t=>t.querySelectorAll('button').forEach(b=>b.onclick=()=>{t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
   const tBuy=document.getElementById('tBuy'),tSell=document.getElementById('tSell');
@@ -418,6 +419,8 @@
   (function(){
     const T=(new URLSearchParams(location.search).get('t')||'NVDA').toUpperCase().replace(/[^A-Z.\-]/g,'');
     const TICKER=T;
+    window.__wname=window.__wname||T;
+    if(window.RichflowWatch)RichflowWatch.bindButton(document.getElementById('watchBtn'),function(){return{market:'us',id:T,name:window.__wname||T,url:'stock-us.html?t='+encodeURIComponent(T)};});
     const PROXIES=[
       u=>'https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url='+encodeURIComponent(u),
       u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
@@ -615,6 +618,7 @@
         return;
       }
       const name=(m&&(m.longName||m.shortName))||T;
+      window.__wname=name;
       const exch=(m&&m.fullExchangeName)||g('Exchange')||'US';
       curPrice=m&&m.regularMarketPrice;
       if($('shLogo'))RichflowStockLogo.set($('shLogo'),'us',T,name);

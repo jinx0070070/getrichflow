@@ -197,6 +197,22 @@
   .u3{background:#148f4f}.u2{background:#1fa15c}.u1{background:#4bab77}
   .fl{background:#8b919b}.d1{background:#c46b74}.d2{background:#b44f5b}.d3{background:#a63a47}
   .sec-hidden{display:none}
+  /* 관심종목(즐겨찾기) */
+  .watch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:10px}
+  .watch-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px 12px;text-decoration:none;color:inherit;position:relative;transition:border-color .15s,transform .15s;box-shadow:var(--shadow-sm)}
+  .watch-item:hover{border-color:var(--brand);transform:translateY(-1px)}
+  .wl-logo{width:36px;height:36px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(255,255,255,.94);color:#404752;box-shadow:0 2px 7px rgba(0,0,0,.13)}
+  .wl-logo img{width:100%;height:100%;object-fit:contain}.wl-logo i{display:none;font-style:normal;font-weight:900;font-size:14px}.wl-logo.logo-fallback{background:var(--brand);color:#fff}.wl-logo.logo-fallback i{display:block}
+  .wl-body{min-width:0;flex:1}
+  .wl-name{font-size:13.5px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+  .wl-sub{font-size:10.5px;color:var(--txt-3);margin-top:2px;display:flex;align-items:center;gap:5px}
+  .wl-badge{font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;background:var(--line);color:var(--txt-2)}
+  .wl-right{text-align:right;flex:none;min-width:52px}
+  .wl-px{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+  .wl-pct{font-size:11px;font-weight:750;margin-top:1px;font-variant-numeric:tabular-nums}
+  .wl-x{position:absolute;top:5px;right:7px;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;color:var(--txt-3);background:var(--card);opacity:0;cursor:pointer;transition:opacity .12s,color .12s,background .12s}
+  .watch-item:hover .wl-x{opacity:1}.wl-x:hover{color:#fff;background:#c0505c}
+  #watchClear{cursor:pointer}#watchClear:hover{color:var(--down,#c0505c)}
   .heat-more{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;
     padding:11px 22px;border-radius:12px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
   .heat-more:hover{color:var(--txt);border-color:var(--line-2)}
@@ -369,6 +385,15 @@
         <div class="foot"><span>출처: 뉴스 교차검증 · 자동 집계</span><span>투자권유 아님</span></div>
       </div>
     </div>
+  </section>
+
+  <!-- 관심종목(즐겨찾기) -->
+  <section class="sec" id="watchSec" style="display:none">
+    <div class="sec-head">
+      <h2>⭐ 내 관심종목 <span class="hint" id="watchCount"></span></h2>
+      <span class="more" id="watchClear" role="button" tabindex="0">전체 해제</span>
+    </div>
+    <div class="watch-grid" id="watchGrid"></div>
   </section>
 
   <!-- 큰손 브리핑 (nabakai) full-width -->
@@ -750,6 +775,7 @@
 </footer>
 
 <script src="community.js"></script>
+<script src="watchlist.js"></script>
 <script>
   /* ===== helpers ===== */
   function tcls(p){return p>=5?'u3':p>=2?'u2':p>=0?'u1':p>-1.5?'d1':p>-3?'d2':'d3';}
@@ -887,7 +913,7 @@
     RichflowCommunity.mountPreview('#homeCommunity',{market:m==='coin'?'all':m});
     document.getElementById('aiCtaLink').href=nl.ai;
     const p=AI_PROMPT[m];document.getElementById('aiPromptQ').textContent=p[0];document.getElementById('aiPromptA').innerHTML=p[1];
-    initHeatboard();wireArticles(m);updateHeatmap(m);
+    initHeatboard();wireArticles(m);updateHeatmap(m);renderWatchlist(m);
   }
   function initHeatboard(){
     const board=document.getElementById('heatboard');
@@ -1000,6 +1026,34 @@
     const j=await idxFetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(key)+'?interval=1d&range=1d'+(force?'&_='+Date.now():''));const meta=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].meta;if(!meta||!meta.regularMarketPrice)return null;const prev=meta.chartPreviousClose||meta.previousClose;if(!prev)return null;return{price:'$'+Number(meta.regularMarketPrice).toLocaleString('en-US',{maximumFractionDigits:2}),pct:(meta.regularMarketPrice-prev)/prev*100};
   }
   async function heatStockPct(m,key,force){const q=await heatStockQuote(m,key,force);return q?q.pct:null;}
+  /* ===== 관심종목(즐겨찾기) 홈 렌더 ===== */
+  function wlHref(it){return it.url||(it.market==='kr'?'stock.html?code='+encodeURIComponent(it.id):it.market==='us'?'stock-us.html?t='+encodeURIComponent(it.id):'stock-coin.html');}
+  function wlBadge(m){return m==='kr'?'🇰🇷 국장':m==='us'?'🇺🇸 미장':'₿ 코인';}
+  let WL_KEY=0;
+  async function renderWatchlist(m){
+    m=m||activeMarket();
+    const sec=document.getElementById('watchSec'),grid=document.getElementById('watchGrid');if(!sec||!grid)return;
+    const items=(window.RichflowWatch?RichflowWatch.list():[]).filter(x=>x.market===m);
+    const cnt=document.getElementById('watchCount');
+    if(!items.length){sec.style.display='none';grid.innerHTML='';return;}
+    sec.style.display='';if(cnt)cnt.textContent=items.length+'종목';
+    grid.innerHTML=items.map(it=>`<a class="watch-item" href="${wlHref(it)}" data-id="${heatEsc(it.id)}" data-m="${it.market}">${heatLogoMarkup(it.market,it.id,it.name,'wl-logo')}<div class="wl-body"><div class="wl-name">${heatEsc(it.name||it.id)}</div><div class="wl-sub"><span class="wl-badge">${wlBadge(it.market)}</span><span>${heatEsc(it.id)}</span></div></div><div class="wl-right"><div class="wl-px" data-px>·</div><div class="wl-pct" data-pct></div></div><span class="wl-x" title="관심종목 해제" data-x>×</span></a>`).join('');
+    grid.querySelectorAll('.wl-x').forEach(x=>{x.onclick=e=>{e.preventDefault();e.stopPropagation();const a=x.closest('.watch-item');if(window.RichflowWatch)RichflowWatch.remove(a.dataset.m,a.dataset.id);};});
+    const key=++WL_KEY;grid.dataset.key=String(key);
+    items.forEach(async it=>{
+      try{const q=await heatStockQuote(it.market,it.id,false);if(String(key)!==grid.dataset.key)return;
+        const a=grid.querySelector('.watch-item[data-m="'+it.market+'"][data-id="'+(window.CSS&&CSS.escape?CSS.escape(it.id):it.id)+'"]');if(!a)return;
+        const px=a.querySelector('[data-px]'),pc=a.querySelector('[data-pct]');
+        if(q){if(px)px.textContent=q.price;if(pc){pc.textContent=heatPctText(q.pct);pc.className='wl-pct '+(q.pct>=0?'up':'down');}}
+        else if(px){px.textContent='—';}
+      }catch(e){}
+    });
+  }
+  window.addEventListener('richflow:watch-change',function(){renderWatchlist();});
+  document.addEventListener('DOMContentLoaded',function(){
+    const clr=document.getElementById('watchClear');
+    if(clr)clr.onclick=function(){const m=activeMarket();if(!window.RichflowWatch)return;if(!confirm('이 마켓의 관심종목을 모두 해제할까요?'))return;RichflowWatch.list().filter(x=>x.market===m).forEach(x=>RichflowWatch.remove(x.market,x.id));};
+  });
   function heatEsc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function heatSectorName(sec){return (sec.querySelector('.slabel')?.childNodes[0]?.textContent||'산업').trim();}
   function heatSectorIcon(sector){return({'반도체':'◈','반도체 소부장':'◇','2차전지':'⚡','자동차':'◆','바이오·제약':'✚','금융':'₩','인터넷·플랫폼':'◎','조선':'⚓','방산':'▲','전력·에너지':'ϟ','로봇·SI':'✦','화장품·소비재':'✿','엔터·미디어':'▶','철강·화학':'⬢','건설·유통':'▦','통신':'◉','지주':'▣','리츠':'⌂','에너지':'◆','헬스케어':'✚','빅테크':'◎','소비재':'●','전기차':'⚡'}[sector]||'▦');}
