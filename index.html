@@ -1019,10 +1019,11 @@
     const list=sectorLiveList(board);if(list.length<3)return;
     const maxAbs=Math.max(...list.map(s=>Math.abs(s.avg)),0.01);
     const row=s=>[s.name,heatPctText(s.avg),Math.max(6,Math.round(Math.abs(s.avg)/maxAbs*100)),s.avg>=0?1:0];
-    const rank=[...list].sort((a,b)=>b.avg-a.avg).slice(0,6).map(row);
-    const flow=[...list].sort((a,b)=>Math.abs(b.avg)-Math.abs(a.avg)).slice(0,6).map(row);
+    const desc=[...list].sort((a,b)=>b.avg-a.avg);
+    const rank=desc.slice(0,6).map(row);
+    const flow=[...desc.slice(0,3),...desc.slice(-3).reverse()].map(row);
     const ss=document.getElementById('sideSector');if(ss)ss.innerHTML=`<h3>🏭 섹터 등락 순위 <span class="hint">실시간</span></h3>`+themeRows(rank);
-    const st=document.getElementById('sideTheme');if(st)st.innerHTML=`<h3>💠 섹터 자금 흐름 <span class="hint">등락률 기준 추정</span></h3>`+themeRows(flow);
+    const st=document.getElementById('sideTheme');if(st)st.innerHTML=`<h3>💠 섹터 자금 흐름 <span class="hint">유입·유출 상위</span></h3>`+themeRows(flow);
   }
   /* 하이퍼리퀴드 xyz dex(24시간 주식 perp ~40종목: MSFT·AAPL·NVDA 등) — 한 번 받아 캐시 */
   let HL_CACHE=null, HL_TS=0;
