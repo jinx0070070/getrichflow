@@ -222,6 +222,7 @@
           <div class="chart-tools">
             <button id="typeBtn" class="toolbtn" title="캔들/라인 전환">📊 캔들</button>
             <button id="maBtn" class="toolbtn" title="이동평균선 20·60">📈 이평선</button>
+            <button id="bbBtn" class="toolbtn" title="볼린저밴드 20·2σ">〰️ 볼린저</button>
             <button id="drawBtn" class="toolbtn" title="추세선: 드래그로 사선">✏️ 선</button>
             <button id="hlineBtn" class="toolbtn" title="수평선(지지/저항): 클릭한 가격에 가로선">➖ 수평선</button>
             <button id="clearBtn" class="toolbtn" title="그린 선 모두 지우기">🗑️</button>
@@ -457,7 +458,7 @@
     function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
     /* ===== 캔들 차트 엔진 (드래그 이동 + 휠 확대/축소) ===== */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,draws:[],sel:-1,tool:'trend'};
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,bb:false,draws:[],sel:-1,tool:'trend'};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
     function niceStep(raw){ if(!(raw>0))return 1; const p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<1.5?1:f<3?2:f<7?5:10)*p; }
     function fmtPx(p){ return p>=1000? p.toLocaleString('en-US',{maximumFractionDigits:0}) : (p>=1?p.toFixed(2):p.toFixed(4)); }
@@ -465,6 +466,7 @@
     function xAbs(abs){ return CH.mL + CH.slot*((abs-CH.i0)+0.5); }
     function yPrice(p){ const cY=CH.mT+CH.plotH/2, base=CH.mT+(CH.hi-p)/((CH.hi-CH.lo)||1)*CH.plotH; return cY+(base-cY)*CH.yScale+CH.yShift; }
     function sma(period){ const f=CH.full,out=new Array(f.length).fill(null); let sum=0; for(let i=0;i<f.length;i++){ sum+=f[i].c; if(i>=period)sum-=f[i-period].c; if(i>=period-1)out[i]=sum/period; } return out; }
+    function bollinger(period,mult){ const f=CH.full,mid=sma(period),up=new Array(f.length).fill(null),lo=new Array(f.length).fill(null); for(let i=period-1;i<f.length;i++){ let s=0; for(let j=i-period+1;j<=i;j++){ const d=f[j].c-mid[i]; s+=d*d; } const sd=Math.sqrt(s/period); up[i]=mid[i]+mult*sd; lo[i]=mid[i]-mult*sd; } return {mid:mid,up:up,lo:lo}; }
     function fmtT(sec){
       const d=new Date(sec*1000), M=d.getMonth()+1, D=d.getDate(), h=d.getHours(), mi=d.getMinutes();
       if(CH.intraday) return M+'/'+D+' '+String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
@@ -496,7 +498,9 @@
           const yo=yPrice(c.o), yc=yPrice(c.c), by=Math.min(yo,yc), bh=Math.max(thin?0.6:1,Math.abs(yo-yc));
           g+='<rect x="'+(x-bw/2).toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+col+'"/>'; });
       }
-      if(CH.ma){ [[20,'#e6a23c'],[60,'#8b5cf6']].forEach(pc=>{ const arr=sma(pc[0]); let pts=''; for(let i=0;i<n;i++){ const v=arr[CH.i0+i]; if(v==null)continue; pts+=xCenter(i).toFixed(1)+','+yPrice(v).toFixed(1)+' '; } if(pts)g+='<polyline points="'+pts.trim()+'" fill="none" stroke="'+pc[1]+'" stroke-width="1.2" opacity=".92"/>'; }); g+='<text x="'+(CH.mL+4)+'" y="'+(CH.mT+11)+'" font-size="9.5" font-weight="800"><tspan fill="#e6a23c">MA20</tspan> <tspan fill="#8b5cf6">MA60</tspan></text>'; }
+      if(CH.bb){ const bb=bollinger(20,2); const upP=[],loP=[]; let midS=''; for(let i=0;i<n;i++){ const abs=CH.i0+i; if(bb.up[abs]==null)continue; const x=xCenter(i); upP.push(x.toFixed(1)+','+yPrice(bb.up[abs]).toFixed(1)); loP.push(x.toFixed(1)+','+yPrice(bb.lo[abs]).toFixed(1)); midS+=x.toFixed(1)+','+yPrice(bb.mid[abs]).toFixed(1)+' '; } if(upP.length){ g+='<polygon points="'+upP.join(' ')+' '+loP.slice().reverse().join(' ')+'" fill="rgba(124,108,255,.07)"/>'; g+='<polyline points="'+upP.join(' ')+'" fill="none" stroke="#7c6cff" stroke-width="1" opacity=".8"/>'; g+='<polyline points="'+loP.join(' ')+'" fill="none" stroke="#7c6cff" stroke-width="1" opacity=".8"/>'; g+='<polyline points="'+midS.trim()+'" fill="none" stroke="#7c6cff" stroke-width="1" stroke-dasharray="3 2" opacity=".7"/>'; } }
+      if(CH.ma){ [[20,'#e6a23c'],[60,'#8b5cf6']].forEach(pc=>{ const arr=sma(pc[0]); let pts=''; for(let i=0;i<n;i++){ const v=arr[CH.i0+i]; if(v==null)continue; pts+=xCenter(i).toFixed(1)+','+yPrice(v).toFixed(1)+' '; } if(pts)g+='<polyline points="'+pts.trim()+'" fill="none" stroke="'+pc[1]+'" stroke-width="1.2" opacity=".92"/>'; }); }
+      if(CH.ma||CH.bb){ g+='<text x="'+(CH.mL+4)+'" y="'+(CH.mT+11)+'" font-size="9.5" font-weight="800">'+(CH.ma?'<tspan fill="#e6a23c">MA20</tspan> <tspan fill="#8b5cf6">MA60</tspan> ':'')+(CH.bb?'<tspan fill="#7c6cff">BB(20,2)</tspan>':'')+'</text>'; }
       const labN=Math.min(6,n);
       for(let k=0;k<labN;k++){ const i=Math.round(k*(n-1)/((labN-1)||1)), x=xCenter(i);
         g+='<text x="'+x.toFixed(1)+'" y="'+(CH.vbH-8)+'" fill="#8a909b" font-size="9.5" font-weight="600" text-anchor="middle">'+fmtT(d[i].t,CH.tf)+'</text>'; }
@@ -659,6 +663,7 @@
       if(magBtn)magBtn.onclick=()=>{ CH.magnet=!CH.magnet; magBtn.classList.toggle('on',CH.magnet); magBtn.textContent=CH.magnet?'🧲 자석 ON':'🧲 무자석'; };
       const typeBtn=$('typeBtn'); if(typeBtn)typeBtn.onclick=()=>{ CH.type=CH.type==='candle'?'line':'candle'; typeBtn.textContent=CH.type==='candle'?'📊 캔들':'📈 라인'; typeBtn.classList.toggle('on',CH.type==='line'); redraw(); };
       const maBtn=$('maBtn'); if(maBtn)maBtn.onclick=()=>{ CH.ma=!CH.ma; maBtn.classList.toggle('on',CH.ma); redraw(); };
+      const bbBtn=$('bbBtn'); if(bbBtn)bbBtn.onclick=()=>{ CH.bb=!CH.bb; bbBtn.classList.toggle('on',CH.bb); redraw(); };
       const drawBtn=$('drawBtn'), hlineBtn=$('hlineBtn');
       function setTool(tool){ if(CH.drawMode&&CH.tool===tool){ CH.drawMode=false; } else { CH.drawMode=true; CH.tool=tool; } if(drawBtn)drawBtn.classList.toggle('on',CH.drawMode&&CH.tool==='trend'); if(hlineBtn)hlineBtn.classList.toggle('on',CH.drawMode&&CH.tool==='hline'); box.style.cursor='crosshair'; CH.sel=-1; CH._prev=null; redraw(); }
       if(drawBtn)drawBtn.onclick=()=>setTool('trend');
