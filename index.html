@@ -1012,6 +1012,18 @@
     board.querySelectorAll('.sector').forEach(sec=>{const vals=[...sec.querySelectorAll('.htile[data-live-pct]')].map(x=>+x.dataset.livePct).filter(Number.isFinite);if(!vals.length)return;const avg=vals.reduce((a,b)=>a+b,0)/vals.length,label=sec.querySelector('.slabel span');if(!label)return;label.textContent=heatPctText(avg);label.className=avg>=3?'u3':avg>=0?'u2':avg<=-3?'d3':avg<=-1.5?'d2':'d1';label.style.color='#fff';label.title='실시간 반영 '+vals.length+'개 종목 단순평균';});
   }
   async function heatMapLimit(items,limit,work){let cursor=0;async function worker(){while(cursor<items.length){const index=cursor++,item=items[index];await work(item,index);}}await Promise.all(Array.from({length:Math.min(limit,items.length)},worker));}
+  /* 라이브 히트맵 섹터 평균 → 사이드 위젯(등락 순위·자금 흐름) 실시간 반영 (국장·미장) */
+  function sectorLiveList(board){return [...board.querySelectorAll('.sector')].map(sec=>{const vals=[...sec.querySelectorAll('.htile[data-live-pct]')].map(x=>+x.dataset.livePct).filter(Number.isFinite);if(!vals.length)return null;return{name:heatSectorName(sec),avg:vals.reduce((a,b)=>a+b,0)/vals.length};}).filter(Boolean);}
+  function updateSideWidgets(board,m){
+    if(m!=='kr'&&m!=='us')return;
+    const list=sectorLiveList(board);if(list.length<3)return;
+    const maxAbs=Math.max(...list.map(s=>Math.abs(s.avg)),0.01);
+    const row=s=>[s.name,heatPctText(s.avg),Math.max(6,Math.round(Math.abs(s.avg)/maxAbs*100)),s.avg>=0?1:0];
+    const rank=[...list].sort((a,b)=>b.avg-a.avg).slice(0,6).map(row);
+    const flow=[...list].sort((a,b)=>Math.abs(b.avg)-Math.abs(a.avg)).slice(0,6).map(row);
+    const ss=document.getElementById('sideSector');if(ss)ss.innerHTML=`<h3>🏭 섹터 등락 순위 <span class="hint">실시간</span></h3>`+themeRows(rank);
+    const st=document.getElementById('sideTheme');if(st)st.innerHTML=`<h3>💠 섹터 자금 흐름 <span class="hint">등락률 기준 추정</span></h3>`+themeRows(flow);
+  }
   /* 하이퍼리퀴드 xyz dex(24시간 주식 perp ~40종목: MSFT·AAPL·NVDA 등) — 한 번 받아 캐시 */
   let HL_CACHE=null, HL_TS=0;
   async function hlPrices(){
@@ -1091,7 +1103,7 @@
       }else{
         await heatMapLimit(tiles,m==='kr'?8:6,async tile=>{const name=heatTileName(tile),key=m==='kr'?HEAT_KR_CODES[name]:new URL(tile.href).searchParams.get('t');if(!key)return;const p=await heatStockPct(m,key,force);if(Number.isFinite(p)&&document.getElementById('heatboard')===board){applyHeatPct(tile,p);updated++;}});
       }
-      if(document.getElementById('heatboard')===board){updateHeatSectorAverages(board);initHeatboard();if(status){const tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});status.textContent=updated?tm+' 갱신':'시세 연결 실패';}}
+      if(document.getElementById('heatboard')===board){updateHeatSectorAverages(board);updateSideWidgets(board,m);initHeatboard();if(status){const tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});status.textContent=updated?tm+' 갱신':'시세 연결 실패';}}
     }catch(e){if(document.getElementById('heatboard')===board&&status)status.textContent='시세 연결 실패 · 기존 값 유지 · 새로고침으로 재시도';}
     finally{HEAT_BUSY[m]=false;}
   }
