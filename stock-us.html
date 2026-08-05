@@ -73,6 +73,9 @@
   .chart-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
   .magbtn{background:var(--card-2);border:1px solid var(--line);color:var(--txt-3);font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:inherit;white-space:nowrap;margin-left:auto}
   .magbtn.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .chart-tools{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-left:auto}
+  .toolbtn{background:var(--card-2);border:1px solid var(--line);color:var(--txt-3);font-size:11px;font-weight:700;padding:5px 9px;border-radius:8px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .toolbtn.on{background:var(--brand);color:#fff;border-color:var(--brand)}
   .tf-tabs{display:flex;gap:2px;background:var(--card-2);padding:3px;border-radius:9px;flex-wrap:wrap}
   .tf-tabs button{background:none;border:none;color:var(--txt-3);font-size:11.5px;font-weight:700;padding:5px 9px;border-radius:6px;cursor:pointer;font-family:inherit}
   .tf-tabs button.on{background:var(--card);color:var(--txt);box-shadow:var(--shadow-sm)}
@@ -216,12 +219,18 @@
       <div class="card" id="chart">
         <div class="chart-head">
           <h3 style="margin:0">주가 차트</h3>
-          <button id="magBtn" class="magbtn" title="자석: 커서가 캔들 고저종에 딱 붙음">🧲 무자석</button>
+          <div class="chart-tools">
+            <button id="typeBtn" class="toolbtn" title="캔들/라인 전환">📊 캔들</button>
+            <button id="maBtn" class="toolbtn" title="이동평균선 20·60">📈 이평선</button>
+            <button id="drawBtn" class="toolbtn" title="추세선 그리기: 드래그로 선을 그어요">✏️ 선</button>
+            <button id="clearBtn" class="toolbtn" title="그린 선 모두 지우기">🧹</button>
+            <button id="magBtn" class="toolbtn" title="자석: 커서가 캔들 고저종에 딱 붙음">🧲 무자석</button>
+          </div>
           <div class="tf-tabs" id="chartTabs">
             <button data-tf="5m">5분</button><button data-tf="15m">15분</button><button data-tf="30m">30분</button><button data-tf="1h">1시간</button><button data-tf="2h">2시간</button><button data-tf="4h">4시간</button><button data-tf="12h">12시간</button><button data-tf="1d" class="on">일</button><button data-tf="1wk">주</button><button data-tf="1mo">월</button>
           </div>
         </div>
-        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=확대/축소 · Shift+드래그=구간 측정</div>
+        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축 드래그=세로확대 · Shift+드래그=구간측정 · 더블클릭=원위치</div>
         <div class="chart-ohlc" id="chartOhlc"><span class="ph">차트에 마우스를 올리면 상세 정보가 표시됩니다</span></div>
         <div class="chartbox" id="chartBox">
           <svg viewBox="0 0 720 320" id="pxChart" xmlns="http://www.w3.org/2000/svg"><text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text></svg>
@@ -447,11 +456,13 @@
     function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
     /* ===== 캔들 차트 엔진 (드래그 이동 + 휠 확대/축소) ===== */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,intraday:false,ym:false};
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,draws:[]};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
     function fmtPx(p){ return p>=1000? p.toLocaleString('en-US',{maximumFractionDigits:0}) : (p>=1?p.toFixed(2):p.toFixed(4)); }
     function xCenter(i){ return CH.mL + CH.slot*(i+0.5); }
-    function yPrice(p){ return CH.mT + (CH.hi-p)/((CH.hi-CH.lo)||1)*CH.plotH + CH.yShift; }
+    function xAbs(abs){ return CH.mL + CH.slot*((abs-CH.i0)+0.5); }
+    function yPrice(p){ const cY=CH.mT+CH.plotH/2, base=CH.mT+(CH.hi-p)/((CH.hi-CH.lo)||1)*CH.plotH; return cY+(base-cY)*CH.yScale+CH.yShift; }
+    function sma(period){ const f=CH.full,out=new Array(f.length).fill(null); let sum=0; for(let i=0;i<f.length;i++){ sum+=f[i].c; if(i>=period)sum-=f[i-period].c; if(i>=period-1)out[i]=sum/period; } return out; }
     function fmtT(sec){
       const d=new Date(sec*1000), M=d.getMonth()+1, D=d.getDate(), h=d.getHours(), mi=d.getMinutes();
       if(CH.intraday) return M+'/'+D+' '+String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
@@ -472,13 +483,23 @@
       if(maxV) d.forEach((c,i)=>{ const h=c.v/maxV*volH, x=xCenter(i)-bw/2;
         g+='<rect x="'+x.toFixed(1)+'" y="'+(volY0-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+(c.c>=c.o?'rgba(31,157,87,.16)':'rgba(216,69,90,.16)')+'"/>'; });
       const thin=CH.slot<3;
-      d.forEach((c,i)=>{ const x=xCenter(i), up=c.c>=c.o, col=up?'#1f9d57':'#d8455a';
-        g+='<line x1="'+x.toFixed(1)+'" y1="'+yPrice(c.h).toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+yPrice(c.l).toFixed(1)+'" stroke="'+col+'" stroke-width="'+(thin?0.6:1)+'"/>';
-        const yo=yPrice(c.o), yc=yPrice(c.c), by=Math.min(yo,yc), bh=Math.max(thin?0.6:1,Math.abs(yo-yc));
-        g+='<rect x="'+(x-bw/2).toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+col+'"/>'; });
+      if(CH.type==='line'){
+        let pts=''; d.forEach((c,i)=>{ pts+=xCenter(i).toFixed(1)+','+yPrice(c.c).toFixed(1)+' '; });
+        const up=d[n-1].c>=d[0].c, col=up?'#1f9d57':'#d8455a', ab=(CH.mT+CH.plotH).toFixed(1);
+        g+='<polygon points="'+xCenter(0).toFixed(1)+','+ab+' '+pts+xCenter(n-1).toFixed(1)+','+ab+'" fill="'+(up?'rgba(31,157,87,.09)':'rgba(216,69,90,.09)')+'"/>';
+        g+='<polyline points="'+pts.trim()+'" fill="none" stroke="'+col+'" stroke-width="1.6" stroke-linejoin="round"/>';
+      } else {
+        d.forEach((c,i)=>{ const x=xCenter(i), up=c.c>=c.o, col=up?'#1f9d57':'#d8455a';
+          g+='<line x1="'+x.toFixed(1)+'" y1="'+yPrice(c.h).toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+yPrice(c.l).toFixed(1)+'" stroke="'+col+'" stroke-width="'+(thin?0.6:1)+'"/>';
+          const yo=yPrice(c.o), yc=yPrice(c.c), by=Math.min(yo,yc), bh=Math.max(thin?0.6:1,Math.abs(yo-yc));
+          g+='<rect x="'+(x-bw/2).toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+col+'"/>'; });
+      }
+      if(CH.ma){ [[20,'#e6a23c'],[60,'#8b5cf6']].forEach(pc=>{ const arr=sma(pc[0]); let pts=''; for(let i=0;i<n;i++){ const v=arr[CH.i0+i]; if(v==null)continue; pts+=xCenter(i).toFixed(1)+','+yPrice(v).toFixed(1)+' '; } if(pts)g+='<polyline points="'+pts.trim()+'" fill="none" stroke="'+pc[1]+'" stroke-width="1.2" opacity=".92"/>'; }); g+='<text x="'+(CH.mL+4)+'" y="'+(CH.mT+11)+'" font-size="9.5" font-weight="800"><tspan fill="#e6a23c">MA20</tspan> <tspan fill="#8b5cf6">MA60</tspan></text>'; }
       const labN=Math.min(6,n);
       for(let k=0;k<labN;k++){ const i=Math.round(k*(n-1)/((labN-1)||1)), x=xCenter(i);
         g+='<text x="'+x.toFixed(1)+'" y="'+(CH.vbH-8)+'" fill="#8a909b" font-size="9.5" font-weight="600" text-anchor="middle">'+fmtT(d[i].t,CH.tf)+'</text>'; }
+      CH.draws.forEach(dr=>{ const x0=xAbs(dr.a0),y0=yPrice(dr.p0),x1=xAbs(dr.a1),y1=yPrice(dr.p1); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="1.5"/>'; });
+      if(CH._prev){ const p=CH._prev,x0=xAbs(p.a0),y0=yPrice(p.p0),x1=xAbs(p.a1),y1=yPrice(p.p1); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="1.5" stroke-dasharray="4 3"/>'; }
       g+='<g id="pxCross" style="display:none">'
         +'<line id="cvx" y1="'+CH.mT+'" y2="'+(CH.mT+CH.plotH)+'" stroke="#5c6470" stroke-width="1" stroke-dasharray="3 3"/>'
         +'<line id="cvy" x1="'+CH.mL+'" x2="'+(CH.mL+CH.plotW)+'" stroke="#5c6470" stroke-width="1" stroke-dasharray="3 3"/>'
@@ -514,7 +535,7 @@
       '1mo':{iv:'1mo',rg:'max',vis:60,ym:1,lbl:'월봉'}
     };
     async function loadChart(tf){
-      CH.tf=tf; CH.yShift=0; const cfg=TF[tf]||TF['1d']; CH.intraday=!!cfg.intra; CH.ym=!!cfg.ym;
+      CH.tf=tf; CH.yShift=0; CH.yScale=1; CH.draws=[]; CH._prev=null; const cfg=TF[tf]||TF['1d']; CH.intraday=!!cfg.intra; CH.ym=!!cfg.ym;
       const svg=$('pxChart'); if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text>';
       const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval='+cfg.iv+'&range='+cfg.rg);
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
@@ -528,7 +549,7 @@
       const dd=CH.data; if(dd.length){ const first=dd[0].o, last=dd[dd.length-1].c, pc=first?(last-first)/first*100:0, oh=$('chartOhlc');
         if(oh)oh.innerHTML='<span>'+cfg.lbl+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">드래그·휠·Shift+드래그</span>'; }
     }
-    function priceAt(y){ return CH.hi-(y-CH.mT-CH.yShift)/CH.plotH*(CH.hi-CH.lo); }
+    function priceAt(y){ const cY=CH.mT+CH.plotH/2, base=(y-CH.yShift-cY)/(CH.yScale||1)+cY; return CH.hi-(base-CH.mT)/CH.plotH*(CH.hi-CH.lo); }
     function setupChartInteract(){
       const box=$('chartBox'), svg=$('pxChart'), tip=$('chartTip'); if(!box||!svg)return;
       box.style.cursor='crosshair';
@@ -578,22 +599,40 @@
         if(cy!=null){ const vbDelta=(cy-dragY)/r.height*CH.vbH; CH.yShift=dragYShift+vbDelta; }
         redraw(); }
       function zoom(cx,dir){ const vis=CH.i1-CH.i0, cIdx=idxAt(cx), frac=CH.data.length?cIdx/CH.data.length:0.5, abs=CH.i0+cIdx; let nv=Math.round(vis*(dir>0?1.25:0.8)); nv=Math.max(15,Math.min(Math.min(CH.full.length,500),nv)); let ni0=Math.round(abs-frac*nv); ni0=Math.max(0,Math.min(CH.full.length-nv,ni0)); CH.i0=ni0; CH.i1=ni0+nv; redraw(); }
-      let dragging=false, dragX=0, dragY=0, dragI0=0, dragYShift=0, measuring=false, mI=0, mP=0;
+      const isAxis=cx=>{ const r=svg.getBoundingClientRect(); if(!r.width)return false; const vbX=(cx-r.left)/r.width*CH.vbW; return vbX>=CH.mL+CH.plotW-2; };
+      const absAt=cx=>CH.i0+idxAt(cx);
+      const drawP=(cx,cy)=>CH.magnet?CH.data[idxAt(cx)].c:priceAt(vbYof(cy));
+      let dragging=false, dragX=0, dragY=0, dragI0=0, dragYShift=0, measuring=false, mI=0, mP=0, yscaling=false, ysY=0, ysScale=1, drawing=false;
       box.addEventListener('mousedown',e=>{
+        if(CH.drawMode){ drawing=true; const a=absAt(e.clientX),p=drawP(e.clientX,e.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; hide(); e.preventDefault(); return; }
+        if(isAxis(e.clientX)){ yscaling=true; ysY=e.clientY; ysScale=CH.yScale; box.style.cursor='ns-resize'; hide(); e.preventDefault(); return; }
         if(e.shiftKey){ measuring=true; mI=idxAt(e.clientX); const c=CH.data[mI]; mP=CH.magnet?c.c:priceAt(vbYof(e.clientY)); hide(); e.preventDefault(); return; }
         hideMeas(); dragging=true; dragX=e.clientX; dragY=e.clientY; dragI0=CH.i0; dragYShift=CH.yShift; box.style.cursor='grabbing'; hide(); e.preventDefault();
       });
-      window.addEventListener('mouseup',()=>{ if(dragging){dragging=false; box.style.cursor='crosshair';} measuring=false; });
-      box.addEventListener('mousemove',e=>{ if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX,e.clientY); else showCross(e.clientX,e.clientY); });
-      box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring)hide(); });
+      window.addEventListener('mouseup',()=>{
+        if(drawing){ drawing=false; if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; redraw(); } }
+        if(dragging){dragging=false; box.style.cursor='crosshair';}
+        if(yscaling){yscaling=false; box.style.cursor='crosshair';}
+        measuring=false;
+      });
+      box.addEventListener('mousemove',e=>{
+        if(drawing&&CH._prev){ CH._prev.a1=absAt(e.clientX); CH._prev.p1=drawP(e.clientX,e.clientY); redraw(); return; }
+        if(yscaling){ const r=svg.getBoundingClientRect(); const dy=(ysY-e.clientY)/Math.max(40,r.height); CH.yScale=Math.max(0.25,Math.min(8,ysScale*(1+dy*3))); redraw(); return; }
+        if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX,e.clientY); else showCross(e.clientX,e.clientY);
+      });
+      box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring&&!drawing&&!yscaling)hide(); });
       box.addEventListener('wheel',e=>{ e.preventDefault(); zoom(e.clientX, e.deltaY>0?1:-1); },{passive:false});
-      box.addEventListener('dblclick',e=>{ CH.yShift=0; redraw(); });
+      box.addEventListener('dblclick',e=>{ CH.yShift=0; CH.yScale=1; redraw(); });
       let tX=0,tY=0,tI0=0,tYS=0;
       box.addEventListener('touchstart',e=>{ if(e.touches[0]){tX=e.touches[0].clientX;tY=e.touches[0].clientY;tI0=CH.i0;tYS=CH.yShift;} },{passive:true});
       box.addEventListener('touchmove',e=>{ if(!e.touches[0])return; const cx=e.touches[0].clientX, cy=e.touches[0].clientY; if(Math.abs(cx-tX)>6||Math.abs(cy-tY)>6){ dragX=tX; dragY=tY; dragI0=tI0; dragYShift=tYS; pan(cx,cy);} else showCross(cx,cy); },{passive:true});
       box.addEventListener('touchend',()=>setTimeout(hide,1500));
       const magBtn=$('magBtn'); CH.magnet=false;
       if(magBtn)magBtn.onclick=()=>{ CH.magnet=!CH.magnet; magBtn.classList.toggle('on',CH.magnet); magBtn.textContent=CH.magnet?'🧲 자석 ON':'🧲 무자석'; };
+      const typeBtn=$('typeBtn'); if(typeBtn)typeBtn.onclick=()=>{ CH.type=CH.type==='candle'?'line':'candle'; typeBtn.textContent=CH.type==='candle'?'📊 캔들':'📈 라인'; typeBtn.classList.toggle('on',CH.type==='line'); redraw(); };
+      const maBtn=$('maBtn'); if(maBtn)maBtn.onclick=()=>{ CH.ma=!CH.ma; maBtn.classList.toggle('on',CH.ma); redraw(); };
+      const drawBtn=$('drawBtn'); if(drawBtn)drawBtn.onclick=()=>{ CH.drawMode=!CH.drawMode; drawBtn.classList.toggle('on',CH.drawMode); box.style.cursor='crosshair'; };
+      const clearBtn=$('clearBtn'); if(clearBtn)clearBtn.onclick=()=>{ CH.draws=[]; CH._prev=null; redraw(); };
     }
 
     async function loadStock(){
