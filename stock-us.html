@@ -230,7 +230,7 @@
             <button data-tf="5m">5분</button><button data-tf="15m">15분</button><button data-tf="30m">30분</button><button data-tf="1h">1시간</button><button data-tf="2h">2시간</button><button data-tf="4h">4시간</button><button data-tf="12h">12시간</button><button data-tf="1d" class="on">일</button><button data-tf="1wk">주</button><button data-tf="1mo">월</button>
           </div>
         </div>
-        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축에서 드래그·휠=세로확대 · Shift+드래그=구간측정 · ✏️선 그린 뒤 그 선 클릭=삭제 · 더블클릭=원위치</div>
+        <div style="font-size:10.5px;color:var(--txt-3);margin-bottom:6px">🖱️ 드래그=이동 · 휠=가로확대 · 오른쪽 가격축 드래그·휠=세로확대(눈금 자동) · Shift+드래그=구간측정 · ✏️선: 드래그로 그리기(Shift=수평/수직) · 선 클릭=선택 후 ×로 삭제 · 더블클릭=원위치</div>
         <div class="chart-ohlc" id="chartOhlc"><span class="ph">차트에 마우스를 올리면 상세 정보가 표시됩니다</span></div>
         <div class="chartbox" id="chartBox">
           <svg viewBox="0 0 720 320" id="pxChart" xmlns="http://www.w3.org/2000/svg"><text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text></svg>
@@ -456,8 +456,9 @@
     function num(s){ return parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,'')); }
 
     /* ===== 캔들 차트 엔진 (드래그 이동 + 휠 확대/축소) ===== */
-    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,draws:[]};
+    const CH={vbW:720,vbH:320,mL:8,mR:60,mT:10,mB:24,full:[],data:[],i0:0,i1:0,slot:0,tf:'1d',hi:1,lo:0,yShift:0,yScale:1,intraday:false,ym:false,type:'candle',ma:false,draws:[],sel:-1};
     CH.plotW=CH.vbW-CH.mL-CH.mR; CH.plotH=CH.vbH-CH.mT-CH.mB;
+    function niceStep(raw){ if(!(raw>0))return 1; const p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<1.5?1:f<3?2:f<7?5:10)*p; }
     function fmtPx(p){ return p>=1000? p.toLocaleString('en-US',{maximumFractionDigits:0}) : (p>=1?p.toFixed(2):p.toFixed(4)); }
     function xCenter(i){ return CH.mL + CH.slot*(i+0.5); }
     function xAbs(abs){ return CH.mL + CH.slot*((abs-CH.i0)+0.5); }
@@ -477,9 +478,9 @@
       const pad=(hi-lo)*0.06||1; CH.hi=hi+pad; CH.lo=lo-pad; CH.slot=CH.plotW/n;
       const bw=Math.max(1, Math.min(14, CH.slot*0.66)), volH=CH.plotH*0.15, volY0=CH.mT+CH.plotH;
       let g='';
-      for(let s=0;s<=5;s++){ const p=CH.hi-(CH.hi-CH.lo)*s/5, y=yPrice(p);
+      { const pTop=priceAt(CH.mT), pBot=priceAt(CH.mT+CH.plotH), step=niceStep((pTop-pBot)/5); for(let p=Math.ceil(pBot/step)*step; p<=pTop; p+=step){ const y=yPrice(p); if(y<CH.mT-0.5||y>CH.mT+CH.plotH+0.5)continue;
         g+='<line x1="'+CH.mL+'" y1="'+y.toFixed(1)+'" x2="'+(CH.mL+CH.plotW)+'" y2="'+y.toFixed(1)+'" stroke="#e6e8ec"/>';
-        g+='<text x="'+(CH.vbW-CH.mR+5)+'" y="'+(y+3).toFixed(1)+'" fill="#8a909b" font-size="10" font-weight="600">'+fmtPx(p)+'</text>'; }
+        g+='<text x="'+(CH.vbW-CH.mR+5)+'" y="'+(y+3).toFixed(1)+'" fill="#8a909b" font-size="10" font-weight="600">'+fmtPx(p)+'</text>'; } }
       if(maxV) d.forEach((c,i)=>{ const h=c.v/maxV*volH, x=xCenter(i)-bw/2;
         g+='<rect x="'+x.toFixed(1)+'" y="'+(volY0-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+(c.c>=c.o?'rgba(31,157,87,.16)':'rgba(216,69,90,.16)')+'"/>'; });
       const thin=CH.slot<3;
@@ -498,7 +499,7 @@
       const labN=Math.min(6,n);
       for(let k=0;k<labN;k++){ const i=Math.round(k*(n-1)/((labN-1)||1)), x=xCenter(i);
         g+='<text x="'+x.toFixed(1)+'" y="'+(CH.vbH-8)+'" fill="#8a909b" font-size="9.5" font-weight="600" text-anchor="middle">'+fmtT(d[i].t,CH.tf)+'</text>'; }
-      CH.draws.forEach(dr=>{ const x0=xAbs(dr.a0),y0=yPrice(dr.p0),x1=xAbs(dr.a1),y1=yPrice(dr.p1); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="1.5"/>'; });
+      CH.draws.forEach((dr,k)=>{ const x0=xAbs(dr.a0),y0=yPrice(dr.p0),x1=xAbs(dr.a1),y1=yPrice(dr.p1),seld=(k===CH.sel); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="'+(seld?2.4:1.5)+'"/>'; if(seld){ g+='<circle cx="'+x0.toFixed(1)+'" cy="'+y0.toFixed(1)+'" r="3.2" fill="#fff" stroke="#2f6df6" stroke-width="1.4"/><circle cx="'+x1.toFixed(1)+'" cy="'+y1.toFixed(1)+'" r="3.2" fill="#fff" stroke="#2f6df6" stroke-width="1.4"/>'; const bx=((x0+x1)/2).toFixed(1),by=((y0+y1)/2).toFixed(1); g+='<circle cx="'+bx+'" cy="'+by+'" r="7.5" fill="#d8455a"/><text x="'+bx+'" y="'+(+by+3.4).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">×</text>'; } });
       if(CH._prev){ const p=CH._prev,x0=xAbs(p.a0),y0=yPrice(p.p0),x1=xAbs(p.a1),y1=yPrice(p.p1); g+='<line x1="'+x0.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="#2f6df6" stroke-width="1.5" stroke-dasharray="4 3"/>'; }
       g+='<g id="pxCross" style="display:none">'
         +'<line id="cvx" y1="'+CH.mT+'" y2="'+(CH.mT+CH.plotH)+'" stroke="#5c6470" stroke-width="1" stroke-dasharray="3 3"/>'
@@ -535,7 +536,7 @@
       '1mo':{iv:'1mo',rg:'max',vis:60,ym:1,lbl:'월봉'}
     };
     async function loadChart(tf){
-      CH.tf=tf; CH.yShift=0; CH.yScale=1; CH.draws=[]; CH._prev=null; const cfg=TF[tf]||TF['1d']; CH.intraday=!!cfg.intra; CH.ym=!!cfg.ym;
+      CH.tf=tf; CH.yShift=0; CH.yScale=1; CH.draws=[]; CH._prev=null; CH.sel=-1; const cfg=TF[tf]||TF['1d']; CH.intraday=!!cfg.intra; CH.ym=!!cfg.ym;
       const svg=$('pxChart'); if(svg)svg.innerHTML='<text x="360" y="160" text-anchor="middle" fill="#9aa0ab" font-size="13">차트 불러오는 중…</text>';
       const j=await fetchJSON('https://query1.finance.yahoo.com/v8/finance/chart/'+T+'?interval='+cfg.iv+'&range='+cfg.rg);
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0];
@@ -606,25 +607,33 @@
       const segDist=(px,py,x0,y0,x1,y1)=>{ const dx=x1-x0,dy=y1-y0,L=dx*dx+dy*dy; let t=L?((px-x0)*dx+(py-y0)*dy)/L:0; t=Math.max(0,Math.min(1,t)); const ex=x0+t*dx,ey=y0+t*dy; return Math.hypot(px-ex,py-ey); };
       const hitDraw=(cx,cy)=>{ const p=vbPt(cx,cy); for(let k=CH.draws.length-1;k>=0;k--){ const d=CH.draws[k]; if(segDist(p.x,p.y,xAbs(d.a0),yPrice(d.p0),xAbs(d.a1),yPrice(d.p1))<6)return k; } return -1; };
       const yZoom=f=>{ CH.yScale=Math.max(0.25,Math.min(8,CH.yScale*f)); redraw(); };
+      const badgeHit=(cx,cy)=>{ if(CH.sel<0||CH.sel>=CH.draws.length)return false; const d=CH.draws[CH.sel],bx=(xAbs(d.a0)+xAbs(d.a1))/2,by=(yPrice(d.p0)+yPrice(d.p1))/2,p=vbPt(cx,cy); return Math.hypot(p.x-bx,p.y-by)<9; };
       let dragging=false, dragX=0, dragY=0, dragI0=0, dragYShift=0, measuring=false, mI=0, mP=0, yscaling=false, ysY=0, ysScale=1, drawing=false, drDownX=0, drDownY=0, drMoved=false;
       box.addEventListener('mousedown',e=>{
-        if(CH.drawMode){ drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; const a=absAt(e.clientX),p=drawP(e.clientX,e.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; hide(); e.preventDefault(); return; }
+        if(CH.drawMode){ if(badgeHit(e.clientX,e.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); e.preventDefault(); return; } drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; const a=absAt(e.clientX),p=drawP(e.clientX,e.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; hide(); e.preventDefault(); return; }
         if(isAxis(e.clientX)){ yscaling=true; ysY=e.clientY; ysScale=CH.yScale; box.style.cursor='ns-resize'; hide(); e.preventDefault(); return; }
         if(e.shiftKey){ measuring=true; mI=idxAt(e.clientX); const c=CH.data[mI]; mP=CH.magnet?c.c:priceAt(vbYof(e.clientY)); hide(); e.preventDefault(); return; }
         hideMeas(); dragging=true; dragX=e.clientX; dragY=e.clientY; dragI0=CH.i0; dragYShift=CH.yShift; box.style.cursor='grabbing'; hide(); e.preventDefault();
       });
       window.addEventListener('mouseup',e=>{
-        if(drawing){ drawing=false; if(!drMoved){ CH._prev=null; const k=hitDraw(e.clientX,e.clientY); if(k>=0)CH.draws.splice(k,1); redraw(); } else if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; redraw(); } }
+        if(drawing){ drawing=false;
+          if(drMoved){ if(CH._prev){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); } CH._prev=null; CH.sel=-1; redraw(); }
+          else { CH._prev=null; CH.sel=hitDraw(e.clientX,e.clientY); redraw(); }
+        }
         if(dragging){dragging=false; box.style.cursor='crosshair';}
         if(yscaling){yscaling=false; box.style.cursor='crosshair';}
         measuring=false;
       });
       box.addEventListener('mousemove',e=>{
-        if(drawing&&CH._prev){ if(Math.abs(e.clientX-drDownX)>3||Math.abs(e.clientY-drDownY)>3)drMoved=true; CH._prev.a1=absAt(e.clientX); CH._prev.p1=drawP(e.clientX,e.clientY); redraw(); return; }
+        if(drawing&&CH._prev){ if(Math.abs(e.clientX-drDownX)>3||Math.abs(e.clientY-drDownY)>3)drMoved=true; const na=absAt(e.clientX),np=drawP(e.clientX,e.clientY);
+          if(e.shiftKey){ const x0=xAbs(CH._prev.a0),y0=yPrice(CH._prev.p0),xc=xAbs(na),yc=yPrice(np); if(Math.abs(xc-x0)>=Math.abs(yc-y0)){ CH._prev.a1=na; CH._prev.p1=CH._prev.p0; } else { CH._prev.a1=CH._prev.a0; CH._prev.p1=np; } }
+          else { CH._prev.a1=na; CH._prev.p1=np; }
+          redraw(); return; }
         if(yscaling){ const r=svg.getBoundingClientRect(); const dy=(ysY-e.clientY)/Math.max(40,r.height); CH.yScale=Math.max(0.25,Math.min(8,ysScale*(1+dy*3))); redraw(); return; }
         if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX,e.clientY);
-        else { if(CH.drawMode)box.style.cursor=hitDraw(e.clientX,e.clientY)>=0?'pointer':'crosshair'; else box.style.cursor=isAxis(e.clientX)?'ns-resize':'crosshair'; showCross(e.clientX,e.clientY); }
+        else { if(CH.drawMode)box.style.cursor=(badgeHit(e.clientX,e.clientY)||hitDraw(e.clientX,e.clientY)>=0)?'pointer':'crosshair'; else box.style.cursor=isAxis(e.clientX)?'ns-resize':'crosshair'; showCross(e.clientX,e.clientY); }
       });
+      window.addEventListener('keydown',e=>{ if((e.key==='Delete'||e.key==='Backspace')&&CH.drawMode&&CH.sel>=0&&CH.sel<CH.draws.length){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); e.preventDefault(); } });
       box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring&&!drawing&&!yscaling)hide(); });
       box.addEventListener('wheel',e=>{ e.preventDefault(); if(isAxis(e.clientX))yZoom(e.deltaY>0?0.9:1.1); else zoom(e.clientX, e.deltaY>0?1:-1); },{passive:false});
       box.addEventListener('dblclick',e=>{ CH.yShift=0; CH.yScale=1; redraw(); });
@@ -637,7 +646,7 @@
       const typeBtn=$('typeBtn'); if(typeBtn)typeBtn.onclick=()=>{ CH.type=CH.type==='candle'?'line':'candle'; typeBtn.textContent=CH.type==='candle'?'📊 캔들':'📈 라인'; typeBtn.classList.toggle('on',CH.type==='line'); redraw(); };
       const maBtn=$('maBtn'); if(maBtn)maBtn.onclick=()=>{ CH.ma=!CH.ma; maBtn.classList.toggle('on',CH.ma); redraw(); };
       const drawBtn=$('drawBtn'); if(drawBtn)drawBtn.onclick=()=>{ CH.drawMode=!CH.drawMode; drawBtn.classList.toggle('on',CH.drawMode); box.style.cursor='crosshair'; };
-      const clearBtn=$('clearBtn'); if(clearBtn)clearBtn.onclick=()=>{ CH.draws=[]; CH._prev=null; redraw(); };
+      const clearBtn=$('clearBtn'); if(clearBtn)clearBtn.onclick=()=>{ CH.draws=[]; CH._prev=null; CH.sel=-1; redraw(); };
     }
 
     async function loadStock(){
