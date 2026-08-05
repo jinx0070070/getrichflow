@@ -589,7 +589,7 @@
       const segDist=(px,py,x0,y0,x1,y1)=>{ const dx=x1-x0,dy=y1-y0,L=dx*dx+dy*dy; let t=L?((px-x0)*dx+(py-y0)*dy)/L:0; t=Math.max(0,Math.min(1,t)); const ex=x0+t*dx,ey=y0+t*dy; return Math.hypot(px-ex,py-ey); };
       const hitDraw=(cx,cy)=>{ const p=vbPt(cx,cy); for(let k=CH.draws.length-1;k>=0;k--){ const d=CH.draws[k]; if(segDist(p.x,p.y,xAbs(d.a0),yPrice(d.p0),xAbs(d.a1),yPrice(d.p1))<6)return k; } return -1; };
       const yZoom=f=>{ CH.yScale=Math.max(0.25,Math.min(8,CH.yScale*f)); redraw(); };
-      const badgeHit=(cx,cy)=>{ if(CH.sel<0||CH.sel>=CH.draws.length)return false; const d=CH.draws[CH.sel],bx=(xAbs(d.a0)+xAbs(d.a1))/2,by=(yPrice(d.p0)+yPrice(d.p1))/2,p=vbPt(cx,cy); return Math.hypot(p.x-bx,p.y-by)<9; };
+      const badgeHit=(cx,cy)=>{ if(CH.sel<0||CH.sel>=CH.draws.length)return false; const d=CH.draws[CH.sel],bx=(xAbs(d.a0)+xAbs(d.a1))/2,by=(yPrice(d.p0)+yPrice(d.p1))/2,p=vbPt(cx,cy); return Math.hypot(p.x-bx,p.y-by)<13; };
       let dragging=false,dragX=0,dragY=0,dragI0=0,dragYShift=0,measuring=false,mI=0,mP=0,yscaling=false,ysY=0,ysScale=1,drawing=false,drDownX=0,drDownY=0,drMoved=false;
       box.addEventListener('mousedown',e=>{
         if(CH.drawMode){ if(badgeHit(e.clientX,e.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); e.preventDefault(); return; } drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; const a=absAt(e.clientX),p=drawP(e.clientX,e.clientY); CH._prev={a0:a,p0:p,a1:a,p1:p}; hide();e.preventDefault();return; }
