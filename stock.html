@@ -529,6 +529,11 @@
     function priceAt(y){ const cY=CH.mT+CH.plotH/2, H=tp(CH.hi), L=tp(CH.lo), base=(y-CH.yShift-cY)/(CH.yScale||1)+cY, tv=H-(base-CH.mT)/CH.plotH*(H-L); return CH.log?Math.pow(10,tv):tv; }
     function sma(period){ const f=CH.full,out=new Array(f.length).fill(null); let sum=0; for(let i=0;i<f.length;i++){ sum+=f[i].c; if(i>=period)sum-=f[i-period].c; if(i>=period-1)out[i]=sum/period; } return out; }
     function bollinger(period,mult){ const f=CH.full,mid=sma(period),up=new Array(f.length).fill(null),lo=new Array(f.length).fill(null); for(let i=period-1;i<f.length;i++){ let s=0; for(let j=i-period+1;j<=i;j++){ const d=f[j].c-mid[i]; s+=d*d; } const sd=Math.sqrt(s/period); up[i]=mid[i]+mult*sd; lo[i]=mid[i]-mult*sd; } return {mid:mid,up:up,lo:lo}; }
+    /* 작도선 종목·타임프레임별 저장(타임스탬프 기준이라 새 거래일 추가돼도 유지) */
+    function drawsKey(){ return 'richflow:draws:kr:'+(window.__wcode||CODE||'')+':'+CH.tf; }
+    function idxOfT(t){ const f=CH.full; if(!f.length)return -1; let best=0,bd=Infinity; for(let i=0;i<f.length;i++){ const d=Math.abs(f[i].t-t); if(d<bd){bd=d;best=i;} } return best; }
+    function saveDraws(){ try{ const s=CH.draws.map(d=>d.h?{h:1,p:d.p}:{t0:CH.full[d.a0]&&CH.full[d.a0].t,p0:d.p0,t1:CH.full[d.a1]&&CH.full[d.a1].t,p1:d.p1}).filter(d=>d.h||(d.t0&&d.t1)); localStorage.setItem(drawsKey(),JSON.stringify(s)); }catch(e){} }
+    function loadDraws(){ try{ const raw=JSON.parse(localStorage.getItem(drawsKey())||'[]'); CH.draws=raw.map(d=>d.h?{h:1,p:d.p}:{a0:idxOfT(d.t0),p0:d.p0,a1:idxOfT(d.t1),p1:d.p1}).filter(d=>d.h||(d.a0>=0&&d.a1>=0)); }catch(e){ CH.draws=[]; } }
     function fmtT(sec){ const d=new Date(sec*1000), M=d.getMonth()+1, D=d.getDate(), h=d.getHours(), mi=d.getMinutes(); if(CH.intraday)return M+'/'+D+' '+String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0'); if(CH.ym)return d.getFullYear()+'.'+M; return M+'/'+D; }
     function drawCandles(){
       const svg=$('pxChart'); CH.data=CH.full.slice(CH.i0,CH.i1); const d=CH.data, n=d.length; if(!svg)return;
@@ -572,6 +577,7 @@
       let data=ts.map((t,i)=>({t:t,o:q.open[i],h:q.high[i],l:q.low[i],c:q.close[i],v:q.volume?q.volume[i]:0})).filter(c=>c.o!=null&&c.c!=null&&c.h!=null&&c.l!=null);
       if(cfg.aggH)data=aggregate(data,cfg.aggH);
       CH.full=data; const n=data.length, vis=Math.min(cfg.vis,n); CH.i1=n; CH.i0=Math.max(0,n-vis);
+      loadDraws();
       drawCandles();
       const dd=CH.data; if(dd.length){ const first=dd[0].o, last=dd[dd.length-1].c, pc=first?(last-first)/first*100:0, oh=$('chartOhlc'); if(oh)oh.innerHTML='<span>'+cfg.lbl+' 등락 <b style="color:'+(pc>=0?'var(--up)':'var(--down)')+'">'+(pc>=0?'+':'')+pc.toFixed(2)+'%</b></span><span style="color:var(--txt-3)">드래그·휠·Shift드래그</span>'; }
     }
@@ -599,12 +605,12 @@
       const hitDraw=(cx,cy)=>{ const p=vbPt(cx,cy); for(let k=CH.draws.length-1;k>=0;k--){ const d=CH.draws[k]; const dist=d.h?Math.abs(p.y-yPrice(d.p)):segDist(p.x,p.y,xAbs(d.a0),yPrice(d.p0),xAbs(d.a1),yPrice(d.p1)); if(dist<6)return k; } return -1; };
       const startDraw=(cx,cy)=>{ if(CH.tool==='hline'){ CH._prev={h:1,p:drawP(cx,cy)}; } else { const a=absAt(cx),p=drawP(cx,cy); CH._prev={a0:a,p0:p,a1:a,p1:p}; } };
       const moveDraw=(cx,cy,shift)=>{ if(!CH._prev)return; if(CH._prev.h){ CH._prev.p=drawP(cx,cy); return; } const na=absAt(cx),np=drawP(cx,cy); if(shift){ const x0=xAbs(CH._prev.a0),y0=yPrice(CH._prev.p0),xc=xAbs(na),yc=yPrice(np); if(Math.abs(xc-x0)>=Math.abs(yc-y0)){ CH._prev.a1=na; CH._prev.p1=CH._prev.p0; } else { CH._prev.a1=CH._prev.a0; CH._prev.p1=np; } } else { CH._prev.a1=na; CH._prev.p1=np; } };
-      const endDraw=(cx,cy,moved)=>{ if(!CH._prev){ CH.sel=hitDraw(cx,cy); redraw(); return; } if(CH._prev.h){ if(!moved){ const k=hitDraw(cx,cy); if(k>=0){ CH._prev=null; CH.sel=k; redraw(); return; } } const pv=CH._prev.p; CH._prev=null; CH.draws.push({h:1,p:pv}); CH.sel=-1; redraw(); return; } if(moved){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; CH.sel=-1; redraw(); } else { CH._prev=null; CH.sel=hitDraw(cx,cy); redraw(); } };
+      const endDraw=(cx,cy,moved)=>{ if(!CH._prev){ CH.sel=hitDraw(cx,cy); redraw(); return; } if(CH._prev.h){ if(!moved){ const k=hitDraw(cx,cy); if(k>=0){ CH._prev=null; CH.sel=k; redraw(); return; } } const pv=CH._prev.p; CH._prev=null; CH.draws.push({h:1,p:pv}); CH.sel=-1; saveDraws(); redraw(); return; } if(moved){ const p=CH._prev; if(p.a0!==p.a1||p.p0!==p.p1)CH.draws.push({a0:p.a0,p0:p.p0,a1:p.a1,p1:p.p1}); CH._prev=null; CH.sel=-1; saveDraws(); redraw(); } else { CH._prev=null; CH.sel=hitDraw(cx,cy); redraw(); } };
       const yZoom=f=>{ CH.yScale=Math.max(0.25,Math.min(8,CH.yScale*f)); redraw(); };
       const badgeHit=(cx,cy)=>{ if(CH.sel<0||CH.sel>=CH.draws.length)return false; const d=CH.draws[CH.sel]; const bx=d.h?(CH.mL+CH.plotW/2):(xAbs(d.a0)+xAbs(d.a1))/2, by=d.h?yPrice(d.p):(yPrice(d.p0)+yPrice(d.p1))/2, p=vbPt(cx,cy); return Math.hypot(p.x-bx,p.y-by)<13; };
       let dragging=false,dragX=0,dragY=0,dragI0=0,dragYShift=0,measuring=false,mI=0,mP=0,yscaling=false,ysY=0,ysScale=1,drawing=false,drDownX=0,drDownY=0,drMoved=false;
       box.addEventListener('mousedown',e=>{
-        if(CH.drawMode){ if(badgeHit(e.clientX,e.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); e.preventDefault(); return; } drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; startDraw(e.clientX,e.clientY); hide();e.preventDefault();return; }
+        if(CH.drawMode){ if(badgeHit(e.clientX,e.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; saveDraws(); redraw(); e.preventDefault(); return; } drawing=true;drMoved=false;drDownX=e.clientX;drDownY=e.clientY; startDraw(e.clientX,e.clientY); hide();e.preventDefault();return; }
         if(isAxis(e.clientX)){ yscaling=true;ysY=e.clientY;ysScale=CH.yScale;box.style.cursor='ns-resize';hide();e.preventDefault();return; }
         if(e.shiftKey){measuring=true;mI=idxAt(e.clientX);const c=CH.data[mI];mP=CH.magnet?c.c:priceAt(vbYof(e.clientY));hide();e.preventDefault();return;}
         hideMeas();dragging=true;dragX=e.clientX;dragY=e.clientY;dragI0=CH.i0;dragYShift=CH.yShift;box.style.cursor='grabbing';hide();e.preventDefault();
@@ -621,7 +627,7 @@
         if(measuring)drawMeas(e.clientX,e.clientY); else if(dragging)pan(e.clientX,e.clientY);
         else { if(CH.drawMode)box.style.cursor=(badgeHit(e.clientX,e.clientY)||hitDraw(e.clientX,e.clientY)>=0)?'pointer':'crosshair'; else box.style.cursor=isAxis(e.clientX)?'ns-resize':'crosshair'; showCross(e.clientX,e.clientY); }
       });
-      window.addEventListener('keydown',e=>{ if((e.key==='Delete'||e.key==='Backspace')&&CH.drawMode&&CH.sel>=0&&CH.sel<CH.draws.length){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); e.preventDefault(); } });
+      window.addEventListener('keydown',e=>{ if((e.key==='Delete'||e.key==='Backspace')&&CH.drawMode&&CH.sel>=0&&CH.sel<CH.draws.length){ CH.draws.splice(CH.sel,1); CH.sel=-1; saveDraws(); redraw(); e.preventDefault(); } });
       box.addEventListener('mouseleave',()=>{ if(!dragging&&!measuring&&!drawing&&!yscaling)hide(); });
       box.addEventListener('wheel',e=>{ e.preventDefault(); if(isAxis(e.clientX))yZoom(e.deltaY>0?0.9:1.1); else zoom(e.clientX,e.deltaY>0?1:-1); },{passive:false});
       box.addEventListener('dblclick',()=>{ CH.yShift=0; CH.yScale=1; redraw(); });
@@ -629,7 +635,7 @@
       box.addEventListener('touchstart',e=>{
         if(e.touches.length>=2){ const a=e.touches[0],b=e.touches[1]; tMode='pinch'; tDX0=Math.max(20,Math.abs(a.clientX-b.clientX)); tDY0=Math.max(20,Math.abs(a.clientY-b.clientY)); tVis=CH.i1-CH.i0; tI0=CH.i0; tYScale=CH.yScale; hide(); hideMeas(); return; }
         const t=e.touches[0]; if(!t)return; tSX=t.clientX; tSY=t.clientY; tLX=t.clientX; tLY=t.clientY; tMoved=false;
-        if(CH.drawMode){ if(badgeHit(t.clientX,t.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; redraw(); tMode='none'; return; } tMode='draw'; startDraw(t.clientX,t.clientY); return; }
+        if(CH.drawMode){ if(badgeHit(t.clientX,t.clientY)){ CH.draws.splice(CH.sel,1); CH.sel=-1; saveDraws(); redraw(); tMode='none'; return; } tMode='draw'; startDraw(t.clientX,t.clientY); return; }
         if(isAxis(t.clientX)){ tMode='yscale'; tYScale=CH.yScale; return; }
         tMode='pan'; tI0=CH.i0; tYS=CH.yShift;
       },{passive:false});
@@ -652,7 +658,7 @@
       function setTool(tool){ if(CH.drawMode&&CH.tool===tool){ CH.drawMode=false; } else { CH.drawMode=true; CH.tool=tool; } if(drawBtn)drawBtn.classList.toggle('on',CH.drawMode&&CH.tool==='trend'); if(hlineBtn)hlineBtn.classList.toggle('on',CH.drawMode&&CH.tool==='hline'); box.style.cursor='crosshair'; CH.sel=-1; CH._prev=null; redraw(); }
       if(drawBtn)drawBtn.onclick=()=>setTool('trend');
       if(hlineBtn)hlineBtn.onclick=()=>setTool('hline');
-      const clearBtn=$('clearBtn'); if(clearBtn)clearBtn.onclick=()=>{ CH.draws=[]; CH._prev=null; CH.sel=-1; redraw(); };
+      const clearBtn=$('clearBtn'); if(clearBtn)clearBtn.onclick=()=>{ CH.draws=[]; CH._prev=null; CH.sel=-1; saveDraws(); redraw(); };
       const logBtn=$('logBtn'); if(logBtn)logBtn.onclick=()=>{ CH.log=!CH.log; logBtn.classList.toggle('on',CH.log); CH.yShift=0; CH.yScale=1; redraw(); };
       const resetBtn=$('resetBtn'); if(resetBtn)resetBtn.onclick=()=>{ CH.yShift=0; CH.yScale=1; const cfg=TF[CH.tf]||TF['1d'], n=CH.full.length, vis=Math.min(cfg.vis,n); CH.i1=n; CH.i0=Math.max(0,n-vis); redraw(); };
     }
