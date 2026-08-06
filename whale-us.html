@@ -260,26 +260,20 @@
 
   <!-- 내부자 -->
   <div class="panel" data-panel="insider">
-    <div class="panel-intro">👔 <b>내부자 거래(SEC Form 4)</b> — 기업 임원·이사·10% 주주가 자사주를 사고팔면 2일 내 신고 의무가 있습니다. <b>CEO의 대량 매수</b>는 강한 신호로 봅니다.</div>
+    <div class="panel-intro">👔 <b>내부자 거래(SEC Form 4)</b> <span class="live-dot"></span> <b>실시간(Finnhub)</b> — 임원·이사·10% 주주의 자사주 매매를 SEC 신고 기준으로 집계합니다. <b>공개시장 매수(P)</b>는 강한 신호, 매도(S)는 참고. 세금·옵션행사(F·M)는 실제 매매가 아니에요.</div>
     <div class="statcards">
-      <div class="statcard"><div class="k">오늘 신고</div><div class="v">142</div><div class="s">건</div></div>
-      <div class="statcard"><div class="k">매수/매도</div><div class="v"><span class="up">38</span> / <span class="down">104</span></div><div class="s down">▼ 매도 우위</div></div>
-      <div class="statcard"><div class="k">최대 매수</div><div class="v" style="font-size:16px">MSTR</div><div class="s up">CEO $8M</div></div>
-      <div class="statcard"><div class="k">최대 매도</div><div class="v" style="font-size:16px">NVDA</div><div class="s down">CEO $42M</div></div>
+      <div class="statcard"><div class="k">최근 매매</div><div class="v" id="insTotal">…</div><div class="s">P·S 건수</div></div>
+      <div class="statcard"><div class="k">매수/매도</div><div class="v"><span class="up" id="insBuyN">…</span> / <span class="down" id="insSellN">…</span></div><div class="s" id="insBias">건</div></div>
+      <div class="statcard"><div class="k">최대 매수</div><div class="v" style="font-size:16px" id="insTopBuy">…</div><div class="s up" id="insTopBuySub"></div></div>
+      <div class="statcard"><div class="k">최대 매도</div><div class="v" style="font-size:16px" id="insTopSell">…</div><div class="s down" id="insTopSellSub"></div></div>
     </div>
     <div class="card">
-      <h3>📄 최근 내부자 거래 <span class="hint">Form 4</span></h3>
+      <h3>📄 최근 내부자 거래 <span class="hint" id="insHint">불러오는 중…</span></h3>
       <table class="tbl">
-        <thead><tr><th>종목</th><th>내부자</th><th class="hide">직책</th><th>구분</th><th class="r">금액</th></tr></thead>
-        <tbody>
-          <tr><td class="nm">MSTR</td><td>Michael Saylor</td><td class="hide sub">Exec. Chairman</td><td><span class="pill b-buy">매수</span></td><td class="r up">+$8.2M</td></tr>
-          <tr><td class="nm">PLTR</td><td>내부자 3인</td><td class="hide sub">Directors</td><td><span class="pill b-buy">매수</span></td><td class="r up">+$3.1M</td></tr>
-          <tr><td class="nm">NVDA</td><td>Jensen Huang</td><td class="hide sub">CEO</td><td><span class="pill b-sell">매도</span></td><td class="r down">−$42M</td></tr>
-          <tr><td class="nm">META</td><td>Mark Zuckerberg</td><td class="hide sub">CEO</td><td><span class="pill b-sell">매도</span></td><td class="r down">−$28M</td></tr>
-          <tr><td class="nm">AMZN</td><td>Andy Jassy</td><td class="hide sub">CEO</td><td><span class="pill b-sell">매도</span></td><td class="r down">−$12M</td></tr>
-        </tbody>
+        <thead><tr><th>종목</th><th>내부자</th><th>구분</th><th class="hide">주식수</th><th class="r">금액</th><th class="r hide">날짜</th></tr></thead>
+        <tbody id="insTbody"><tr><td colspan="6" style="text-align:center;color:var(--txt-3);padding:16px">내부자 거래 불러오는 중…</td></tr></tbody>
       </table>
-      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ CEO 정기 매도(10b5-1 자동매도)는 신호가 약하고, <b>계획 외 대량 매수</b>가 강한 신호입니다.</div>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ 코드 <b>P=공개시장 매수</b>(강한 신호) · <b>S=매도</b> · F=세금 원천징수 · M=옵션행사 · G=증여. 매수(P)가 매도보다 드물고 의미 큽니다.</div>
     </div>
   </div>
 
@@ -515,6 +509,32 @@
     }).join('');
   }
   loadSec();
+
+  /* ===== 내부자 거래 실데이터 (Finnhub — CORS 열림) ===== */
+  /* 참고: 무료 클라이언트 키(공개 노출). 보안 강화 시 Cloudflare 워커로 프록시 권장 */
+  const FH_KEY='d9ptchhr01qkp6jam87gd9ptchhr01qkp6jam880';
+  const INS_TICKERS=['NVDA','AAPL','MSFT','TSLA','GOOGL','META','AMZN','AMD','AVGO','COIN','MSTR','PLTR','NFLX','ORCL','JPM','LLY','UBER','HOOD','MU','QCOM'];
+  const fmtUsd2=n=>{const a=Math.abs(n),s=a>=1e9?(a/1e9).toFixed(2)+'B':a>=1e6?(a/1e6).toFixed(1)+'M':a>=1e3?Math.round(a/1e3)+'K':Math.round(a);return (n<0?'−$':'+$')+s;};
+  async function fhInsider(sym){try{const r=await fetch('https://finnhub.io/api/v1/stock/insider-transactions?symbol='+sym+'&token='+FH_KEY,{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+  async function loadInsider(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const results=await pool(INS_TICKERS,5,async sym=>({sym,d:await fhInsider(sym)}));
+    const all=[];
+    results.forEach(({sym,d})=>{if(!d||!Array.isArray(d.data))return;d.data.forEach(x=>{const ch=x.change||0,pr=x.transactionPrice||0;all.push({sym,name:x.name||'',code:x.transactionCode||'',ch,pr,amt:ch*pr,date:x.transactionDate||x.filingDate||''});});});
+    if(!all.length){html('insTbody','<tr><td colspan="6" style="text-align:center;color:var(--txt-3);padding:16px">내부자 데이터를 불러오지 못했어요 · 잠시 후 새로고침</td></tr>');set('insHint','불러오기 실패');return;}
+    const ps=all.filter(x=>(x.code==='P'||x.code==='S')&&x.pr>0);
+    ps.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+    const buys=ps.filter(x=>x.code==='P'),sells=ps.filter(x=>x.code==='S');
+    set('insTotal',ps.length);set('insBuyN',buys.length);set('insSellN',sells.length);
+    set('insBias',buys.length>=sells.length?'▲ 매수 우위':'▼ 매도 우위');
+    const bigBuy=buys.slice().sort((a,b)=>b.amt-a.amt)[0], bigSell=sells.slice().sort((a,b)=>a.amt-b.amt)[0];
+    if(bigBuy){set('insTopBuy',bigBuy.sym);set('insTopBuySub',fmtUsd2(bigBuy.amt));}else{set('insTopBuy','—');}
+    if(bigSell){set('insTopSell',bigSell.sym);set('insTopSellSub',fmtUsd2(bigSell.amt));}else{set('insTopSell','—');}
+    set('insHint',INS_TICKERS.length+'종목 · 최신순 · '+(ps[0]?mdd(ps[0].date)+' 최신':''));
+    html('insTbody',ps.slice(0,25).map(x=>{const buy=x.code==='P';return `<tr><td class="nm"><a href="stock-us.html?t=${x.sym}" style="color:inherit">${x.sym}</a></td><td class="sub">${x.name.slice(0,22)}</td><td><span class="pill ${buy?'b-buy':'b-sell'}">${buy?'매수':'매도'}</span></td><td class="hide">${Math.abs(x.ch).toLocaleString('en-US')}</td><td class="r ${buy?'up':'down'}">${fmtUsd2(x.amt)}</td><td class="r hide sub">${mdd(x.date)}</td></tr>`;}).join(''));
+  }
+  loadInsider();
 </script>
 </body>
 </html>
