@@ -236,15 +236,23 @@
 
   <!-- 거물 13F -->
   <div class="panel" data-panel="f13">
-    <div class="panel-intro">🏛️ <b>13F 공시</b> — 운용자산 1억달러 이상 기관은 분기마다 미국 주식 보유를 SEC에 신고합니다. <b>뱅가드·블랙록</b> 같은 초대형 운용사부터 <b>버핏·달리오·버리</b> 같은 전설적 투자자, <b>노르웨이 국부펀드·국민연금</b>까지 — 누가 뭘 들고 있는지 추적합니다. 단, 분기 후행 데이터입니다.</div>
+    <div class="panel-intro">🏛️ <b>13F 공시</b> — 운용자산 1억달러 이상 기관은 분기마다 미국 주식 보유를 SEC에 신고합니다(분기말 후 45일). <span class="live-dot"></span> <b>유명 투자자들의 실제 최신 13F 제출일을 SEC에서 실시간</b>으로 가져와 "원문보기"로 연결해요. (보유종목 상세는 SEC 원문에서 확인 — 무료 API로는 목록 제공이 제한됨)</div>
     <div class="statcards">
-      <div class="statcard"><div class="k">추적 기관</div><div class="v">86</div><div class="s">운용사·헤지펀드·연기금</div></div>
-      <div class="statcard"><div class="k">이번 분기 순매수</div><div class="v up">반도체·AI</div><div class="s up">▲</div></div>
-      <div class="statcard"><div class="k">순매도</div><div class="v down">빅테크·소비재</div><div class="s down">▼</div></div>
-      <div class="statcard"><div class="k">최다 겹침</div><div class="v" style="font-size:16px">NVIDIA</div><div class="s">62곳 보유</div></div>
+      <div class="statcard"><div class="k">추적 거물</div><div class="v" id="f13N">18</div><div class="s">유명 투자자</div></div>
+      <div class="statcard"><div class="k">최신 13F 제출</div><div class="v" style="font-size:16px" id="f13Latest">…</div><div class="s" id="f13LatestWho"></div></div>
+      <div class="statcard"><div class="k">디렉토리</div><div class="v">86</div><div class="s">기관·헤지펀드·연기금</div></div>
+      <div class="statcard"><div class="k">데이터</div><div class="v" style="font-size:15px">SEC EDGAR</div><div class="s">제출일 실시간</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <h3>📋 유명 투자자 최신 13F 제출 <span class="live-dot"></span> <span class="hint" id="f13Hint">SEC 실시간</span></h3>
+      <table class="tbl">
+        <thead><tr><th>투자자</th><th class="hide">인물</th><th class="r">최신 13F</th><th class="r">원문</th></tr></thead>
+        <tbody id="f13Tbody"><tr><td colspan="4" style="text-align:center;color:var(--txt-3);padding:16px">SEC에서 불러오는 중…</td></tr></tbody>
+      </table>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ 13F는 <b>분기별</b> 신고라 실제 매매보다 후행. "원문 ↗"에서 그 기관의 <b>실제 보유종목 전체</b>를 SEC에서 볼 수 있어요. 아래 디렉토리의 보유종목 목록은 예시입니다.</div>
     </div>
     <div class="card">
-      <h3>🏛️ 기관·거물 디렉토리 <span class="hint">클릭 = 보유 종목·섹터</span></h3>
+      <h3>🏛️ 기관·거물 디렉토리 <span class="hint">클릭 = 개요 (보유종목은 예시)</span></h3>
       <div class="inst-cats" id="instCats">
         <button class="on" data-cat="all">전체 <span class="c">86</span></button>
         <button data-cat="am">자산운용사 <span class="c">24</span></button>
@@ -316,7 +324,7 @@
     </div>
   </div>
 
-  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 데일리 = 실시간(arkfunds.io / ARK Invest 일일 공개)</b> · 그 외 탭(거물 13F·내부자·의회·SEC)은 SEC EDGAR·Capitol Trades·FINRA 기반의 <b>샘플 디자인 시안</b>(순차 실데이터화 예정). 13F는 분기 후행 스냅샷, 내부자·의원 거래는 공개 자료 기준 시차가 있습니다. 분석은 RICHFLOW 자체 산출물. 정보 제공용이며 매수·매도 권유가 아닙니다.</div>
+  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 데일리·SEC 공시·내부자·13F 제출일 = 실시간</b>(arkfunds.io · SEC data.sec.gov · Finnhub). 13F <b>보유종목 상세</b>와 <b>의회 거래</b>는 무료 API 제약으로 아직 <b>예시(디자인 시안)</b>이며 순차 실데이터화 예정. 13F는 분기 후행 스냅샷, 내부자는 공개 자료 기준 시차가 있습니다. 분석은 RICHFLOW 자체 산출물. 정보 제공용이며 매수·매도 권유가 아닙니다.</div>
 </div>
 
 <!-- 13F modal -->
@@ -536,6 +544,42 @@
     html('insTbody',ps.slice(0,25).map(x=>{const buy=x.code==='P';return `<tr><td class="nm"><a href="stock-us.html?t=${x.sym}" style="color:inherit">${x.sym}</a></td><td class="sub">${x.name.slice(0,22)}</td><td><span class="pill ${buy?'b-buy':'b-sell'}">${buy?'매수':'매도'}</span></td><td class="hide">${Math.abs(x.ch).toLocaleString('en-US')}</td><td class="r ${buy?'up':'down'}">${fmtUsd2(x.amt)}</td><td class="r hide sub">${mdd(x.date)}</td></tr>`;}).join(''));
   }
   loadInsider();
+
+  /* ===== 거물 13F 최신 제출 실데이터 (data.sec.gov — 검증된 CIK) ===== */
+  const F13_INV=[
+    ['버크셔 해서웨이','워런 버핏',1067983],['브리지워터','레이 달리오',1350694],
+    ['르네상스 테크','짐 사이먼스',1037389],['사이언','마이클 버리',1649339],
+    ['퍼싱스퀘어','빌 애크먼',1336528],['아팔루사','데이비드 테퍼',1656456],
+    ['시타델','켄 그리핀',1423053],['타이거 글로벌','체이스 콜먼',1167483],
+    ['포인트72','스티브 코헨',1603466],['소로스 펀드','조지 소로스',1029160],
+    ['바우포스트','세스 클라만',1061768],['듀케인','드러켄밀러',1536411],
+    ['서드포인트','댄 로엡',1040273],['그린라이트','데이비드 아인혼',1079114],
+    ['코튜','필립 라폰트',1135730],['바이킹 글로벌','할보르센',1103804],
+    ['론파인','스티브 만델',1061165],['엘리엇','폴 싱어',1791786]
+  ];
+  async function loadF13(){
+    const tb=document.getElementById('f13Tbody'); if(!tb)return;
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const results=await pool(F13_INV,6,async inv=>({inv,d:await secGet(String(inv[2]).padStart(10,'0'))}));
+    const rows=results.map(({inv,d})=>{
+      let date='',acc='';
+      if(d&&d.filings&&d.filings.recent){const r=d.filings.recent;
+        for(let i=0;i<r.form.length;i++){if(String(r.form[i]).indexOf('13F-HR')===0){date=r.filingDate[i];acc=r.accessionNumber[i]||'';break;}}}
+      return {inv,date,acc};
+    });
+    rows.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+    const withDate=rows.filter(x=>x.date);
+    if(withDate[0]){set('f13Latest',mdd(withDate[0].date));set('f13LatestWho',withDate[0].inv[0]);}
+    set('f13Hint','SEC 실시간 · '+(withDate[0]?mdd(withDate[0].date)+' 최신':'제출일'));
+    tb.innerHTML=rows.map(x=>{
+      const cik=x.inv[2];
+      const link=x.acc?'https://www.sec.gov/Archives/edgar/data/'+cik+'/'+x.acc.replace(/-/g,'')+'/'+x.acc+'-index.htm'
+        :'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK='+cik+'&type=13F';
+      const yr=x.date?' <span class="sub" style="font-size:10px">('+x.date.slice(0,4)+')</span>':'';
+      return `<tr><td class="nm">${x.inv[0]}</td><td class="hide sub">${x.inv[1]}</td><td class="r">${x.date?mdd(x.date)+yr:'—'}</td><td class="r"><a href="${link}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">원문 ↗</a></td></tr>`;
+    }).join('');
+  }
+  loadF13();
 </script>
 </body>
 </html>
