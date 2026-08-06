@@ -510,12 +510,12 @@
   }
   loadSec();
 
-  /* ===== 내부자 거래 실데이터 (Finnhub — CORS 열림) ===== */
-  /* 참고: 무료 클라이언트 키(공개 노출). 보안 강화 시 Cloudflare 워커로 프록시 권장 */
-  const FH_KEY='d9ptchhr01qkp6jam87gd9ptchhr01qkp6jam880';
+  /* ===== 내부자 거래 실데이터 (Finnhub → Cloudflare 워커 캐싱 프록시 경유) ===== */
+  /* 키는 워커 Secret에 있고, 워커가 1시간 캐시 → 방문자 많아도 한도 안전 + 키 숨김 */
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/';
   const INS_TICKERS=['NVDA','AAPL','MSFT','TSLA','GOOGL','META','AMZN','AMD','AVGO','COIN','MSTR','PLTR','NFLX','ORCL','JPM','LLY','UBER','HOOD','MU','QCOM'];
   const fmtUsd2=n=>{const a=Math.abs(n),s=a>=1e9?(a/1e9).toFixed(2)+'B':a>=1e6?(a/1e6).toFixed(1)+'M':a>=1e3?Math.round(a/1e3)+'K':Math.round(a);return (n<0?'−$':'+$')+s;};
-  async function fhInsider(sym){try{const r=await fetch('https://finnhub.io/api/v1/stock/insider-transactions?symbol='+sym+'&token='+FH_KEY,{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+  async function fhInsider(sym){try{const r=await fetch(WK+'?fh=insider&symbol='+encodeURIComponent(sym));if(!r.ok)return null;return await r.json();}catch(e){return null;}}
   async function loadInsider(){
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
