@@ -309,17 +309,16 @@
 
   <!-- SEC 공시 -->
   <div class="panel" data-panel="sec">
-    <div class="panel-intro">📡 <b>SEC EDGAR 실시간 공시</b> — 8-K(중대사건), 13D/G(5%+ 대량보유), Form 4(내부자)를 실시간으로 모읍니다. 탭하면 원문·AI 요약을 볼 수 있어요.</div>
+    <div class="panel-intro">📡 <b>SEC EDGAR 공시</b> <span class="live-dot"></span> <b>실시간</b> — 주요 미국 종목의 8-K(중대사건)·13D/G(5%+ 대량보유)·Form 4(내부자) 공시를 <b>SEC data.sec.gov에서 직접</b> 최신순으로 모읍니다. 항목을 누르면 <b>SEC 원문</b>이 열려요.</div>
+    <div class="statcards">
+      <div class="statcard"><div class="k">추적 종목</div><div class="v" id="secTickN">30</div><div class="s">주요 대형주</div></div>
+      <div class="statcard"><div class="k">최근 공시</div><div class="v" id="secTotal">…</div><div class="s">건</div></div>
+      <div class="statcard"><div class="k">중대(8-K)</div><div class="v up" id="sec8k">…</div><div class="s up">▲</div></div>
+      <div class="statcard"><div class="k">내부자(Form4)</div><div class="v" id="secF4">…</div><div class="s">건</div></div>
+    </div>
     <div class="card">
-      <h3><span class="live-dot"></span> 방금 올라온 공시 <span class="hint">3분마다 갱신</span></h3>
-      <div class="sec-feed">
-        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$TSLA</span><span class="ty major">8-K</span><span class="ds">주요 경영진 변동 · 신규 이사 선임</span><span class="tm">방금</span></div>
-        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$GOOGL</span><span class="ty major">8-K</span><span class="ds">분기 실적 관련 중대공시</span><span class="tm">2분 전</span></div>
-        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$MSTR</span><span class="ty">Form 4</span><span class="ds">내부자(Saylor) 자사주 매수 신고</span><span class="tm">8분 전</span></div>
-        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$NVDA</span><span class="ty">Form 4</span><span class="ds">내부자(CEO) 계획 매도 신고</span><span class="tm">12분 전</span></div>
-        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$ACHR</span><span class="ty">SC 13D</span><span class="ds">기관 5% 이상 대량보유 신규 신고</span><span class="tm">21분 전</span></div>
-        <div class="sec-item" onclick="location.href='stock.html'"><span class="tk">$COIN</span><span class="ty">8-K</span><span class="ds">신규 상품·파트너십 발표</span><span class="tm">34분 전</span></div>
-      </div>
+      <h3><span class="live-dot"></span> 최근 SEC 공시 <span class="hint" id="secHint">불러오는 중…</span></h3>
+      <div class="sec-feed" id="secFeed"><div style="padding:16px 8px;color:var(--txt-3);font-size:13px">SEC 공시 불러오는 중…</div></div>
     </div>
   </div>
 
@@ -486,6 +485,36 @@
     }
   }
   loadArk();
+
+  /* ===== SEC 공시 실데이터 (data.sec.gov — CORS 열림, CIK 하드코딩) ===== */
+  const SEC_CIK={NVDA:'0001045810',AAPL:'0000320193',MSFT:'0000789019',TSLA:'0001318605',GOOGL:'0001652044',META:'0001326801',AMZN:'0001018724',AMD:'0000002488',AVGO:'0001730168',COIN:'0001679788',MSTR:'0001050446',PLTR:'0001321655',NFLX:'0001065280',MU:'0000723125',ORCL:'0001341439',CRM:'0001108524',JPM:'0000019617',LLY:'0000059478',BA:'0000012927',DIS:'0001744489',UBER:'0001543151',ARM:'0001973239',QCOM:'0000804328',SMCI:'0001375365',RIVN:'0001874178',HOOD:'0001783879',SOFI:'0001818874',MRVL:'0001835632',NKE:'0000320187',XOM:'0002115436'};
+  const SEC_LBL={'8-K':'8-K','8-K/A':'8-K','4':'Form 4','4/A':'Form 4','3':'Form 3','SC 13D':'13D','SC 13D/A':'13D','SC 13G':'13G','SC 13G/A':'13G','13F-HR':'13F','10-Q':'10-Q','10-K':'10-K','DEF 14A':'위임장','424B5':'증권신고','S-8':'S-8','SCHEDULE 13G':'13G','SCHEDULE 13D':'13D'};
+  const SEC_MAJOR=new Set(['8-K','8-K/A','SC 13D','SC 13D/A','SCHEDULE 13D']);
+  function secDesc(form,desc){const M={'8-K':'주요 경영사항 (중대공시)','8-K/A':'주요 경영사항 정정','4':'내부자 지분 변동 신고','4/A':'내부자 신고 정정','3':'내부자 최초 지분 신고','SC 13D':'5%+ 대량보유 신고','SC 13D/A':'대량보유 변경','SC 13G':'5%+ 대량보유(수동)','SC 13G/A':'대량보유(수동) 변경','SCHEDULE 13G':'5%+ 대량보유(수동)','SCHEDULE 13D':'5%+ 대량보유','13F-HR':'기관 분기 보유 신고','10-Q':'분기 실적 보고서','10-K':'연간 실적 보고서','DEF 14A':'주주총회 위임장','424B5':'증권 발행 신고','S-8':'임직원 주식 등록'};return M[form]||(desc?desc.slice(0,42):form+' 공시');}
+  async function secGet(cik){try{const r=await fetch('https://data.sec.gov/submissions/CIK'+cik+'.json',{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+  async function pool(items,n,fn){const out=[];let i=0;async function w(){while(i<items.length){const k=i++;out[k]=await fn(items[k]);}}await Promise.all(Array.from({length:Math.min(n,items.length)},w));return out;}
+  async function loadSec(){
+    const feed=document.getElementById('secFeed');if(!feed)return;
+    const entries=Object.entries(SEC_CIK);
+    const results=await pool(entries,6,async([tk,cik])=>({tk,cik,d:await secGet(cik)}));
+    const items=[];
+    results.forEach(({tk,cik,d})=>{if(!d||!d.filings||!d.filings.recent)return;const r=d.filings.recent;const N=Math.min(r.form.length,10);
+      for(let i=0;i<N;i++){items.push({tk,cik,form:r.form[i],date:r.filingDate[i],acc:r.accessionNumber[i]||'',doc:r.primaryDocument[i]||'',desc:r.primaryDocDescription[i]||''});}});
+    if(!items.length){feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">공시를 불러오지 못했어요 · 잠시 후 새로고침</div>';return;}
+    items.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+    const top=items.slice(0,45);
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set('secTotal',items.length);
+    set('sec8k',items.filter(x=>x.form.indexOf('8-K')===0).length);
+    set('secF4',items.filter(x=>x.form==='4'||x.form==='4/A').length);
+    set('secHint','주요 30종목 · 최신순 · '+mdd(top[0].date)+' 최신');
+    feed.innerHTML=top.map(it=>{
+      const lbl=SEC_LBL[it.form]||it.form, major=SEC_MAJOR.has(it.form)?' major':'';
+      const url='https://www.sec.gov/Archives/edgar/data/'+(+it.cik)+'/'+String(it.acc).replace(/-/g,'')+'/'+it.doc;
+      return `<a class="sec-item" href="${url}" target="_blank" rel="noopener"><span class="tk">$${it.tk}</span><span class="ty${major}">${lbl}</span><span class="ds">${secDesc(it.form,it.desc)}</span><span class="tm">${mdd(it.date)}</span></a>`;
+    }).join('');
+  }
+  loadSec();
 </script>
 </body>
 </html>
