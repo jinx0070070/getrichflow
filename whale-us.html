@@ -137,14 +137,13 @@
 <div class="wrap">
   <section class="phead">
     <h1>🐋 큰손 수급 <span class="mkbadge" style="font-size:14px">🇺🇸 US</span></h1>
-    <p>ARK·헤지펀드·내부자·의회·SEC 공시로 미국 큰손이 지금 뭘 사고 파는지 추적합니다.</p>
+    <p>ARK·기관 13F·내부자·SEC 공시로 미국 큰손이 지금 뭘 사고 파는지 추적합니다.</p>
     <div class="statusbar"><span class="live-dot"></span>🇺🇸 프리마켓 진행 중 · 개장 5시간 6분 전 · 15분 지연</div>
     <div class="subtabs" id="subtabs">
       <button class="on" data-p="all">종합</button>
       <button data-p="ark">ARK 데일리</button>
       <button data-p="f13">거물 13F</button>
       <button data-p="insider">내부자</button>
-      <button data-p="congress">의회</button>
       <button data-p="sec">SEC 공시</button>
     </div>
   </section>
@@ -277,29 +276,6 @@
     </div>
   </div>
 
-  <!-- 의회 -->
-  <div class="panel" data-panel="congress">
-    <div class="panel-intro">🏛️ <b>미 의회 의원 거래(STOCK Act)</b> — 의원과 배우자는 주식 거래를 45일 내 공개해야 합니다. 개인을 특정하지 않고 <b>종목별 거래 의원 수</b>로 집계합니다.</div>
-    <div class="statcards">
-      <div class="statcard"><div class="k">이달 신고</div><div class="v">210</div><div class="s">건</div></div>
-      <div class="statcard"><div class="k">매수 최다</div><div class="v" style="font-size:16px">NVDA</div><div class="s up">+18명</div></div>
-      <div class="statcard"><div class="k">매도 최다</div><div class="v" style="font-size:16px">AAPL</div><div class="s down">−9명</div></div>
-      <div class="statcard"><div class="k">인기 섹터</div><div class="v" style="font-size:16px">반도체·방산</div><div class="s up">▲</div></div>
-    </div>
-    <div class="card">
-      <h3>🏅 의회 거래 지수 TOP <span class="hint">종목별 거래 의원 수 · 익명 집계</span></h3>
-      <table class="tbl">
-        <thead><tr><th>#</th><th>종목</th><th class="r">보유 의원</th><th class="r">순매수</th></tr></thead>
-        <tbody>
-          <tr><td class="sub">1</td><td class="nm">NVIDIA</td><td class="r">42명</td><td class="r up">+18명</td></tr>
-          <tr><td class="sub">2</td><td class="nm">Microsoft</td><td class="r">38명</td><td class="r up">+7명</td></tr>
-          <tr><td class="sub">3</td><td class="nm">Apple</td><td class="r">51명</td><td class="r down">−9명</td></tr>
-          <tr><td class="sub">4</td><td class="nm">Lockheed Martin</td><td class="r">19명</td><td class="r up">+11명</td></tr>
-          <tr><td class="sub">5</td><td class="nm">Palantir</td><td class="r">14명</td><td class="r up">+8명</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 
   <!-- SEC 공시 -->
   <div class="panel" data-panel="sec">
@@ -316,7 +292,7 @@
     </div>
   </div>
 
-  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 일별 공개 자료·SEC 공시·Finnhub 내부자 신고·13F 제출일</b>. 화면에 표시된 기준일 또는 최신 신고일을 확인하세요. 내부자는 1시간 캐시, 13F는 분기 후행 스냅샷입니다. 13F <b>보유종목 상세</b>와 <b>의회 거래</b>는 아직 <b>예시(디자인 시안)</b>입니다. 분석은 RICHFLOW 자체 산출물이며 매수·매도 권유가 아닙니다.</div>
+  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 일별 공개 자료·SEC 공시·Finnhub 내부자 신고·13F 제출일</b>. 화면에 표시된 기준일 또는 최신 신고일을 확인하세요. 내부자는 1시간 캐시, 13F는 분기 후행 스냅샷입니다. 13F <b>보유종목 상세</b>는 무료 API 제약으로 SEC 원문 링크로 대체합니다. 분석은 RICHFLOW 자체 산출물이며 매수·매도 권유가 아닙니다.</div>
 </div>
 
 <!-- 13F modal -->
