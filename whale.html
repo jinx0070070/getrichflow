@@ -73,6 +73,7 @@
 
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 
+  .retry-btn{margin-left:8px;border:1px solid var(--line-2);background:var(--card);color:var(--brand);border-radius:8px;padding:5px 9px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
   .srow{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:11px;cursor:pointer}
   .srow:hover{background:var(--card-2)}
   .srow .rk{width:20px;font-weight:800;color:var(--txt-3);font-size:13px}
@@ -593,56 +594,34 @@
 
   <!-- ============ 외국인 ============ -->
   <div class="panel" data-panel="foreign">
-    <div class="panel-intro">🌐 <b>외국인</b>은 국내 증시 시총의 약 30%를 보유한 최대 수급 주체입니다. 거래소가 집계하는 <b>순매수·보유비중</b>으로 자금 방향을 추적합니다.</div>
+    <div class="panel-intro">🌐 <b>외국인</b>은 국내 증시 시총의 약 30%를 보유한 최대 수급 주체입니다. <span class="live-dot"></span> <b id="frLive">주요 종목 순매매를 조회</b> — 네이버 금융 투자자별 매매 기준(순매수 수량×종가). 항목을 누르면 종목 상세로 가요.</div>
     <div class="statcards">
-      <div class="statcard"><div class="k">오늘 순매수</div><div class="v up">+1.6조</div><div class="s up">▲ 3거래일 연속</div></div>
-      <div class="statcard"><div class="k">코스피 보유비중</div><div class="v">31.2%</div><div class="s up">▲ +0.3%p</div></div>
-      <div class="statcard"><div class="k">최다 순매수</div><div class="v" style="font-size:18px">삼성전자</div><div class="s">+1.2조</div></div>
-      <div class="statcard"><div class="k">최다 순매도</div><div class="v" style="font-size:18px;color:var(--down)">LG엔솔</div><div class="s down">−2,100억</div></div>
+      <div class="statcard"><div class="k">추적 종목 순매수 합</div><div class="v" id="frTotal">…</div><div class="s" id="frTotalSub">주요 종목</div></div>
+      <div class="statcard"><div class="k">기준일</div><div class="v" style="font-size:18px" id="frDate">…</div><div class="s">최근 거래일</div></div>
+      <div class="statcard"><div class="k">최다 순매수</div><div class="v" style="font-size:18px" id="frTopBuy">…</div><div class="s up" id="frTopBuySub"></div></div>
+      <div class="statcard"><div class="k">최다 순매도</div><div class="v" style="font-size:18px" id="frTopSell">…</div><div class="s down" id="frTopSellSub"></div></div>
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <h3>📈 외국인 순매수 추이 <span class="hint">최근 10거래일 (조원)</span></h3>
-      <svg viewBox="0 0 700 160" style="width:100%">
-        <line x1="0" y1="90" x2="700" y2="90" stroke="var(--line-2)" stroke-width="1"/>
-        <g>
-          <rect x="20" y="90" width="50" height="26" rx="3" fill="#c46b74"/>
-          <rect x="90" y="70" width="50" height="20" rx="3" fill="#1fa15c"/>
-          <rect x="160" y="90" width="50" height="14" rx="3" fill="#c46b74"/>
-          <rect x="230" y="58" width="50" height="32" rx="3" fill="#1fa15c"/>
-          <rect x="300" y="50" width="50" height="40" rx="3" fill="#1fa15c"/>
-          <rect x="370" y="90" width="50" height="10" rx="3" fill="#c46b74"/>
-          <rect x="440" y="44" width="50" height="46" rx="3" fill="#148f4f"/>
-          <rect x="510" y="34" width="50" height="56" rx="3" fill="#148f4f"/>
-          <rect x="580" y="26" width="50" height="64" rx="3" fill="#148f4f"/>
-          <rect x="650" y="40" width="40" height="50" rx="3" fill="#148f4f"/>
-        </g>
-      </svg>
-      <div style="font-size:12px;color:var(--txt-3);margin-top:6px">최근 4거래일 연속 순매수 확대 — 반도체 대형주 집중 유입</div>
+      <h3>📈 외국인 순매수 추이 <span class="hint" id="frChartHint">추적 종목 합산 · 최근 10거래일</span></h3>
+      <svg viewBox="0 0 700 160" style="width:100%" id="frChart"></svg>
+      <div style="font-size:12px;color:var(--txt-3);margin-top:6px" id="frChartNote">불러오는 중…</div>
     </div>
 
     <div class="cols">
       <div class="card">
-        <h3>▲ 외국인 순매수 상위 <span class="hint">오늘</span></h3>
-        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">삼</span><div class="info"><div class="n">삼성전자</div><div class="s">3거래일 연속</div></div><div class="r"><div class="pct up">+1.2조</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">SK</span><div class="info"><div class="n">SK하이닉스</div><div class="s">HBM 기대</div></div><div class="r"><div class="pct up">+4,800억</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">한</span><div class="info"><div class="n">한화오션</div><div class="s">조선 강세</div></div><div class="r"><div class="pct up">+1,100억</div></div></a>
+        <h3>▲ 외국인 순매수 상위 <span class="hint" id="frBuyHint">기준일</span></h3>
+        <div id="frBuyList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>▼ 외국인 순매도 상위 <span class="hint">오늘</span></h3>
-        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">LG</span><div class="info"><div class="n">LG에너지솔루션</div><div class="s">2차전지 약세</div></div><div class="r"><div class="pct down">−2,100억</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">삼</span><div class="info"><div class="n">삼성SDI</div><div class="s">차익실현</div></div><div class="r"><div class="pct down">−890억</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">셀</span><div class="info"><div class="n">셀트리온</div><div class="s">바이오 매도</div></div><div class="r"><div class="pct down">−540억</div></div></a>
+        <h3>▼ 외국인 순매도 상위 <span class="hint" id="frSellHint">기준일</span></h3>
+        <div id="frSellList"></div>
       </div>
     </div>
 
     <div class="card">
-      <h3>🌐 외국인 보유비중 상위 <span class="hint">시총 대비 · %p 변화</span></h3>
-      <div class="maprow"><span class="sec" style="width:88px">KB금융</span><div class="mbar"><i style="width:74%"></i></div><span class="mv"><b>74.1%</b> ▲+0.4%p</span></div>
-      <div class="maprow"><span class="sec" style="width:88px">삼성전자</span><div class="mbar"><i style="width:51%"></i></div><span class="mv"><b>51.4%</b> ▲+0.3%p</span></div>
-      <div class="maprow"><span class="sec" style="width:88px">SK하이닉스</span><div class="mbar"><i style="width:54%"></i></div><span class="mv"><b>54.2%</b> ▲+0.6%p</span></div>
-      <div class="maprow"><span class="sec" style="width:88px">네이버</span><div class="mbar"><i style="width:48%"></i></div><span class="mv"><b>48.3%</b> ▼−0.2%p</span></div>
-      <div class="maprow"><span class="sec" style="width:88px">현대차</span><div class="mbar"><i style="width:29%"></i></div><span class="mv"><b>29.1%</b> ▲+0.1%p</span></div>
+      <h3>🌐 외국인 보유비중 상위 <span class="hint">추적 종목 중 · 시총 대비</span></h3>
+      <div id="frRatioList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
     </div>
   </div>
 
@@ -683,9 +662,70 @@
       tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
       b.classList.add('on');
       panels.forEach(p=>p.classList.toggle('on',p.dataset.panel===b.dataset.p));
+      ensurePanelLoaded(b.dataset.p);
       window.scrollTo({top:0,behavior:'smooth'});
     };
   });
+
+  /* ===== 국장 큰손 실데이터 (네이버 투자자별 매매 → Cloudflare 워커 경유) ===== */
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const pnum=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const fmtWon=n=>{const a=Math.abs(n),sign=n<0?'−':'+';const s=a>=1e12?(a/1e12).toFixed(2)+'조':a>=1e8?Math.round(a/1e8).toLocaleString('ko-KR')+'억':a>=1e4?Math.round(a/1e4).toLocaleString('ko-KR')+'만':Math.round(a);return sign+s;};
+  const bd=s=>{s=String(s||'');return s.length===8?(+s.slice(4,6))+'/'+(+s.slice(6,8)):s;};
+  const retryHtml=(key,label='다시 시도')=>`<button class="retry-btn" type="button" data-retry="${key}">${label}</button>`;
+  async function fetchJSON(url,timeout=10000){const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+    catch(e){console.warn('[RICHFLOW] KR fetch fail',url,e&&e.name);return null;}finally{clearTimeout(t);}}
+  async function pool(items,n,fn){const out=[];let i=0;async function w(){while(i<items.length){const k=i++;out[k]=await fn(items[k]);}}await Promise.all(Array.from({length:Math.min(n,items.length)},w));return out;}
+  const KR_STOCKS=[['삼성전자','005930'],['SK하이닉스','000660'],['LG에너지솔루션','373220'],['삼성바이오로직스','207940'],['현대차','005380'],['기아','000270'],['셀트리온','068270'],['KB금융','105560'],['NAVER','035420'],['신한지주','055550'],['삼성SDI','006400'],['현대모비스','012330'],['카카오','035720'],['POSCO홀딩스','005490'],['LG화학','051910'],['삼성물산','028260'],['하나금융','086790'],['삼성생명','032830'],['한화오션','042660'],['HD한국조선해양','009540'],['두산에너빌리티','034020'],['고려아연','010130'],['한미반도체','042700'],['크래프톤','259960'],['삼성전기','009150'],['LG전자','066570'],['하이브','352820'],['에코프로비엠','247540'],['포스코퓨처엠','003670'],['한화에어로스페이스','012450'],['HMM','011200'],['우리금융지주','316140'],['KT&G','033780'],['아모레퍼시픽','090430'],['현대로템','064350'],['SK이노베이션','096770']];
+  const KR_CODE_NAME={};KR_STOCKS.forEach(s=>KR_CODE_NAME[s[1]]=s[0]);
+  async function krTrend(code){return fetchJSON(WK+encodeURIComponent('https://m.stock.naver.com/api/stock/'+code+'/trend'),10000);}
+  let krRows=null;
+  async function loadKRData(){
+    if(krRows)return krRows;
+    const res=await pool(KR_STOCKS,6,async s=>({s,d:await krTrend(s[1])}));
+    const rows=[];
+    res.forEach(({s,d})=>{if(!Array.isArray(d)||!d.length)return;const t=d[0];const price=pnum(t.closePrice);
+      rows.push({name:s[0],code:s[1],date:t.bizdate,price,fq:pnum(t.foreignerPureBuyQuant),oq:pnum(t.organPureBuyQuant),iq:pnum(t.individualPureBuyQuant),fRatio:t.foreignerHoldRatio||'',fAmt:pnum(t.foreignerPureBuyQuant)*price,oAmt:pnum(t.organPureBuyQuant)*price,days:d});});
+    krRows=rows.length?rows:null;return krRows;
+  }
+  function krSrow(x,amt,rk){const up=amt>=0;return `<a class="srow" href="stock.html?code=${x.code}"><span class="rk">${rk}</span><span class="logo-sq">${esc(x.name[0])}</span><div class="info"><div class="n">${esc(x.name)}</div><div class="s">${esc(x.code)} · ${bd(x.date)}</div></div><div class="r"><div class="pct ${up?'up':'down'}">${fmtWon(amt)}</div></div></a>`;}
+  async function loadForeign(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    set('frBuyHint','불러오는 중…');
+    const rows=await loadKRData();
+    if(!rows){const f='<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">네이버 투자자 매매를 불러오지 못했어요 '+retryHtml('foreign')+'</div>';html('frBuyList',f);html('frSellList','');html('frRatioList',f);set('frLive','불러오기 실패');document.getElementById('frChartNote').textContent='네트워크 확인 후 다시 시도해 주세요.';return;}
+    const dt=bd(rows[0].date);
+    const byF=[...rows].sort((a,b)=>b.fAmt-a.fAmt);
+    const buys=byF.filter(x=>x.fAmt>0),sells=byF.filter(x=>x.fAmt<0).reverse();
+    const total=rows.reduce((n,x)=>n+x.fAmt,0);
+    set('frTotal',fmtWon(total));set('frTotalSub',KR_STOCKS.length+'종목 합산 · '+dt);set('frDate',dt);set('frLive',dt+' 기준');
+    set('frBuyHint',dt);set('frSellHint',dt);
+    if(buys[0]){set('frTopBuy',buys[0].name);set('frTopBuySub',fmtWon(buys[0].fAmt));}else set('frTopBuy','—');
+    if(sells[0]){set('frTopSell',sells[0].name);set('frTopSellSub',fmtWon(sells[0].fAmt));}else set('frTopSell','—');
+    html('frBuyList',buys.slice(0,6).map((x,i)=>krSrow(x,x.fAmt,i+1)).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">순매수 종목 없음</div>');
+    html('frSellList',sells.slice(0,6).map((x,i)=>krSrow(x,x.fAmt,i+1)).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">순매도 종목 없음</div>');
+    // 보유비중 상위
+    const byRatio=[...rows].filter(x=>pnum(x.fRatio)>0).sort((a,b)=>pnum(b.fRatio)-pnum(a.fRatio)).slice(0,6);
+    const maxR=byRatio.length?pnum(byRatio[0].fRatio):100;
+    html('frRatioList',byRatio.map(x=>`<div class="maprow"><span class="sec" style="width:96px">${esc(x.name)}</span><div class="mbar"><i style="width:${Math.round(pnum(x.fRatio)/maxR*100)}%"></i></div><span class="mv"><b>${esc(x.fRatio)}</b></span></div>`).join(''));
+    // 순매수 추이 차트: 추적 종목 합산 일별
+    const nDays=Math.min(10,rows[0].days.length);const daily=[];
+    for(let i=0;i<nDays;i++){let sum=0,dstr='';rows.forEach(x=>{const day=x.days[i];if(day){sum+=pnum(day.foreignerPureBuyQuant)*pnum(day.closePrice);dstr=day.bizdate;}});daily.push({d:dstr,v:sum});}
+    daily.reverse();
+    const mx=Math.max(...daily.map(x=>Math.abs(x.v)),1),W=700,bw=W/daily.length*0.7,gap=W/daily.length;
+    let bars='<line x1="0" y1="90" x2="700" y2="90" stroke="var(--line-2)" stroke-width="1"/>';
+    daily.forEach((x,i)=>{const h=Math.round(Math.abs(x.v)/mx*60),y=x.v>=0?90-h:90,col=x.v>=0?'#148f4f':'#c46b74';bars+=`<rect x="${(i*gap+gap*0.15).toFixed(0)}" y="${y}" width="${bw.toFixed(0)}" height="${Math.max(2,h)}" rx="3" fill="${col}"/>`;});
+    document.getElementById('frChart').innerHTML=bars;
+    const lastUp=daily[daily.length-1].v>=0;
+    document.getElementById('frChartNote').textContent=dt+' 외국인 '+(lastUp?'순매수':'순매도')+' '+fmtWon(daily[daily.length-1].v)+' · 추적 '+KR_STOCKS.length+'종목 합산';
+  }
+  const panelLoads={};
+  function loadOnce(key,loader){if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(loader).catch(e=>{delete panelLoads[key];console.warn('[RICHFLOW] '+key+' fail',e);});return panelLoads[key];}
+  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);return Promise.resolve();}
+  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-retry]');if(!b)return;const k=b.dataset.retry;delete panelLoads[k];if(k==='foreign')krRows=null;ensurePanelLoaded(k);});
 
   /* ===== 세력별 핵심 지분: 기관 디렉토리 ===== */
   const INSTS=[
