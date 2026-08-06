@@ -13,6 +13,9 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: cors() });
     }
+    if (request.method !== "GET") {
+      return new Response("method not allowed", { status: 405, headers: { ...cors(), Allow: "GET, OPTIONS" } });
+    }
 
     const url = new URL(request.url);
 
@@ -33,10 +36,13 @@ export default {
       if (!key) return new Response("FINNHUB_KEY not set on worker", { status: 500, headers: cors() });
 
       const sym = (url.searchParams.get("symbol") || "").replace(/[^A-Za-z0-9.\-]/g, "");
+      if (!sym) return new Response("symbol required", { status: 400, headers: cors() });
       let fu = "https://finnhub.io/api/v1/" + path + "?symbol=" + encodeURIComponent(sym) + "&token=" + key;
       const from = url.searchParams.get("from"), to = url.searchParams.get("to");
-      if (from) fu += "&from=" + encodeURIComponent(from.replace(/[^0-9\-]/g, ""));
-      if (to) fu += "&to=" + encodeURIComponent(to.replace(/[^0-9\-]/g, ""));
+      const isoDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || "") ? value : "";
+      const safeFrom = isoDate(from), safeTo = isoDate(to);
+      if (safeFrom) fu += "&from=" + encodeURIComponent(safeFrom);
+      if (safeTo) fu += "&to=" + encodeURIComponent(safeTo);
 
       try {
         const r = await fetch(fu, {

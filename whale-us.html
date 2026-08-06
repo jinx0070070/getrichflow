@@ -63,6 +63,7 @@
   .srow .r{text-align:right}.srow .r .pct{font-weight:800;font-size:14px}.srow .r .cnt{font-size:11px;color:var(--txt-3);font-weight:600}
   .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
   .b-new{color:var(--brand);background:var(--card-2)}.b-buy{color:var(--up);background:var(--up-bg)}.b-sell{color:var(--down);background:var(--down-bg)}
+  .retry-btn{margin-left:8px;border:1px solid var(--line-2);background:var(--card);color:var(--brand);border-radius:8px;padding:5px 9px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
   .ai-note{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2)}
   .ai-chip{font-size:10px;font-weight:800;background:var(--brand);color:#fff;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}.ai-chip .bot{width:13px;height:13px}
   .tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -152,41 +153,32 @@
   <div class="panel on" data-panel="all">
     <div class="band">
       <div class="card">
-        <h3>미국 큰손 수급 방향 <span class="hint">13F·최근 분기</span></h3>
-        <div class="flowbar"><i class="in" style="width:58%"></i><i class="out" style="width:42%"></i></div>
-        <div class="flow-legend"><span class="up">매수 58%</span><span class="down">매도 42%</span></div>
-        <div class="flow-note">기관은 <b class="up">AI·반도체</b>를 담고 <b>전기차·소비재</b>를 줄이는 중. ARK는 로봇·우주로 로테이션.</div>
+        <h3>ARK 최근 거래 방향 <span class="hint" id="flowDate">불러오는 중…</span></h3>
+        <div class="flowbar"><i class="in" id="flowIn" style="width:50%"></i><i class="out" id="flowOut" style="width:50%"></i></div>
+        <div class="flow-legend"><span class="up" id="flowBuyPct">매수 —</span><span class="down" id="flowSellPct">매도 —</span></div>
+        <div class="flow-note" id="flowNote">ARK 6개 ETF의 최근 공개 거래를 집계하고 있어요.</div>
       </div>
       <div class="card">
         <h3>오늘의 큰손 <span class="hint" id="ovDate">…</span></h3>
         <div class="kv"><span class="k">ARK 순매수</span><span class="v up" id="ovArkBuy">…</span></div>
         <div class="kv"><span class="k">ARK 순매도</span><span class="v down" id="ovArkSell">…</span></div>
-        <div class="kv"><span class="k">내부자</span><span class="v down">매도 우위 (14/1)</span></div>
-        <div class="kv"><span class="k">공매도 과열</span><span class="v down">COIN (DTC 3.0d)</span></div>
+        <div class="kv"><span class="k">내부자</span><span class="v" id="ovInsider">불러오는 중…</span></div>
+        <div class="kv"><span class="k">내부자 최신 신고</span><span class="v" id="ovInsLatest">—</span></div>
       </div>
       <div class="card">
-        <h3>주목 종목 TOP <span class="hint">겹침</span></h3>
-        <div class="kv"><span class="k">① SpaceX</span><span class="v up">ARK·13F 겹침</span></div>
-        <div class="kv"><span class="k">② Archer (ACHR)</span><span class="v up">ARK 신규</span></div>
-        <div class="kv"><span class="k">③ Lumentum</span><span class="v up">운용사 2곳</span></div>
-        <div class="kv"><span class="k">④ NVIDIA</span><span class="v up">통합비중 1위</span></div>
+        <h3>주목 종목 TOP <span class="hint">ARK 최근 거래</span></h3>
+        <div id="ovFocus"><div class="kv"><span class="k">불러오는 중…</span><span class="v">—</span></div></div>
       </div>
     </div>
 
     <div class="cols">
       <div class="card">
-        <h3>▲ 미국 큰손이 담은 종목 <span class="hint">ARK+13F 종합</span></h3>
-        <a class="srow" href="stock-us.html"><span class="rk">1</span><span class="logo-sq">SPX</span><div class="info"><div class="n">SpaceX <span class="badge b-buy">겹침</span></div><div class="s">ARK·헤지펀드 동시 매수</div></div><div class="r"><div class="pct up">+매집</div></div></a>
-        <a class="srow" href="stock-us.html"><span class="rk">2</span><span class="logo-sq">ACHR</span><div class="info"><div class="n">Archer Aviation <span class="badge b-new">신규</span></div><div class="s">ARK 6거래일 연속</div></div><div class="r"><div class="pct up">ARK 신규</div></div></a>
-        <a class="srow" href="stock-us.html"><span class="rk">3</span><span class="logo-sq">NVDA</span><div class="info"><div class="n">NVIDIA</div><div class="s">액티브 ETF 22곳 · 통합 5.03%</div></div><div class="r"><div class="pct up">22곳</div></div></a>
-        <a class="srow" href="stock-us.html"><span class="rk">4</span><span class="logo-sq">MSTR</span><div class="info"><div class="n">MicroStrategy</div><div class="s">내부자(CEO) 매수</div></div><div class="r"><div class="pct up">내부자</div></div></a>
+        <h3>▲ ARK가 담은 종목 <span class="hint" id="ovBuyHint">최근 공개 거래</span></h3>
+        <div id="ovBuyList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>▼ 미국 큰손이 비운 종목 <span class="hint">ARK+13F 종합</span></h3>
-        <a class="srow" href="stock-us.html"><span class="rk">1</span><span class="logo-sq">ARM</span><div class="info"><div class="n">ARM Holdings <span class="badge b-sell">이탈</span></div><div class="s">운용사 4곳 동시 매도</div></div><div class="r"><div class="pct down">4곳</div></div></a>
-        <a class="srow" href="stock-us.html"><span class="rk">2</span><span class="logo-sq">GOOGL</span><div class="info"><div class="n">Alphabet</div><div class="s">Appaloosa(테퍼) −69%</div></div><div class="r"><div class="pct down">−69%</div></div></a>
-        <a class="srow" href="stock-us.html"><span class="rk">3</span><span class="logo-sq">HOOD</span><div class="info"><div class="n">Robinhood</div><div class="s">ARK 축소</div></div><div class="r"><div class="pct down">ARK ▼</div></div></a>
-        <a class="srow" href="stock-us.html"><span class="rk">4</span><span class="logo-sq">AMD</span><div class="info"><div class="n">AMD</div><div class="s">운용사 3곳 매도</div></div><div class="r"><div class="pct down">3곳</div></div></a>
+        <h3>▼ ARK가 판 종목 <span class="hint" id="ovSellHint">최근 공개 거래</span></h3>
+        <div id="ovSellList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
 
@@ -194,14 +186,14 @@
       <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 미국 큰손 해설</h3>
       <div style="display:flex;gap:12px">
         <svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
-        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">캐시 우드의 <b style="color:var(--txt)">ARK</b>는 로봇(ACHR)·유전자(PRME)를 담고 로빈후드를 덜어냈어요. 헤지펀드 거물 <b style="color:var(--txt)">테퍼(Appaloosa)</b>는 알파벳을 크게 줄였고, <b style="color:var(--txt)">MicroStrategy</b> 내부자(CEO)는 매수했습니다. 공매도는 <b style="color:var(--txt)">COIN</b>이 과열(숏 스퀴즈 연료). 13F는 분기 후행이라 시차에 유의하세요.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
+        <div id="ovAiNote" style="font-size:13.5px;color:var(--txt-2);line-height:1.65">실제 ARK 거래와 내부자 신고를 불러와 요약하고 있어요.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
       </div>
     </div>
   </div>
 
   <!-- ARK 데일리 -->
   <div class="panel" data-panel="ark">
-    <div class="panel-intro">🚀 <b>ARK Invest(캐시 우드)</b>의 액티브 ETF는 <b>매일 장 마감 후 보유 내역을 공개</b>합니다. <span class="live-dot"></span> <b id="arkLive">실시간 반영</b> — 미국에서 가장 투명한 큰손이에요.</div>
+    <div class="panel-intro">🚀 <b>ARK Invest(캐시 우드)</b>의 액티브 ETF는 <b>매일 장 마감 후 보유 내역을 공개</b>합니다. <span class="live-dot"></span> <b id="arkLive">최신 공개분 확인 중</b> — 미국에서 가장 투명한 큰손이에요.</div>
     <div class="statcards">
       <div class="statcard"><div class="k">ARK ETF</div><div class="v">6</div><div class="s">ARKK·ARKW·ARKG·ARKQ·ARKF·ARKX</div></div>
       <div class="statcard"><div class="k">최근 매수</div><div class="v up" id="arkBuyN">…</div><div class="s up">▲ 종목</div></div>
@@ -236,15 +228,15 @@
 
   <!-- 거물 13F -->
   <div class="panel" data-panel="f13">
-    <div class="panel-intro">🏛️ <b>13F 공시</b> — 운용자산 1억달러 이상 기관은 분기마다 미국 주식 보유를 SEC에 신고합니다(분기말 후 45일). <span class="live-dot"></span> <b>유명 투자자들의 실제 최신 13F 제출일을 SEC에서 실시간</b>으로 가져와 "원문보기"로 연결해요. (보유종목 상세는 SEC 원문에서 확인 — 무료 API로는 목록 제공이 제한됨)</div>
+    <div class="panel-intro">🏛️ <b>13F 공시</b> — 운용자산 1억달러 이상 기관은 분기마다 미국 주식 보유를 SEC에 신고합니다(분기말 후 45일). <span class="live-dot"></span> <b>탭을 열 때 SEC에서 최신 제출일을 조회</b>해 "원문보기"로 연결해요. (보유종목 상세는 SEC 원문에서 확인 — 무료 API로는 목록 제공이 제한됨)</div>
     <div class="statcards">
       <div class="statcard"><div class="k">추적 거물</div><div class="v" id="f13N">18</div><div class="s">유명 투자자</div></div>
       <div class="statcard"><div class="k">최신 13F 제출</div><div class="v" style="font-size:16px" id="f13Latest">…</div><div class="s" id="f13LatestWho"></div></div>
       <div class="statcard"><div class="k">디렉토리</div><div class="v">86</div><div class="s">기관·헤지펀드·연기금</div></div>
-      <div class="statcard"><div class="k">데이터</div><div class="v" style="font-size:15px">SEC EDGAR</div><div class="s">제출일 실시간</div></div>
+      <div class="statcard"><div class="k">데이터</div><div class="v" style="font-size:15px">SEC EDGAR</div><div class="s">탭 열 때 조회</div></div>
     </div>
     <div class="card" style="margin-bottom:16px">
-      <h3>📋 유명 투자자 최신 13F 제출 <span class="live-dot"></span> <span class="hint" id="f13Hint">SEC 실시간</span></h3>
+      <h3>📋 유명 투자자 최신 13F 제출 <span class="live-dot"></span> <span class="hint" id="f13Hint">탭 열 때 조회</span></h3>
       <table class="tbl">
         <thead><tr><th>투자자</th><th class="hide">인물</th><th class="r">최신 13F</th><th class="r">원문</th></tr></thead>
         <tbody id="f13Tbody"><tr><td colspan="4" style="text-align:center;color:var(--txt-3);padding:16px">SEC에서 불러오는 중…</td></tr></tbody>
@@ -268,7 +260,7 @@
 
   <!-- 내부자 -->
   <div class="panel" data-panel="insider">
-    <div class="panel-intro">👔 <b>내부자 거래(SEC Form 4)</b> <span class="live-dot"></span> <b>실시간(Finnhub)</b> — 임원·이사·10% 주주의 자사주 매매를 SEC 신고 기준으로 집계합니다. <b>공개시장 매수(P)</b>는 강한 신호, 매도(S)는 참고. 세금·옵션행사(F·M)는 실제 매매가 아니에요.</div>
+    <div class="panel-intro">👔 <b>내부자 거래(SEC Form 4)</b> <span class="live-dot"></span> <b>최근 신고 · 1시간 캐시(Finnhub)</b> — 임원·이사·10% 주주의 자사주 매매를 SEC 신고 기준으로 집계합니다. <b>공개시장 매수(P)</b>는 강한 신호, 매도(S)는 참고. 세금·옵션행사(F·M)는 실제 매매가 아니에요.</div>
     <div class="statcards">
       <div class="statcard"><div class="k">최근 매매</div><div class="v" id="insTotal">…</div><div class="s">최근 90일 P·S</div></div>
       <div class="statcard"><div class="k">매수/매도</div><div class="v"><span class="up" id="insBuyN">…</span> / <span class="down" id="insSellN">…</span></div><div class="s" id="insBias">건</div></div>
@@ -311,7 +303,7 @@
 
   <!-- SEC 공시 -->
   <div class="panel" data-panel="sec">
-    <div class="panel-intro">📡 <b>SEC EDGAR 공시</b> <span class="live-dot"></span> <b>실시간</b> — 주요 미국 종목의 8-K(중대사건)·13D/G(5%+ 대량보유)·Form 4(내부자) 공시를 <b>SEC data.sec.gov에서 직접</b> 최신순으로 모읍니다. 항목을 누르면 <b>SEC 원문</b>이 열려요.</div>
+    <div class="panel-intro">📡 <b>SEC EDGAR 공시</b> <span class="live-dot"></span> <b>탭을 열 때 최신 조회</b> — 주요 미국 종목의 8-K(중대사건)·13D/G(5%+ 대량보유)·Form 4(내부자) 공시를 <b>SEC data.sec.gov에서 직접</b> 최신순으로 모읍니다. 항목을 누르면 <b>SEC 원문</b>이 열려요.</div>
     <div class="statcards">
       <div class="statcard"><div class="k">추적 종목</div><div class="v" id="secTickN">30</div><div class="s">주요 대형주</div></div>
       <div class="statcard"><div class="k">최근 공시</div><div class="v" id="secTotal">…</div><div class="s">건</div></div>
@@ -324,7 +316,7 @@
     </div>
   </div>
 
-  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 데일리·SEC 공시·내부자·13F 제출일 = 실시간</b>(arkfunds.io · SEC data.sec.gov · Finnhub). 13F <b>보유종목 상세</b>와 <b>의회 거래</b>는 무료 API 제약으로 아직 <b>예시(디자인 시안)</b>이며 순차 실데이터화 예정. 13F는 분기 후행 스냅샷, 내부자는 공개 자료 기준 시차가 있습니다. 분석은 RICHFLOW 자체 산출물. 정보 제공용이며 매수·매도 권유가 아닙니다.</div>
+  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 일별 공개 자료·SEC 공시·Finnhub 내부자 신고·13F 제출일</b>. 화면에 표시된 기준일 또는 최신 신고일을 확인하세요. 내부자는 1시간 캐시, 13F는 분기 후행 스냅샷입니다. 13F <b>보유종목 상세</b>와 <b>의회 거래</b>는 아직 <b>예시(디자인 시안)</b>입니다. 분석은 RICHFLOW 자체 산출물이며 매수·매도 권유가 아닙니다.</div>
 </div>
 
 <!-- 13F modal -->
@@ -340,8 +332,21 @@
   const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
   tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
     tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-    panels.forEach(p=>p.classList.toggle('on',p.dataset.panel===b.dataset.p));window.scrollTo({top:0,behavior:'smooth'});
+    panels.forEach(p=>p.classList.toggle('on',p.dataset.panel===b.dataset.p));ensurePanelLoaded(b.dataset.p);window.scrollTo({top:0,behavior:'smooth'});
   });
+  const panelLoads={};
+  function loadOnce(key,loader){
+    if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(loader).catch(e=>{delete panelLoads[key];console.warn('[RICHFLOW] '+key+' load failed',e);return null;});
+    return panelLoads[key];
+  }
+  function ensurePanelLoaded(key){
+    if(key==='ark')return loadOnce('ark',loadArk);
+    if(key==='insider')return loadOnce('insider',loadInsider);
+    if(key==='sec')return loadOnce('sec',loadSec);
+    if(key==='f13')return loadOnce('f13',loadF13);
+    return Promise.resolve();
+  }
+  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-retry]');if(!b)return;const key=b.dataset.retry;delete panelLoads[key];ensurePanelLoaded(key);});
 
   // 13F directory — [이름, 운용자/설명, 보유종목수, 분류]
   const INV=[
@@ -437,11 +442,31 @@
   /* ===== ARK 데일리 실데이터 (arkfunds.io — CORS 열림, 키 불필요) ===== */
   const ARK_FUNDS=['ARKK','ARKW','ARKG','ARKQ','ARKF','ARKX'];
   const ARK_NAME={ARKK:'파괴적 혁신',ARKW:'차세대 인터넷',ARKG:'유전체 혁명',ARKQ:'자율기술·로봇',ARKF:'핀테크 혁신',ARKX:'우주 탐사'};
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const retryHtml=(key,label='다시 시도')=>`<button class="retry-btn" type="button" data-retry="${key}">${label}</button>`;
+  const overviewState={ark:null,insider:null};
+  async function fetchJSON(url,options={},timeout=10000){
+    const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),timeout);
+    try{const r=await fetch(url,{...options,signal:ctrl.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+    catch(e){console.warn('[RICHFLOW] API request failed',url,e&&e.name==='AbortError'?'timeout':e);return null;}
+    finally{clearTimeout(timer);}
+  }
   const fmtSh=n=>{n=Math.abs(n);return n>=1e6?(n/1e6).toFixed(1)+'M주':n>=1e3?Math.round(n/1e3)+'K주':Math.round(n)+'주';};
   const mdd=s=>{if(!s)return '';const p=String(s).split('-');return p.length===3?(+p[1])+'/'+(+p[2]):s;};
-  async function arkGet(path){try{const r=await fetch('https://arkfunds.io/api/v2/etf/'+path,{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+  async function arkGet(path){return fetchJSON('https://arkfunds.io/api/v2/etf/'+path,{cache:'no-store'},10000);}
   function arkRow(x){const t=x.ticker,sign=x.shares>=0?'up':'down',pre=x.shares>=0?'+':'−';
-    return `<a class="srow" href="stock-us.html?t=${encodeURIComponent(t)}"><span class="logo-sq">${t.slice(0,4)}</span><div class="info"><div class="n">${x.company||t}</div><div class="s">${[...x.funds].join('·')}</div></div><div class="r"><div class="pct ${sign}">${pre}${fmtSh(x.shares)}</div></div></a>`;}
+    return `<a class="srow" href="stock-us.html?t=${encodeURIComponent(t)}"><span class="logo-sq">${esc(t.slice(0,4))}</span><div class="info"><div class="n">${esc(x.company||t)}</div><div class="s">${esc([...x.funds].join('·'))}</div></div><div class="r"><div class="pct ${sign}">${pre}${fmtSh(x.shares)}</div></div></a>`;}
+  function arkOverviewRow(x,i){const t=x.ticker,sign=x.shares>=0?'up':'down',pre=x.shares>=0?'+':'−';
+    return `<a class="srow" href="stock-us.html?t=${encodeURIComponent(t)}"><span class="rk">${i+1}</span><span class="logo-sq">${esc(t.slice(0,4))}</span><div class="info"><div class="n">${esc(x.company||t)}</div><div class="s">${esc([...x.funds].join('·'))}</div></div><div class="r"><div class="pct ${sign}">${pre}${fmtSh(x.shares)}</div></div></a>`;}
+  function renderOverviewNote(){
+    const e=document.getElementById('ovAiNote'),a=overviewState.ark,i=overviewState.insider;if(!e||!a)return;
+    const parts=[];
+    if(a.buys[0])parts.push(`ARK 최근 순매수 상위는 <b style="color:var(--txt)">${esc(a.buys.slice(0,2).map(x=>x.ticker).join('·'))}</b>입니다.`);
+    if(a.sells[0])parts.push(`순매도 상위는 <b style="color:var(--txt)">${esc(a.sells.slice(0,2).map(x=>x.ticker).join('·'))}</b>입니다.`);
+    if(i)parts.push(`최근 90일 공개시장 내부자 거래는 <b style="color:var(--txt)">매수 ${i.buys}건·매도 ${i.sells}건</b>으로 ${i.buys>=i.sells?'매수':'매도'} 우위입니다.`);
+    parts.push('ARK는 일별 공개 자료, 내부자 거래는 신고 자료 기준이며 각각 시차가 있습니다.');
+    e.innerHTML=parts.join(' ')+'<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>';
+  }
   async function loadArk(){
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
@@ -454,7 +479,7 @@
     tradesR.forEach(res=>{if(!res||!res.trades)return;if((res.date_from||'')>latest)latest=res.date_from;
       res.trades.forEach(t=>{const k=t.ticker;if(!map[k])map[k]={ticker:k,company:t.company,shares:0,pct:0,funds:new Set()};
         const sg=t.direction==='Buy'?1:-1;map[k].shares+=sg*(t.shares||0);map[k].pct+=sg*(t.etf_percent||0);map[k].funds.add(t.fund);});});
-    const arr=Object.values(map).filter(x=>x.shares!==0);
+    const arr=Object.values(map).filter(x=>x.ticker&&x.shares!==0);
     const buys=arr.filter(x=>x.shares>0).sort((a,b)=>b.pct-a.pct);
     const sells=arr.filter(x=>x.shares<0).sort((a,b)=>a.pct-b.pct);
     const dt=mdd(latest);
@@ -466,7 +491,22 @@
       set('ovDate',dt);
       set('ovArkBuy',buys.slice(0,2).map(x=>x.ticker).join(' · ')||'—');
       set('ovArkSell',sells.slice(0,2).map(x=>x.ticker).join(' · ')||'—');
-    }else{ set('arkBuyDate','ARK 데이터 불러오기 실패'); html('arkBuyList','<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">잠시 후 새로고침 해주세요</div>'); }
+      set('ovBuyHint',dt+' 공개 거래');set('ovSellHint',dt+' 공개 거래');
+      html('ovBuyList',buys.slice(0,4).map(arkOverviewRow).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">최근 순매수 없음</div>');
+      html('ovSellList',sells.slice(0,4).map(arkOverviewRow).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">최근 순매도 없음</div>');
+      const focus=[...buys,...sells].sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct)).slice(0,4);
+      html('ovFocus',focus.map((x,i)=>`<div class="kv"><span class="k">${i+1}. ${esc(x.ticker)}</span><span class="v ${x.shares>=0?'up':'down'}">${x.shares>=0?'순매수':'순매도'} ${fmtSh(x.shares)}</span></div>`).join(''));
+      const buyFlow=buys.reduce((n,x)=>n+Math.abs(x.pct||0),0),sellFlow=sells.reduce((n,x)=>n+Math.abs(x.pct||0),0),flowTotal=buyFlow+sellFlow;
+      const buyPct=flowTotal?Math.round(buyFlow/flowTotal*100):50,sellPct=100-buyPct;
+      document.getElementById('flowIn').style.width=buyPct+'%';document.getElementById('flowOut').style.width=sellPct+'%';
+      set('flowBuyPct','매수 '+buyPct+'%');set('flowSellPct','매도 '+sellPct+'%');set('flowDate',dt+' 공개 거래');
+      set('flowNote','ARK 6개 ETF의 최근 공개 거래 비중 변화 합산 · 순매수 '+buys.length+'종목, 순매도 '+sells.length+'종목');
+      overviewState.ark={buys,sells,dt};renderOverviewNote();
+    }else{
+      const fail='<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">ARK 데이터를 불러오지 못했어요 '+retryHtml('ark')+'</div>';
+      set('arkBuyDate','ARK 데이터 불러오기 실패');set('arkLive','불러오기 실패');set('flowDate','불러오기 실패');set('flowNote','네트워크 상태를 확인한 뒤 다시 시도해 주세요.');
+      html('arkBuyList',fail);html('arkSellList',fail);html('ovBuyList',fail);html('ovSellList',fail);html('ovFocus',fail);
+    }
     // 펀드별 현황
     set('arkFundDate',dt?dt+' 기준':'');
     html('arkFundTbody',ARK_FUNDS.map((f,i)=>{
@@ -474,8 +514,8 @@
       const hd=(holdR[i]&&holdR[i].holdings)||[];
       const bN=tr.filter(t=>t.direction==='Buy').length, sN=tr.filter(t=>t.direction==='Sell').length;
       const top=hd.slice().filter(x=>x.weight).sort((a,b)=>b.weight-a.weight)[0];
-      const topTxt=top?`<b>${top.ticker}</b> <span style="color:var(--txt-3);font-weight:600">${top.weight.toFixed(1)}%</span>`:'—';
-      return `<tr><td class="nm">${f}</td><td class="hide sub">${ARK_NAME[f]||''}</td><td>${topTxt}</td><td class="r ${bN?'up':''}">${bN||'-'}</td><td class="r ${sN?'down':''}">${sN||'-'}</td></tr>`;
+      const topTxt=top?`<b>${esc(top.ticker)}</b> <span style="color:var(--txt-3);font-weight:600">${top.weight.toFixed(1)}%</span>`:'—';
+      return `<tr><td class="nm">${esc(f)}</td><td class="hide sub">${esc(ARK_NAME[f]||'')}</td><td>${topTxt}</td><td class="r ${bN?'up':''}">${bN||'-'}</td><td class="r ${sN?'down':''}">${sN||'-'}</td></tr>`;
     }).join(''));
     // ARKK 보유 TOP 10
     const h=holdR[0];
@@ -483,26 +523,26 @@
       const top=h.holdings.filter(x=>x.weight).sort((a,b)=>b.weight-a.weight).slice(0,10);
       if(top[0]){ set('arkTopW',top[0].ticker); set('arkTopWsub','ARKK '+top[0].weight.toFixed(1)+'%'); }
       set('arkHoldDate','ARKK · '+mdd(h.date_from));
-      html('arkHoldTbody',top.map((x,i)=>`<tr><td class="nm">${i+1}. ${x.ticker}</td><td class="hide sub">${(x.company||'').slice(0,22)}</td><td class="r">${(x.shares||0).toLocaleString('en-US')}</td><td class="r"><b>${x.weight.toFixed(2)}%</b></td></tr>`).join(''));
+      html('arkHoldTbody',top.map((x,i)=>`<tr><td class="nm">${i+1}. ${esc(x.ticker)}</td><td class="hide sub">${esc((x.company||'').slice(0,22))}</td><td class="r">${(x.shares||0).toLocaleString('en-US')}</td><td class="r"><b>${x.weight.toFixed(2)}%</b></td></tr>`).join(''));
     }
   }
-  loadArk();
 
   /* ===== SEC 공시 실데이터 (data.sec.gov — CORS 열림, CIK 하드코딩) ===== */
   const SEC_CIK={NVDA:'0001045810',AAPL:'0000320193',MSFT:'0000789019',TSLA:'0001318605',GOOGL:'0001652044',META:'0001326801',AMZN:'0001018724',AMD:'0000002488',AVGO:'0001730168',COIN:'0001679788',MSTR:'0001050446',PLTR:'0001321655',NFLX:'0001065280',MU:'0000723125',ORCL:'0001341439',CRM:'0001108524',JPM:'0000019617',LLY:'0000059478',BA:'0000012927',DIS:'0001744489',UBER:'0001543151',ARM:'0001973239',QCOM:'0000804328',SMCI:'0001375365',RIVN:'0001874178',HOOD:'0001783879',SOFI:'0001818874',MRVL:'0001835632',NKE:'0000320187',XOM:'0002115436'};
   const SEC_LBL={'8-K':'8-K','8-K/A':'8-K','4':'Form 4','4/A':'Form 4','3':'Form 3','SC 13D':'13D','SC 13D/A':'13D','SC 13G':'13G','SC 13G/A':'13G','13F-HR':'13F','10-Q':'10-Q','10-K':'10-K','DEF 14A':'위임장','424B5':'증권신고','S-8':'S-8','SCHEDULE 13G':'13G','SCHEDULE 13D':'13D','144':'144','6-K':'6-K','S-1':'S-1','FWP':'FWP','SD':'SD','11-K':'11-K'};
   const SEC_MAJOR=new Set(['8-K','8-K/A','SC 13D','SC 13D/A','SCHEDULE 13D']);
   function secDesc(form,desc){const M={'8-K':'주요 경영사항 (중대공시)','8-K/A':'주요 경영사항 정정','4':'내부자 지분 변동 신고','4/A':'내부자 신고 정정','3':'내부자 최초 지분 신고','SC 13D':'5%+ 대량보유 신고','SC 13D/A':'대량보유 변경','SC 13G':'5%+ 대량보유(수동)','SC 13G/A':'대량보유(수동) 변경','SCHEDULE 13G':'5%+ 대량보유(수동)','SCHEDULE 13D':'5%+ 대량보유','13F-HR':'기관 분기 보유 신고','10-Q':'분기 실적 보고서','10-K':'연간 실적 보고서','DEF 14A':'주주총회 위임장','424B5':'증권 발행 신고','S-8':'임직원 주식 등록','144':'제한주식 매각 예정 신고','6-K':'외국기업 수시 보고','S-1':'신규 증권 등록','FWP':'예비 투자설명 자료','SD':'분쟁광물 공시','11-K':'임직원 지주 연차보고'};return M[form]||(desc?desc.slice(0,42):form+' 공시');}
-  async function secGet(cik){try{const r=await fetch('https://data.sec.gov/submissions/CIK'+cik+'.json',{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+  async function secGet(cik){return fetchJSON('https://data.sec.gov/submissions/CIK'+cik+'.json',{cache:'no-store'},10000);}
   async function pool(items,n,fn){const out=[];let i=0;async function w(){while(i<items.length){const k=i++;out[k]=await fn(items[k]);}}await Promise.all(Array.from({length:Math.min(n,items.length)},w));return out;}
   async function loadSec(){
     const feed=document.getElementById('secFeed');if(!feed)return;
+    feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">SEC 공시 불러오는 중…</div>';
     const entries=Object.entries(SEC_CIK);
     const results=await pool(entries,6,async([tk,cik])=>({tk,cik,d:await secGet(cik)}));
     const items=[];
     results.forEach(({tk,cik,d})=>{if(!d||!d.filings||!d.filings.recent)return;const r=d.filings.recent;const N=Math.min(r.form.length,10);
       for(let i=0;i<N;i++){items.push({tk,cik,form:r.form[i],date:r.filingDate[i],acc:r.accessionNumber[i]||'',doc:r.primaryDocument[i]||'',desc:r.primaryDocDescription[i]||''});}});
-    if(!items.length){feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">공시를 불러오지 못했어요 · 잠시 후 새로고침</div>';return;}
+    if(!items.length){feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">공시를 불러오지 못했어요 '+retryHtml('sec')+'</div>';return;}
     items.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
     const top=items.slice(0,45);
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
@@ -512,38 +552,44 @@
     set('secHint','주요 30종목 · 최신순 · '+mdd(top[0].date)+' 최신');
     feed.innerHTML=top.map(it=>{
       const lbl=SEC_LBL[it.form]||it.form, major=SEC_MAJOR.has(it.form)?' major':'';
-      const url='https://www.sec.gov/Archives/edgar/data/'+(+it.cik)+'/'+String(it.acc).replace(/-/g,'')+'/'+it.doc;
-      return `<a class="sec-item" href="${url}" target="_blank" rel="noopener"><span class="tk">$${it.tk}</span><span class="ty${major}">${lbl}</span><span class="ds">${secDesc(it.form,it.desc)}</span><span class="tm">${mdd(it.date)}</span></a>`;
+      const doc=String(it.doc).replace(/[^A-Za-z0-9._-]/g,''),url='https://www.sec.gov/Archives/edgar/data/'+(+it.cik)+'/'+String(it.acc).replace(/[^0-9]/g,'')+'/'+doc;
+      return `<a class="sec-item" href="${url}" target="_blank" rel="noopener"><span class="tk">$${esc(it.tk)}</span><span class="ty${major}">${esc(lbl)}</span><span class="ds">${esc(secDesc(it.form,it.desc))}</span><span class="tm">${esc(mdd(it.date))}</span></a>`;
     }).join('');
   }
-  loadSec();
 
   /* ===== 내부자 거래 실데이터 (Finnhub → Cloudflare 워커 캐싱 프록시 경유) ===== */
   /* 키는 워커 Secret에 있고, 워커가 1시간 캐시 → 방문자 많아도 한도 안전 + 키 숨김 */
   const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/';
   const INS_TICKERS=['NVDA','AAPL','MSFT','TSLA','GOOGL','META','AMZN','AMD','AVGO','COIN','MSTR','PLTR','NFLX','ORCL','JPM','LLY','UBER','HOOD','MU','QCOM'];
   const fmtUsd2=n=>{const a=Math.abs(n),s=a>=1e9?(a/1e9).toFixed(2)+'B':a>=1e6?(a/1e6).toFixed(1)+'M':a>=1e3?Math.round(a/1e3)+'K':Math.round(a);return (n<0?'−$':'+$')+s;};
-  async function fhInsider(sym){try{const r=await fetch(WK+'?fh=insider&symbol='+encodeURIComponent(sym));if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+  async function fhInsider(sym,from,to){return fetchJSON(WK+'?fh=insider&symbol='+encodeURIComponent(sym)+'&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to),{},12000);}
   async function loadInsider(){
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
-    const results=await pool(INS_TICKERS,5,async sym=>({sym,d:await fhInsider(sym)}));
+    set('insHint','불러오는 중…');html('insTbody','<tr><td colspan="6" style="text-align:center;color:var(--txt-3);padding:16px">내부자 거래 불러오는 중…</td></tr>');
+    const to=new Date().toISOString().slice(0,10),cut=new Date(Date.now()-90*864e5).toISOString().slice(0,10);
+    const results=await pool(INS_TICKERS,5,async sym=>({sym,d:await fhInsider(sym,cut,to)}));
     const all=[];
-    results.forEach(({sym,d})=>{if(!d||!Array.isArray(d.data))return;d.data.forEach(x=>{const ch=x.change||0,pr=x.transactionPrice||0;all.push({sym,name:x.name||'',code:x.transactionCode||'',ch,pr,amt:ch*pr,date:x.transactionDate||x.filingDate||''});});});
-    if(!all.length){html('insTbody','<tr><td colspan="6" style="text-align:center;color:var(--txt-3);padding:16px">내부자 데이터를 불러오지 못했어요 · 잠시 후 새로고침</td></tr>');set('insHint','불러오기 실패');return;}
-    const cut=new Date(Date.now()-90*864e5).toISOString().slice(0,10);
-    const ps=all.filter(x=>(x.code==='P'||x.code==='S')&&x.pr>0&&Math.abs(x.amt)<1e10&&x.date>=cut);
+    results.forEach(({sym,d})=>{if(!d||!Array.isArray(d.data))return;d.data.forEach(x=>{const ch=x.change||0,pr=x.transactionPrice||0;all.push({sym,name:x.name||'',code:x.transactionCode||'',ch,pr,amt:ch*pr,date:x.transactionDate||x.filingDate||'',filing:x.filingDate||''});});});
+    if(!all.length){html('insTbody','<tr><td colspan="6" style="text-align:center;color:var(--txt-3);padding:16px">내부자 데이터를 불러오지 못했어요 '+retryHtml('insider')+'</td></tr>');set('insHint','불러오기 실패');set('ovInsider','불러오기 실패');return;}
+    const unique=new Map();
+    all.filter(x=>(x.code==='P'||x.code==='S')&&x.pr>0&&Math.abs(x.amt)<1e10&&x.date>=cut).forEach(x=>{
+      const key=[x.sym,x.name,x.code,x.ch,x.pr,x.date,x.filing].join('|');if(!unique.has(key))unique.set(key,x);
+    });
+    const ps=[...unique.values()];
     ps.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
     const buys=ps.filter(x=>x.code==='P'),sells=ps.filter(x=>x.code==='S');
     set('insTotal',ps.length);set('insBuyN',buys.length);set('insSellN',sells.length);
     set('insBias',buys.length>=sells.length?'▲ 매수 우위':'▼ 매도 우위');
+    const ovIns=document.getElementById('ovInsider');if(ovIns){ovIns.textContent=`매수 ${buys.length} · 매도 ${sells.length}`;ovIns.className='v '+(buys.length>=sells.length?'up':'down');}
+    set('ovInsLatest',ps[0]?mdd(ps[0].date):'최근 90일 거래 없음');
     const bigBuy=buys.slice().sort((a,b)=>b.amt-a.amt)[0], bigSell=sells.slice().sort((a,b)=>a.amt-b.amt)[0];
     if(bigBuy){set('insTopBuy',bigBuy.sym);set('insTopBuySub',fmtUsd2(bigBuy.amt));}else{set('insTopBuy','—');}
     if(bigSell){set('insTopSell',bigSell.sym);set('insTopSellSub',fmtUsd2(bigSell.amt));}else{set('insTopSell','—');}
     set('insHint',INS_TICKERS.length+'종목 · 최신순 · '+(ps[0]?mdd(ps[0].date)+' 최신':''));
-    html('insTbody',ps.slice(0,25).map(x=>{const buy=x.code==='P';return `<tr><td class="nm"><a href="stock-us.html?t=${x.sym}" style="color:inherit">${x.sym}</a></td><td class="sub">${x.name.slice(0,22)}</td><td><span class="pill ${buy?'b-buy':'b-sell'}">${buy?'매수':'매도'}</span></td><td class="hide">${Math.abs(x.ch).toLocaleString('en-US')}</td><td class="r ${buy?'up':'down'}">${fmtUsd2(x.amt)}</td><td class="r hide sub">${mdd(x.date)}</td></tr>`;}).join(''));
+    html('insTbody',ps.length?ps.slice(0,25).map(x=>{const buy=x.code==='P';return `<tr><td class="nm"><a href="stock-us.html?t=${encodeURIComponent(x.sym)}" style="color:inherit">${esc(x.sym)}</a></td><td class="sub">${esc(String(x.name||'').slice(0,22))}</td><td><span class="pill ${buy?'b-buy':'b-sell'}">${buy?'매수':'매도'}</span></td><td class="hide">${Math.abs(x.ch).toLocaleString('en-US')}</td><td class="r ${buy?'up':'down'}">${fmtUsd2(x.amt)}</td><td class="r hide sub">${esc(mdd(x.date))}</td></tr>`;}).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--txt-3);padding:16px">최근 90일 공개시장 매수·매도 신고가 없어요</td></tr>');
+    overviewState.insider={buys:buys.length,sells:sells.length,latest:ps[0]?ps[0].date:''};renderOverviewNote();
   }
-  loadInsider();
 
   /* ===== 거물 13F 최신 제출 실데이터 (data.sec.gov — 검증된 CIK) ===== */
   const F13_INV=[
@@ -560,6 +606,7 @@
   async function loadF13(){
     const tb=document.getElementById('f13Tbody'); if(!tb)return;
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set('f13Hint','SEC에서 불러오는 중…');tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--txt-3);padding:16px">SEC에서 불러오는 중…</td></tr>';
     const results=await pool(F13_INV,6,async inv=>({inv,d:await secGet(String(inv[2]).padStart(10,'0'))}));
     const rows=results.map(({inv,d})=>{
       let date='',acc='';
@@ -569,17 +616,20 @@
     });
     rows.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
     const withDate=rows.filter(x=>x.date);
+    if(!withDate.length){set('f13Latest','불러오기 실패');set('f13LatestWho','');set('f13Hint','SEC 응답 없음');tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--txt-3);padding:16px">13F 제출일을 불러오지 못했어요 '+retryHtml('f13')+'</td></tr>';return;}
     if(withDate[0]){set('f13Latest',mdd(withDate[0].date));set('f13LatestWho',withDate[0].inv[0]);}
-    set('f13Hint','SEC 실시간 · '+(withDate[0]?mdd(withDate[0].date)+' 최신':'제출일'));
+    set('f13Hint','SEC 조회 · '+mdd(withDate[0].date)+' 최신');
     tb.innerHTML=rows.map(x=>{
-      const cik=x.inv[2];
-      const link=x.acc?'https://www.sec.gov/Archives/edgar/data/'+cik+'/'+x.acc.replace(/-/g,'')+'/'+x.acc+'-index.htm'
+      const cik=String(x.inv[2]).replace(/[^0-9]/g,''),acc=String(x.acc).replace(/[^0-9-]/g,'');
+      const link=acc?'https://www.sec.gov/Archives/edgar/data/'+cik+'/'+acc.replace(/-/g,'')+'/'+acc+'-index.htm'
         :'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK='+cik+'&type=13F';
       const yr=x.date?' <span class="sub" style="font-size:10px">('+x.date.slice(0,4)+')</span>':'';
-      return `<tr><td class="nm">${x.inv[0]}</td><td class="hide sub">${x.inv[1]}</td><td class="r">${x.date?mdd(x.date)+yr:'—'}</td><td class="r"><a href="${link}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">원문 ↗</a></td></tr>`;
+      return `<tr><td class="nm">${esc(x.inv[0])}</td><td class="hide sub">${esc(x.inv[1])}</td><td class="r">${x.date?esc(mdd(x.date))+yr:'—'}</td><td class="r"><a href="${link}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">원문 ↗</a></td></tr>`;
     }).join('');
   }
-  loadF13();
+  // 종합 탭에 필요한 ARK·내부자만 먼저 로딩. SEC·13F는 해당 탭을 열 때 최초 1회 요청합니다.
+  ensurePanelLoaded('ark');
+  ensurePanelLoaded('insider');
 </script>
 </body>
 </html>
