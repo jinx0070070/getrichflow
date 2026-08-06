@@ -208,6 +208,13 @@
       <div class="statcard"><div class="k">최근 매도</div><div class="v down" id="arkSellN">…</div><div class="s down">▼ 종목</div></div>
       <div class="statcard"><div class="k">최다 비중</div><div class="v" style="font-size:16px" id="arkTopW">…</div><div class="s" id="arkTopWsub">ARKK</div></div>
     </div>
+    <div class="card" style="margin-bottom:16px">
+      <h3>🚀 ARK 6개 펀드 현황 <span class="hint" id="arkFundDate"></span></h3>
+      <table class="tbl">
+        <thead><tr><th>펀드</th><th class="hide">테마</th><th>대표 종목</th><th class="r">매수</th><th class="r">매도</th></tr></thead>
+        <tbody id="arkFundTbody"><tr><td colspan="5" style="text-align:center;color:var(--txt-3);padding:16px">불러오는 중…</td></tr></tbody>
+      </table>
+    </div>
     <div class="cols">
       <div class="card">
         <h3>▲ ARK가 담은 종목 <span class="hint" id="arkBuyDate">불러오는 중…</span></h3>
@@ -428,6 +435,7 @@
 
   /* ===== ARK 데일리 실데이터 (arkfunds.io — CORS 열림, 키 불필요) ===== */
   const ARK_FUNDS=['ARKK','ARKW','ARKG','ARKQ','ARKF','ARKX'];
+  const ARK_NAME={ARKK:'파괴적 혁신',ARKW:'차세대 인터넷',ARKG:'유전체 혁명',ARKQ:'자율기술·로봇',ARKF:'핀테크 혁신',ARKX:'우주 탐사'};
   const fmtSh=n=>{n=Math.abs(n);return n>=1e6?(n/1e6).toFixed(1)+'M주':n>=1e3?Math.round(n/1e3)+'K주':Math.round(n)+'주';};
   const mdd=s=>{if(!s)return '';const p=String(s).split('-');return p.length===3?(+p[1])+'/'+(+p[2]):s;};
   async function arkGet(path){try{const r=await fetch('https://arkfunds.io/api/v2/etf/'+path,{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
@@ -436,9 +444,13 @@
   async function loadArk(){
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
-    const results=await Promise.all(ARK_FUNDS.map(f=>arkGet('trades?symbol='+f)));
+    const [tradesR,holdR]=await Promise.all([
+      Promise.all(ARK_FUNDS.map(f=>arkGet('trades?symbol='+f))),
+      Promise.all(ARK_FUNDS.map(f=>arkGet('holdings?symbol='+f)))
+    ]);
+    // 통합 매매
     const map={};let latest='';
-    results.forEach(res=>{if(!res||!res.trades)return;if((res.date_from||'')>latest)latest=res.date_from;
+    tradesR.forEach(res=>{if(!res||!res.trades)return;if((res.date_from||'')>latest)latest=res.date_from;
       res.trades.forEach(t=>{const k=t.ticker;if(!map[k])map[k]={ticker:k,company:t.company,shares:0,pct:0,funds:new Set()};
         const sg=t.direction==='Buy'?1:-1;map[k].shares+=sg*(t.shares||0);map[k].pct+=sg*(t.etf_percent||0);map[k].funds.add(t.fund);});});
     const arr=Object.values(map).filter(x=>x.shares!==0);
@@ -448,18 +460,29 @@
     if(buys.length||sells.length){
       set('arkBuyN',buys.length);set('arkSellN',sells.length);
       set('arkBuyDate',dt+' 매매');set('arkSellDate',dt+' 매매');set('arkLive',dt+' 반영');
-      html('arkBuyList',buys.slice(0,6).map(arkRow).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">최근 순매수 없음</div>');
-      html('arkSellList',sells.slice(0,6).map(arkRow).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">최근 순매도 없음</div>');
+      html('arkBuyList',buys.slice(0,8).map(arkRow).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">최근 순매수 없음</div>');
+      html('arkSellList',sells.slice(0,8).map(arkRow).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">최근 순매도 없음</div>');
       set('ovDate',dt);
       set('ovArkBuy',buys.slice(0,2).map(x=>x.ticker).join(' · ')||'—');
       set('ovArkSell',sells.slice(0,2).map(x=>x.ticker).join(' · ')||'—');
     }else{ set('arkBuyDate','ARK 데이터 불러오기 실패'); html('arkBuyList','<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">잠시 후 새로고침 해주세요</div>'); }
-    const h=await arkGet('holdings?symbol=ARKK');
+    // 펀드별 현황
+    set('arkFundDate',dt?dt+' 기준':'');
+    html('arkFundTbody',ARK_FUNDS.map((f,i)=>{
+      const tr=(tradesR[i]&&tradesR[i].trades)||[];
+      const hd=(holdR[i]&&holdR[i].holdings)||[];
+      const bN=tr.filter(t=>t.direction==='Buy').length, sN=tr.filter(t=>t.direction==='Sell').length;
+      const top=hd.slice().filter(x=>x.weight).sort((a,b)=>b.weight-a.weight)[0];
+      const topTxt=top?`<b>${top.ticker}</b> <span style="color:var(--txt-3);font-weight:600">${top.weight.toFixed(1)}%</span>`:'—';
+      return `<tr><td class="nm">${f}</td><td class="hide sub">${ARK_NAME[f]||''}</td><td>${topTxt}</td><td class="r ${bN?'up':''}">${bN||'-'}</td><td class="r ${sN?'down':''}">${sN||'-'}</td></tr>`;
+    }).join(''));
+    // ARKK 보유 TOP 10
+    const h=holdR[0];
     if(h&&h.holdings&&h.holdings.length){
-      const top=h.holdings.filter(x=>x.weight).sort((a,b)=>b.weight-a.weight).slice(0,8);
+      const top=h.holdings.filter(x=>x.weight).sort((a,b)=>b.weight-a.weight).slice(0,10);
       if(top[0]){ set('arkTopW',top[0].ticker); set('arkTopWsub','ARKK '+top[0].weight.toFixed(1)+'%'); }
       set('arkHoldDate','ARKK · '+mdd(h.date_from));
-      html('arkHoldTbody',top.map(x=>`<tr><td class="nm">${x.ticker}</td><td class="hide sub">${(x.company||'').slice(0,22)}</td><td class="r">${(x.shares||0).toLocaleString('en-US')}</td><td class="r"><b>${x.weight.toFixed(2)}%</b></td></tr>`).join(''));
+      html('arkHoldTbody',top.map((x,i)=>`<tr><td class="nm">${i+1}. ${x.ticker}</td><td class="hide sub">${(x.company||'').slice(0,22)}</td><td class="r">${(x.shares||0).toLocaleString('en-US')}</td><td class="r"><b>${x.weight.toFixed(2)}%</b></td></tr>`).join(''));
     }
   }
   loadArk();
