@@ -260,41 +260,32 @@
   <div class="panel on" data-panel="all">
     <div class="band">
       <div class="card">
-        <h3>큰손 수급 방향 <span class="hint">최근 24거래일 누적</span></h3>
-        <div class="flowbar"><i class="in" style="width:34%"></i><i class="out" style="width:66%"></i></div>
-        <div class="flow-legend"><span class="up">유입 34% · 36.6조</span><span class="down">유출 66% · 71.9조</span></div>
-        <div class="flow-note">큰손들은 지금 <b class="down">파는 쪽</b>이에요. 주로 파는 곳은 <b>바이오·반도체</b>, 담는 곳은 <b>플랫폼·전력기기</b>.</div>
+        <h3>큰손 수급 방향 <span class="hint" id="ovFlowDate">불러오는 중…</span></h3>
+        <div class="flowbar"><i class="in" id="ovFlowIn" style="width:50%"></i><i class="out" id="ovFlowOut" style="width:50%"></i></div>
+        <div class="flow-legend"><span class="up" id="ovFlowBuy">순매수 —</span><span class="down" id="ovFlowSell">순매도 —</span></div>
+        <div class="flow-note" id="ovFlowNote">주요 종목의 기관·외국인 순매매를 집계하고 있어요.</div>
       </div>
       <div class="card">
-        <h3>오늘의 큰손 <span class="hint">7/22 공시</span></h3>
-        <div class="kv"><span class="k">외국인 (장중)</span><span class="v up">▲ 1.6조</span></div>
-        <div class="kv"><span class="k">기관 (장중)</span><span class="v down">▼ 357억</span></div>
-        <div class="kv"><span class="k">국민연금 (7/22)</span><span class="v up">▲ 1,000억</span></div>
-        <div class="kv"><span class="k">운용사 순매수</span><span class="v">21 담음 / 24 팜</span></div>
+        <h3>오늘의 큰손 <span class="hint" id="ovDate">기준일</span></h3>
+        <div class="kv"><span class="k">외국인 순매수</span><span class="v" id="ovForeign">…</span></div>
+        <div class="kv"><span class="k">기관 순매수</span><span class="v" id="ovOrgan">…</span></div>
+        <div class="kv"><span class="k">개인 순매수</span><span class="v" id="ovIndiv">…</span></div>
+        <div class="kv"><span class="k">추적 종목</span><span class="v" id="ovCount">…</span></div>
       </div>
       <div class="card">
-        <h3>주목 종목 TOP <span class="hint">겹침 신호</span></h3>
-        <div class="kv"><span class="k">① LS</span><span class="v up">3곳 겹침</span></div>
-        <div class="kv"><span class="k">② LSK아이로봇</span><span class="v up">신규 7곳</span></div>
-        <div class="kv"><span class="k">③ 엘앤에프</span><span class="v up">5일 연속 매집</span></div>
-        <div class="kv"><span class="k">④ CJ</span><span class="v up">2곳 겹침</span></div>
+        <h3>주목 종목 TOP <span class="hint">기관+외국인 합산 순매수</span></h3>
+        <div id="ovTop"><div class="kv"><span class="k">불러오는 중…</span><span class="v">—</span></div></div>
       </div>
     </div>
 
     <div class="cols">
       <div class="card">
-        <h3>▲ 큰손이 담은 종목 <span class="hint">최근 30일 · 지분 확대</span></h3>
-        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">아</span><div class="info"><div class="n">아틀라스링크 <span class="badge b-buy">담는중</span></div><div class="s">5곳 기관 · 진입 후 추가매수</div></div><div class="r"><div class="pct up">+103.5%p</div><div class="cnt">5곳</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">LS</span><div class="info"><div class="n">LSK아이로봇 <span class="badge b-new">신규</span></div><div class="s">7곳 동시 5% 진입</div></div><div class="r"><div class="pct up">+96.3%p</div><div class="cnt">7곳</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">세</span><div class="info"><div class="n">세원물산</div><div class="s">단일 기관 대량 매집</div></div><div class="r"><div class="pct up">+74.9%p</div><div class="cnt">1곳</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">4</span><span class="logo-sq">이</span><div class="info"><div class="n">이화산업</div><div class="s">지분 신규 신고</div></div><div class="r"><div class="pct up">+72.8%p</div><div class="cnt">1곳</div></div></a>
+        <h3>▲ 큰손이 담은 종목 <span class="hint" id="ovBuyHint">기관+외국인 순매수</span></h3>
+        <div id="ovBuyList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>▼ 큰손이 비운 종목 <span class="hint">최근 30일 · 지분 축소</span></h3>
-        <a class="srow" href="stock.html"><span class="rk">1</span><span class="logo-sq">엑</span><div class="info"><div class="n">엑시큐어하이트론 <span class="badge b-sell">이탈</span></div><div class="s">7곳 동시 지분 축소</div></div><div class="r"><div class="pct down">−152.3%p</div><div class="cnt">7곳</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">2</span><span class="logo-sq">오</span><div class="info"><div class="n">오늘이엔엠</div><div class="s">8곳 매도</div></div><div class="r"><div class="pct down">−108.2%p</div><div class="cnt">8곳</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">3</span><span class="logo-sq">이</span><div class="info"><div class="n">이큐셀</div><div class="s">지분 정리</div></div><div class="r"><div class="pct down">−84.6%p</div><div class="cnt">2곳</div></div></a>
-        <a class="srow" href="stock.html"><span class="rk">4</span><span class="logo-sq">푸</span><div class="info"><div class="n">푸드나무</div><div class="s">보유 축소</div></div><div class="r"><div class="pct down">−84.1%p</div><div class="cnt">3곳</div></div></a>
+        <h3>▼ 큰손이 비운 종목 <span class="hint" id="ovSellHint">기관+외국인 순매도</span></h3>
+        <div id="ovSellList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
 
@@ -321,8 +312,8 @@
       <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 큰손 해설</h3>
       <div style="display:flex;gap:12px">
         <svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
-        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">
-          큰손들은 <b style="color:var(--txt)">반도체·바이오에서 돈을 빼고</b> 리츠·2차전지·전력기기로 옮기는 중이에요. 특히 <b style="color:var(--txt)">LSK아이로봇에 7곳이 한꺼번에</b> 신규 진입한 건 흔치 않은 강한 신호. 다만 대량보유 공시는 실제 매매보다 <b style="color:var(--txt)">며칠 늦게</b> 도착하니 후속 공시로 확인이 필요해요.
+        <div id="ovAiNote" style="font-size:13.5px;color:var(--txt-2);line-height:1.65">
+          주요 종목의 기관·외국인 순매매를 불러와 요약하고 있어요.
           <div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>
         </div>
       </div>
@@ -626,9 +617,9 @@
   </div>
 
   <div class="disc">
-    데이터 출처: DART 전자공시(대량보유 5%룰·임원 특정증권) · 공직자윤리위원회 공개자료 · 한국거래소 투자자별 매매 · 공공데이터포털 · 분석은 RICHFLOW 자체 산출물.
-    5%룰·13F는 공시 시점 스냅샷이며 실제 매매보다 후행합니다. 공직자 거래는 공개 자료 기준으로 시차가 있으며 정책 연관은 해석의 영역입니다.
-    본 페이지의 모든 정보는 정보 제공용이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.
+    데이터 출처: <b style="color:var(--brand)">종합·외국인 탭 = 실시간(네이버 금융 투자자별 매매)</b> — 주요 종목의 외국인·기관 순매수(수량×종가) 집계. 국민연금·운용사·세력(5%룰)·공직자 탭은 DART/공직자윤리위 기반의 <b>예시(디자인 시안)</b>이며 순차 실데이터화 예정.
+    투자자 매매는 장중 변동·정정이 있을 수 있고, 5%룰·공직자 거래는 공시 시점 스냅샷이라 실제 매매보다 후행합니다.
+    본 페이지의 모든 정보는 정보 제공용이며 매수·매도 권유가 아닙니다. 분석은 RICHFLOW 자체 산출물입니다.
   </div>
 
 </div>
@@ -722,10 +713,38 @@
     const lastUp=daily[daily.length-1].v>=0;
     document.getElementById('frChartNote').textContent=dt+' 외국인 '+(lastUp?'순매수':'순매도')+' '+fmtWon(daily[daily.length-1].v)+' · 추적 '+KR_STOCKS.length+'종목 합산';
   }
+  async function loadOverview(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const setC=(id,amt)=>{const e=document.getElementById(id);if(e){e.textContent=fmtWon(amt);e.className='v '+(amt>=0?'up':'down');}};
+    const rows=await loadKRData();
+    if(!rows){const f='<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">투자자 매매를 불러오지 못했어요 '+retryHtml('all')+'</div>';html('ovBuyList',f);html('ovSellList','');set('ovFlowNote','네트워크 확인 후 다시 시도해 주세요.');return;}
+    const dt=bd(rows[0].date);
+    const combined=rows.map(x=>({name:x.name,code:x.code,date:x.date,cAmt:x.fAmt+x.oAmt}));
+    const byC=[...combined].sort((a,b)=>b.cAmt-a.cAmt);
+    const buys=byC.filter(x=>x.cAmt>0),sells=byC.filter(x=>x.cAmt<0).reverse();
+    const fTot=rows.reduce((n,x)=>n+x.fAmt,0),oTot=rows.reduce((n,x)=>n+x.oAmt,0),iTot=rows.reduce((n,x)=>n+x.iq*x.price,0);
+    set('ovDate',dt+' 기준');setC('ovForeign',fTot);setC('ovOrgan',oTot);setC('ovIndiv',iTot);set('ovCount',KR_STOCKS.length+'종목');
+    html('ovBuyList',buys.slice(0,4).map((x,i)=>krSrow(x,x.cAmt,i+1)).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">순매수 종목 없음</div>');
+    html('ovSellList',sells.slice(0,4).map((x,i)=>krSrow(x,x.cAmt,i+1)).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">순매도 종목 없음</div>');
+    const top=[...combined].sort((a,b)=>Math.abs(b.cAmt)-Math.abs(a.cAmt)).slice(0,4);
+    html('ovTop',top.map((x,i)=>`<div class="kv"><span class="k">${i+1}. ${esc(x.name)}</span><span class="v ${x.cAmt>=0?'up':'down'}">${x.cAmt>=0?'순매수':'순매도'} ${fmtWon(x.cAmt)}</span></div>`).join(''));
+    const buyFlow=combined.filter(x=>x.cAmt>0).reduce((n,x)=>n+x.cAmt,0),sellFlow=Math.abs(combined.filter(x=>x.cAmt<0).reduce((n,x)=>n+x.cAmt,0)),tot=buyFlow+sellFlow,bp=tot?Math.round(buyFlow/tot*100):50;
+    document.getElementById('ovFlowIn').style.width=bp+'%';document.getElementById('ovFlowOut').style.width=(100-bp)+'%';
+    set('ovFlowBuy','순매수 '+bp+'% · '+fmtWon(buyFlow));set('ovFlowSell','순매도 '+(100-bp)+'% · '+fmtWon(-sellFlow));set('ovFlowDate',dt+' 기준');
+    const net=fTot+oTot;set('ovFlowNote','기관·외국인 합산 순'+(net>=0?'매수':'매도')+' '+fmtWon(net)+' · 담은 '+buys.length+'종목, 비운 '+sells.length+'종목');
+    const ai=[];
+    if(buys[0])ai.push(`기관·외국인 합산 순매수 상위는 <b style="color:var(--txt)">${esc(buys.slice(0,2).map(x=>x.name).join('·'))}</b>입니다.`);
+    if(sells[0])ai.push(`순매도 상위는 <b style="color:var(--txt)">${esc(sells.slice(0,2).map(x=>x.name).join('·'))}</b>입니다.`);
+    ai.push(`${dt} 기준 외국인 ${fmtWon(fTot)}, 기관 ${fmtWon(oTot)}으로 ${net>=0?'순매수':'순매도'} 우위입니다.`);
+    ai.push('네이버 투자자별 매매(순매수 수량×종가) 집계이며 장중 변동이 있을 수 있습니다.');
+    document.getElementById('ovAiNote').innerHTML=ai.join(' ')+'<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>';
+  }
   const panelLoads={};
   function loadOnce(key,loader){if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(loader).catch(e=>{delete panelLoads[key];console.warn('[RICHFLOW] '+key+' fail',e);});return panelLoads[key];}
-  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);return Promise.resolve();}
-  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-retry]');if(!b)return;const k=b.dataset.retry;delete panelLoads[k];if(k==='foreign')krRows=null;ensurePanelLoaded(k);});
+  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);if(key==='all')return loadOnce('all',loadOverview);return Promise.resolve();}
+  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-retry]');if(!b)return;const k=b.dataset.retry;delete panelLoads[k];krRows=null;ensurePanelLoaded(k);});
+  ensurePanelLoaded('all');
 
   /* ===== 세력별 핵심 지분: 기관 디렉토리 ===== */
   const INSTS=[
