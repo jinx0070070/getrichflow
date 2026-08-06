@@ -528,7 +528,7 @@
     set('secHint','주요 30종목 · 최신순 · '+mdd(top[0].date)+' 최신');
     feed.innerHTML=top.map(it=>{
       const lbl=SEC_LBL[it.form]||it.form, major=SEC_MAJOR.has(it.form)?' major':'';
-      const doc=String(it.doc).replace(/[^A-Za-z0-9._-]/g,''),url='https://www.sec.gov/Archives/edgar/data/'+(+it.cik)+'/'+String(it.acc).replace(/[^0-9]/g,'')+'/'+doc;
+      const doc=String(it.doc).replace(/\.\.+/g,'').replace(/[^A-Za-z0-9._/-]/g,''),url='https://www.sec.gov/Archives/edgar/data/'+(+it.cik)+'/'+String(it.acc).replace(/[^0-9]/g,'')+'/'+doc;
       return `<a class="sec-item" href="${url}" target="_blank" rel="noopener"><span class="tk">$${esc(it.tk)}</span><span class="ty${major}">${esc(lbl)}</span><span class="ds">${esc(secDesc(it.form,it.desc))}</span><span class="tm">${esc(mdd(it.date))}</span></a>`;
     }).join('');
   }
