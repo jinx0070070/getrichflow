@@ -771,10 +771,10 @@
     const el=document.getElementById('npsList');if(!el)return;
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     const all=[];
-    for(let pg=1;pg<=4;pg++){const d=await dartList('D001',120,pg,100);if(!d||d.status!=='000'||!Array.isArray(d.list)||!d.list.length)break;all.push(...d.list);if((d.total_page||1)<=pg)break;}
+    for(let pg=1;pg<=5;pg++){const d=await dartList('D001',88,pg,100);if(!d||d.status!=='000'||!Array.isArray(d.list)||!d.list.length)break;all.push(...d.list);if((d.total_page||1)<=pg)break;}
     if(!all.length){el.innerHTML='<div class="tl-item"><div class="t">—</div><div class="d">DART 공시를 불러오지 못했어요 '+retryHtml('nps')+'</div></div>';set('npsHint','불러오기 실패');return;}
     const nps=all.filter(x=>/국민연금/.test(x.flr_nm||''));
-    if(!nps.length){el.innerHTML='<div class="tl-item"><div class="t">—</div><div class="d">최근 120일 국민연금 5% 신고가 없어요</div></div>';set('npsHint','최근 신고 없음');return;}
+    if(!nps.length){el.innerHTML='<div class="tl-item"><div class="t">—</div><div class="d">최근 3개월 국민연금 5% 신고가 없어요</div></div>';set('npsHint','최근 신고 없음');return;}
     set('npsHint','DART · '+bd(nps[0].rcept_dt)+' 최신 · '+nps.length+'건');
     el.innerHTML=nps.slice(0,12).map(x=>{const ty=r5Type(x.report_nm);return `<div class="tl-item"><div class="t">${bd(x.rcept_dt)}</div><div class="d"><b>${esc(x.corp_name)}</b> 대량보유 ${ty.t} 신고 · <a href="${dartLink(x.rcept_no)}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">원문↗</a></div></div>`;}).join('');
   }
