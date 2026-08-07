@@ -64,6 +64,36 @@ export default {
       }
     }
 
+    // ===== (3) DART 캐싱 프록시 (?dart=) — 키는 Secret DART_KEY 주입, 1시간 캐시 =====
+    const dart = url.searchParams.get("dart");
+    if (dart) {
+      if (dart !== "list") {
+        return new Response("dart endpoint not allowed", { status: 403, headers: cors() });
+      }
+      const key = env && env.DART_KEY;
+      if (!key) return new Response("DART_KEY not set on worker", { status: 500, headers: cors() });
+      const num = (v, d, max) => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? Math.min(n, max) : d; };
+      const ymd = v => (/^\d{8}$/.test(v || "") ? v : "");
+      const detailOk = new Set(["D001", "D002"]);
+      const detail = detailOk.has(url.searchParams.get("detail")) ? url.searchParams.get("detail") : "D001";
+      const bgn = ymd(url.searchParams.get("bgn")), end = ymd(url.searchParams.get("end"));
+      const page = num(url.searchParams.get("page"), 1, 50), count = num(url.searchParams.get("count"), 20, 100);
+      let du = "https://opendart.fss.or.kr/api/list.json?crtfc_key=" + key +
+        "&pblntf_ty=D&pblntf_detail_ty=" + detail + "&page_no=" + page + "&page_count=" + count;
+      if (bgn) du += "&bgn_de=" + bgn;
+      if (end) du += "&end_de=" + end;
+      try {
+        const r = await fetch(du, { headers: { "Accept": "application/json" }, cf: { cacheTtl: 3600, cacheEverything: true } });
+        const body = await r.text();
+        return new Response(body, {
+          status: r.status,
+          headers: { ...cors(), "Content-Type": "application/json", "Cache-Control": "public, max-age=3600", "X-Richflow-Cache": "dart-1h" },
+        });
+      } catch (e) {
+        return new Response("dart error: " + e.message, { status: 502, headers: cors() });
+      }
+    }
+
     // ===== (1) 일반 CORS 프록시 (?url=) =====
     const target = url.searchParams.get("url");
     if (!target) {

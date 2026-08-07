@@ -111,6 +111,14 @@
   .tl-item .d{font-size:13px;color:var(--txt-2);line-height:1.5}.tl-item .d b{color:var(--txt)}
 
   /* table */
+  .sec-feed{display:flex;flex-direction:column}
+  .sec-item{display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--line);cursor:pointer}
+  .sec-item:last-child{border:none}.sec-item:hover{background:var(--card-2)}
+  .sec-item .tk{font-weight:800;font-size:13.5px;min-width:96px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sec-item .ty{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;background:var(--card-2);color:var(--txt-2);white-space:nowrap}
+  .sec-item .ty.major{background:var(--up-bg);color:var(--up)}.sec-item .ty.down{background:var(--down-bg);color:var(--down)}
+  .sec-item .ds{flex:1;font-size:12.5px;color:var(--txt-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sec-item .tm{font-size:11px;color:var(--txt-3);font-weight:600;white-space:nowrap}
   .tbl{width:100%;border-collapse:collapse;font-size:13px}
   .tbl th{text-align:left;font-size:11px;color:var(--txt-3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
   .tbl th.r,.tbl td.r{text-align:right}
@@ -322,7 +330,7 @@
 
   <!-- ============ 국민연금 ============ -->
   <div class="panel" data-panel="nps">
-    <div class="panel-intro">🏛️ <b>국민연금공단</b>이 지분 5% 이상 보유·변동한 종목을 DART 대량보유 공시로 추적합니다. 국내 최대 큰손이라 방향 전환이 시장에 미치는 영향이 큽니다.</div>
+    <div class="panel-intro">🏛️ <b>국민연금공단</b>의 지분 5% 이상 보유·변동을 추적합니다. <span class="live-dot"></span> <b>아래 "최근 대량보유 공시"는 DART에서 실시간</b> 조회 — 그 외 순매매 추정·섹터배분은 참고용 예시입니다. 국내 최대 큰손이라 방향 전환의 시장 영향이 큽니다.</div>
     <div class="statcards">
       <div class="statcard"><div class="k">보유 종목 수</div><div class="v">312</div><div class="s up">▲ 이번달 +6</div></div>
       <div class="statcard"><div class="k">이번달 순매수</div><div class="v up">+1.8조</div><div class="s up">▲ 7거래일 순매수</div></div>
@@ -382,13 +390,8 @@
         </div>
       </div>
       <div class="card">
-        <h3>⏱️ 국민연금 최근 공시 <span class="hint">대량보유 변동</span></h3>
-        <div class="tl">
-          <div class="tl-item"><div class="t">7/22</div><div class="d"><b>대웅제약</b> 지분 +10.10%p 확대 (2.3% → 12.4%)</div></div>
-          <div class="tl-item"><div class="t">7/22</div><div class="d"><b>롯데관광개발</b> 신규 5% 진입 (0% → 10.0%)</div></div>
-          <div class="tl-item"><div class="t">7/19</div><div class="d"><b>셀트리온</b> 지분 −1.10%p 축소 — 바이오 차익실현</div></div>
-          <div class="tl-item"><div class="t">7/18</div><div class="d"><b>에코프로비엠</b> 5% 미만으로 이탈 신고</div></div>
-        </div>
+        <h3>⏱️ 국민연금 최근 대량보유 공시 <span class="live-dot"></span> <span class="hint" id="npsHint">DART 실시간</span></h3>
+        <div class="tl" id="npsList"><div class="tl-item"><div class="t">…</div><div class="d">DART에서 국민연금 5% 신고 조회 중…</div></div></div>
       </div>
     </div>
 
@@ -488,12 +491,16 @@
 
   <!-- ============ 세력 (5%룰) ============ -->
   <div class="panel" data-panel="rule5">
-    <div class="panel-intro">📑 <b>대량보유(5%룰) 공시</b> — 개인·투자조합·기관이 지분 5% 이상을 신규 취득하거나 1%p 이상 변동하면 5일 내 신고 의무가 있습니다. 여러 큰손이 <b>같은 종목에 겹치면</b> 강한 수급 신호입니다.</div>
+    <div class="panel-intro">📑 <b>대량보유(5%룰) 공시</b> <span class="live-dot"></span> <b id="r5Live">DART에서 최근 공시 조회</b> — 지분 5% 이상 신규 취득·1%p 이상 변동 시 5일 내 신고. <b>DART 전자공시에서 직접</b> 최근순으로 모아요. 항목을 누르면 <b>DART 원문</b>이 열립니다.</div>
     <div class="statcards">
-      <div class="statcard"><div class="k">오늘 신규 5%</div><div class="v up">9</div><div class="s up">▲ 종목</div></div>
-      <div class="statcard"><div class="k">지분 확대</div><div class="v up">12</div><div class="s">종목</div></div>
-      <div class="statcard"><div class="k">지분 축소</div><div class="v down">12</div><div class="s">종목</div></div>
-      <div class="statcard"><div class="k">최다 겹침</div><div class="v" style="font-size:18px">LSK아이로봇</div><div class="s">7곳 동시</div></div>
+      <div class="statcard"><div class="k">최근 5%룰 공시</div><div class="v" id="r5Total">…</div><div class="s">건</div></div>
+      <div class="statcard"><div class="k">기준일</div><div class="v" style="font-size:18px" id="r5Date">…</div><div class="s">최근 접수</div></div>
+      <div class="statcard"><div class="k">최다 신고 종목</div><div class="v" style="font-size:16px" id="r5TopCorp">…</div><div class="s" id="r5TopCorpSub"></div></div>
+      <div class="statcard"><div class="k">데이터</div><div class="v" style="font-size:15px">DART</div><div class="s">전자공시 실시간</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <h3><span class="live-dot"></span> 최근 5%룰 대량보유 공시 <span class="hint" id="r5Hint">불러오는 중…</span></h3>
+      <div class="sec-feed" id="r5Feed"><div style="padding:16px 8px;color:var(--txt-3);font-size:13px">DART 공시 불러오는 중…</div></div>
     </div>
 
     <div class="card" style="margin-bottom:16px">
@@ -740,9 +747,39 @@
     ai.push('네이버 투자자별 매매(순매수 수량×종가) 집계이며 장중 변동이 있을 수 있습니다.');
     document.getElementById('ovAiNote').innerHTML=ai.join(' ')+'<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>';
   }
+  /* ===== DART 전자공시 (워커 dart 프록시 — 키는 Secret, 1시간 캐시) ===== */
+  const DART_WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?dart=list';
+  function ymdRange(days){const f=d=>d.toISOString().slice(0,10).replace(/-/g,'');return {bgn:f(new Date(Date.now()-days*864e5)),end:f(new Date())};}
+  async function dartList(detail,days,page,count){const r=ymdRange(days);return fetchJSON(DART_WK+'&detail='+detail+'&bgn='+r.bgn+'&end='+r.end+'&page='+page+'&count='+(count||100),12000);}
+  const dartLink=rcpt=>'https://dart.fss.or.kr/dsaf001/main.do?rcpNo='+encodeURIComponent(String(rcpt||'').replace(/[^0-9]/g,''));
+  function r5Type(nm){nm=String(nm||'');if(/약식/.test(nm))return{t:'약식',c:''};if(/일반/.test(nm))return{t:'일반',c:' major'};return{t:'5%룰',c:''};}
+  async function loadRule5(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const feed=document.getElementById('r5Feed');if(!feed)return;
+    feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">DART 공시 불러오는 중…</div>';set('r5Hint','불러오는 중…');
+    const d=await dartList('D001',10,1,60);
+    if(!d||d.status!=='000'||!Array.isArray(d.list)||!d.list.length){feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">DART 5%룰 공시를 불러오지 못했어요 '+retryHtml('rule5')+'</div>';set('r5Hint','불러오기 실패');set('r5Live','불러오기 실패');return;}
+    const list=d.list;
+    set('r5Total',(d.total_count||list.length).toLocaleString('ko-KR'));set('r5Date',bd(list[0].rcept_dt));set('r5Hint','DART 최신순 · '+bd(list[0].rcept_dt)+' 최신');set('r5Live',bd(list[0].rcept_dt)+' 기준');
+    const cnt={};list.forEach(x=>{cnt[x.corp_name]=(cnt[x.corp_name]||0)+1;});
+    const tc=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+    if(tc){set('r5TopCorp',tc[0]);set('r5TopCorpSub',tc[1]+'건 신고');}
+    feed.innerHTML=list.slice(0,40).map(x=>{const ty=r5Type(x.report_nm);return `<a class="sec-item" href="${dartLink(x.rcept_no)}" target="_blank" rel="noopener"><span class="tk">${esc(x.corp_name)}</span><span class="ty${ty.c}">${ty.t}</span><span class="ds">신고: ${esc(x.flr_nm||'-')}</span><span class="tm">${bd(x.rcept_dt)}</span></a>`;}).join('');
+  }
+  async function loadNPS(){
+    const el=document.getElementById('npsList');if(!el)return;
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const all=[];
+    for(let pg=1;pg<=4;pg++){const d=await dartList('D001',120,pg,100);if(!d||d.status!=='000'||!Array.isArray(d.list)||!d.list.length)break;all.push(...d.list);if((d.total_page||1)<=pg)break;}
+    if(!all.length){el.innerHTML='<div class="tl-item"><div class="t">—</div><div class="d">DART 공시를 불러오지 못했어요 '+retryHtml('nps')+'</div></div>';set('npsHint','불러오기 실패');return;}
+    const nps=all.filter(x=>/국민연금/.test(x.flr_nm||''));
+    if(!nps.length){el.innerHTML='<div class="tl-item"><div class="t">—</div><div class="d">최근 120일 국민연금 5% 신고가 없어요</div></div>';set('npsHint','최근 신고 없음');return;}
+    set('npsHint','DART · '+bd(nps[0].rcept_dt)+' 최신 · '+nps.length+'건');
+    el.innerHTML=nps.slice(0,12).map(x=>{const ty=r5Type(x.report_nm);return `<div class="tl-item"><div class="t">${bd(x.rcept_dt)}</div><div class="d"><b>${esc(x.corp_name)}</b> 대량보유 ${ty.t} 신고 · <a href="${dartLink(x.rcept_no)}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">원문↗</a></div></div>`;}).join('');
+  }
   const panelLoads={};
   function loadOnce(key,loader){if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(loader).catch(e=>{delete panelLoads[key];console.warn('[RICHFLOW] '+key+' fail',e);});return panelLoads[key];}
-  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);if(key==='all')return loadOnce('all',loadOverview);return Promise.resolve();}
+  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);if(key==='all')return loadOnce('all',loadOverview);if(key==='rule5')return loadOnce('rule5',loadRule5);if(key==='nps')return loadOnce('nps',loadNPS);return Promise.resolve();}
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-retry]');if(!b)return;const k=b.dataset.retry;delete panelLoads[k];krRows=null;ensurePanelLoaded(k);});
   ensurePanelLoaded('all');
 
