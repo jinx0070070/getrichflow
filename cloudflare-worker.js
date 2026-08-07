@@ -83,7 +83,7 @@ export default {
       if (bgn) du += "&bgn_de=" + bgn;
       if (end) du += "&end_de=" + end;
       try {
-        const r = await fetch(du, { headers: { "Accept": "application/json" }, cf: { cacheTtl: 3600, cacheEverything: true } });
+        const r = await fetch(du, { headers: { "Accept": "application/json", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }, cf: { cacheTtl: 3600, cacheEverything: true } });
         const body = await r.text();
         return new Response(body, {
           status: r.status,
