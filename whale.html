@@ -757,10 +757,11 @@
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     const feed=document.getElementById('r5Feed');if(!feed)return;
     feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">DART 공시 불러오는 중…</div>';set('r5Hint','불러오는 중…');
-    const d=await dartList('D001',10,1,60);
+    const d=await dartList('D001',10,1,100);
     if(!d||d.status!=='000'||!Array.isArray(d.list)||!d.list.length){feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">DART 5%룰 공시를 불러오지 못했어요 '+retryHtml('rule5')+'</div>';set('r5Hint','불러오기 실패');set('r5Live','불러오기 실패');return;}
-    const list=d.list;
-    set('r5Total',(d.total_count||list.length).toLocaleString('ko-KR'));set('r5Date',bd(list[0].rcept_dt));set('r5Hint','DART 최신순 · '+bd(list[0].rcept_dt)+' 최신');set('r5Live',bd(list[0].rcept_dt)+' 기준');
+    const list=d.list.filter(x=>/대량보유/.test(x.report_nm||''));
+    if(!list.length){feed.innerHTML='<div style="padding:16px 8px;color:var(--txt-3);font-size:13px">최근 대량보유(5%룰) 공시가 없어요</div>';set('r5Hint','최근 공시 없음');return;}
+    set('r5Total',list.length);set('r5Date',bd(list[0].rcept_dt));set('r5Hint','DART 대량보유 최신순 · '+bd(list[0].rcept_dt)+' 최신');set('r5Live',bd(list[0].rcept_dt)+' 기준');
     const cnt={};list.forEach(x=>{cnt[x.corp_name]=(cnt[x.corp_name]||0)+1;});
     const tc=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
     if(tc){set('r5TopCorp',tc[0]);set('r5TopCorpSub',tc[1]+'건 신고');}
