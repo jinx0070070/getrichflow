@@ -79,7 +79,7 @@ export default {
       const bgn = ymd(url.searchParams.get("bgn")), end = ymd(url.searchParams.get("end"));
       const page = num(url.searchParams.get("page"), 1, 50), count = num(url.searchParams.get("count"), 20, 100);
       let du = "https://opendart.fss.or.kr/api/list.json?crtfc_key=" + key +
-        "&pblntf_ty=D&pblntf_detail_ty=" + detail + "&page_no=" + page + "&page_count=" + count;
+        "&pblntf_detail_ty=" + detail + "&page_no=" + page + "&page_count=" + count;
       if (bgn) du += "&bgn_de=" + bgn;
       if (end) du += "&end_de=" + end;
       try {
