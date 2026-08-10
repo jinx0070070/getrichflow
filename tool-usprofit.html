@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>미국주식 실수익 계산기 (수수료·환율 반영) · RICHFLOW</title>
+<meta name="description" content="주가는 올랐는데 환율이 빠졌다면? 달러 수익률과 원화 수익률을 분해하고, 매매 수수료·환전 스프레드를 반영한 진짜 실수령액을 계산합니다.">
+<link rel="stylesheet" href="tool.css">
+<style>
+  .split{display:flex;gap:2px;height:34px;border-radius:9px;overflow:hidden;margin:10px 0 6px}
+  .split i{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
+  .split .px{background:#1f9d57}.split .fx{background:#5c7cfa}.split .fee{background:#c46b74}
+  .lg{display:flex;gap:14px;font-size:11.5px;color:var(--txt-3);font-weight:700;flex-wrap:wrap}
+  .lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html?m=us" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html?m=us" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>🇺🇸 미국주식 실수익 계산기</h1>
+    <p>주가가 <b>+10%</b> 올라도 환율이 <b>−5%</b> 빠지면 실제 수익은 다릅니다. <b>주가·환율·수수료</b>를 분해해 진짜 실수령액을 계산해요.</p>
+  </section>
+
+  <div class="card">
+    <h3>📥 매수 정보</h3>
+    <div class="grid3">
+      <div class="fld"><label>매수 단가</label><div class="inbox"><span class="sym">$</span><input id="bp" type="text" inputmode="decimal" value="100"></div></div>
+      <div class="fld"><label>수량</label><div class="inbox"><input id="qty" type="text" inputmode="decimal" value="10"><span class="sym">주</span></div></div>
+      <div class="fld"><label>매수 시 환율</label><div class="inbox"><input id="fxb" type="text" inputmode="decimal" value="1,350"><span class="sym">원</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📤 매도 정보 <span class="hint" id="fxHint">환율 실시간</span></h3>
+    <div class="grid3">
+      <div class="fld"><label>매도 단가 (현재가)</label><div class="inbox"><span class="sym">$</span><input id="sp" type="text" inputmode="decimal" value="110"></div></div>
+      <div class="fld"><label>매도 시 환율</label><div class="inbox"><input id="fxs" type="text" inputmode="decimal" value=""><span class="sym">원</span></div></div>
+      <div class="fld"><label>증권사 수수료</label><div class="inbox"><input id="fee" type="text" inputmode="decimal" value="0.07"><span class="sym">%</span></div></div>
+    </div>
+    <div class="seg" style="margin-top:12px" id="feeSeg">
+      <button class="on" data-f="0.07">일반 0.07%</button>
+      <button data-f="0.1">0.1%</button>
+      <button data-f="0.25">0.25%</button>
+      <button data-f="0">무료 이벤트</button>
+    </div>
+    <label style="display:block;font-size:11.5px;font-weight:700;color:var(--txt-3);margin-bottom:6px">환전 스프레드 (편도)</label>
+    <div class="seg" id="sprSeg">
+      <button data-s="1.0">전신환 1.0%</button>
+      <button class="on" data-s="0.5">우대 50%</button>
+      <button data-s="0.1">우대 90%</button>
+      <button data-s="0">통합증거금(환전없음)</button>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="big">
+      <div class="b"><div class="k">최종 실수령 (원화)</div><div class="v mono" id="rNet">—</div><div class="s" id="rNetSub"></div></div>
+      <div class="b"><div class="k">실질 수익률</div><div class="v mono" id="rPct">—</div><div class="s">투입 원화 대비</div></div>
+    </div>
+    <div class="split" id="split"></div>
+    <div class="lg"><span><i style="background:#1f9d57"></i>주가 효과</span><span><i style="background:#5c7cfa"></i>환율 효과</span><span><i style="background:#c46b74"></i>수수료·스프레드</span></div>
+    <div class="kv" style="margin-top:12px"><span class="k">달러 기준 수익률</span><span class="v mono" id="rUsd">—</span></div>
+    <div class="kv"><span class="k">환율 변동률</span><span class="v mono" id="rFx">—</span></div>
+    <div class="kv"><span class="k">투입 원화 (매수 + 수수료)</span><span class="v mono" id="rIn">—</span></div>
+    <div class="kv"><span class="k">회수 원화 (매도 − 수수료)</span><span class="v mono" id="rOut">—</span></div>
+    <div class="kv"><span class="k">총 비용 (수수료 + 환전)</span><span class="v mono down" id="rCost">—</span></div>
+    <div class="tip" id="tipBox">값을 입력하면 계산됩니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔍 수익 분해 <span class="hint">무엇이 얼마나 기여했나</span></h3>
+    <table class="tbl">
+      <thead><tr><th>요인</th><th class="r">금액</th><th class="r">기여도</th></tr></thead>
+      <tbody id="brkBody"></tbody>
+    </table>
+    <div class="note">환율이 오르면(원화 약세) 미국주식 원화 수익이 <b>늘고</b>, 환율이 내리면 주가가 올라도 수익이 <b>깎입니다</b>. 미국주식은 사실상 <b>주식 + 달러</b>에 동시 투자하는 셈이에요.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-tax.html">🧾 양도세 계산기</a>
+      <a href="tool-fx.html">💱 환율 계산기</a>
+      <a href="tool-journal.html">📝 매매일지</a>
+    </div>
+  </div>
+
+  <div class="disc">증권사 수수료율·환전 스프레드는 증권사와 이벤트에 따라 다릅니다. 통합증거금(원화주문) 서비스를 쓰면 환전 없이 거래되지만 내부적으로 가환율이 적용됩니다. 실제 손익에는 양도소득세(연 250만원 초과분 22%)가 추가로 발생할 수 있습니다. 정보 제공용 참고 자료입니다.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+  const usd=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  let feeRate=0.07, spread=0.5;
+
+  async function fetchJSON(url,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||9000);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json();}catch(e){return null;}finally{clearTimeout(t);}}
+  async function loadFx(){
+    const d=await fetchJSON(WK+encodeURIComponent('https://api.stock.naver.com/marketindex/exchange/FX_USDKRW'));
+    const e=d&&(d.exchangeInfo||d);
+    if(e&&e.closePrice){ const v=num(e.closePrice);
+      if(!$('fxs').value)$('fxs').value=v.toFixed(1);
+      $('fxHint').textContent='현재 '+v.toFixed(2)+'원 (하나은행)';
+    }else $('fxHint').textContent='환율 자동입력 실패 — 직접 입력';
+    calc();
+  }
+
+  function calc(){
+    const bp=num($('bp').value), sp=num($('sp').value), q=num($('qty').value);
+    const fxb=num($('fxb').value), fxs=num($('fxs').value);
+    if(!(bp>0&&sp>0&&q>0&&fxb>0&&fxs>0)){ $('rNet').textContent='—'; $('tipBox').textContent='값을 입력하면 계산됩니다.'; return; }
+    const f=feeRate/100, s=spread/100;
+    // 매수: 달러 필요액 = bp*q*(1+수수료), 환전 시 살 때 환율 = fxb*(1+스프레드)
+    const buyUsd=bp*q*(1+f);
+    const inKrw=buyUsd*fxb*(1+s);
+    // 매도: 달러 회수 = sp*q*(1-수수료), 환전 시 팔 때 환율 = fxs*(1-스프레드)
+    const sellUsd=sp*q*(1-f);
+    const outKrw=sellUsd*fxs*(1-s);
+    const net=outKrw-inKrw, pct=inKrw>0?net/inKrw*100:0;
+    const usdPct=(sp/bp-1)*100, fxPct=(fxs/fxb-1)*100;
+
+    $('rNet').textContent=(net>=0?'+':'−')+won(Math.abs(net));
+    $('rNet').className='v mono '+(net>=0?'up':'down');
+    $('rNetSub').textContent='투입 '+won(inKrw)+' → 회수 '+won(outKrw);
+    $('rPct').textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+    $('rPct').className='v mono '+(pct>=0?'up':'down');
+    $('rUsd').textContent=(usdPct>=0?'+':'')+usdPct.toFixed(2)+'%';
+    $('rUsd').className='v mono '+(usdPct>=0?'up':'down');
+    $('rFx').textContent=(fxPct>=0?'+':'')+fxPct.toFixed(2)+'%';
+    $('rFx').className='v mono '+(fxPct>=0?'up':'down');
+    $('rIn').textContent=won(inKrw);
+    $('rOut').textContent=won(outKrw);
+
+    // 분해: 기준(수수료·스프레드 0, 환율 고정) 대비
+    const base=bp*q*fxb;                       // 순수 투입(비용 0)
+    const pxOnly=(sp-bp)*q*fxb;                // 주가 효과 (매수시 환율 고정)
+    const fxOnly=sp*q*(fxs-fxb);               // 환율 효과 (매도 달러 기준)
+    const costTotal=(pxOnly+fxOnly)-net;       // 나머지가 비용
+    $('rCost').textContent='−'+won(Math.abs(costTotal));
+
+    const tot=Math.abs(pxOnly)+Math.abs(fxOnly)+Math.abs(costTotal)||1;
+    const w=v=>Math.max(v!==0?9:0,Math.abs(v)/tot*100);
+    $('split').innerHTML=
+      `<i class="px" style="width:${w(pxOnly)}%">주가 ${pxOnly>=0?'+':'−'}${won(Math.abs(pxOnly)).replace('원','')}</i>`+
+      `<i class="fx" style="width:${w(fxOnly)}%">환율 ${fxOnly>=0?'+':'−'}${won(Math.abs(fxOnly)).replace('원','')}</i>`+
+      `<i class="fee" style="width:${w(costTotal)}%">비용 −${won(Math.abs(costTotal)).replace('원','')}</i>`;
+
+    $('brkBody').innerHTML=[
+      ['📈 주가 변동',pxOnly,usdPct.toFixed(2)+'%'],
+      ['💱 환율 변동',fxOnly,fxPct.toFixed(2)+'%'],
+      ['💸 수수료·환전',-Math.abs(costTotal),'−'+(inKrw>0?(Math.abs(costTotal)/inKrw*100).toFixed(2):'0')+'%'],
+      ['＝ 합계',net,(pct>=0?'+':'')+pct.toFixed(2)+'%']
+    ].map(([k,v,p],i)=>`<tr${i===3?' style="background:var(--card-2)"':''}><td${i===3?' style="font-weight:800"':''}>${k}</td><td class="r ${v>=0?'up':'down'}"><b>${v>=0?'+':'−'}${won(Math.abs(v))}</b></td><td class="r ${String(p).startsWith('-')||String(p).startsWith('−')?'down':'up'}">${p}</td></tr>`).join('');
+
+    let tip;
+    if(fxPct<-0.5&&usdPct>0)tip='달러로는 <b>+'+usdPct.toFixed(1)+'%</b> 벌었지만 환율이 <b>'+fxPct.toFixed(1)+'%</b> 빠져서 원화 수익은 <b>'+pct.toFixed(1)+'%</b>로 줄었어요. 환율이 수익을 <b>'+won(Math.abs(fxOnly))+'</b> 깎았습니다.';
+    else if(fxPct>0.5&&usdPct>0)tip='주가 <b>+'+usdPct.toFixed(1)+'%</b>에 환율까지 <b>+'+fxPct.toFixed(1)+'%</b> 올라 원화 수익이 <b>'+pct.toFixed(1)+'%</b>로 커졌어요. 환율이 <b>'+won(fxOnly)+'</b>를 더해줬습니다.';
+    else if(usdPct<0&&fxPct>0)tip='주가는 <b>'+usdPct.toFixed(1)+'%</b> 빠졌지만 환율이 <b>+'+fxPct.toFixed(1)+'%</b> 올라 손실이 <b>'+pct.toFixed(1)+'%</b>로 완화됐어요. 달러 자산의 헤지 효과입니다.';
+    else tip='달러 수익률 <b>'+usdPct.toFixed(1)+'%</b>, 환율 <b>'+fxPct.toFixed(1)+'%</b>, 비용 <b>'+won(Math.abs(costTotal))+'</b>이 합쳐져 실질 <b>'+pct.toFixed(1)+'%</b>가 됩니다.';
+    $('tipBox').innerHTML=tip;
+  }
+  $('feeSeg').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{$('feeSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      feeRate=parseFloat(b.dataset.f);$('fee').value=feeRate;calc();};
+  });
+  $('sprSeg').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{$('sprSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      spread=parseFloat(b.dataset.s);calc();};
+  });
+  $('fee').addEventListener('input',()=>{feeRate=num($('fee').value);calc();});
+  ['bp','sp','qty','fxb','fxs'].forEach(id=>$(id).addEventListener('input',calc));
+  loadFx();calc();
+</script>
+</body>
+</html>

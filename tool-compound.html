@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>복리 계산기 (적립식 투자) · RICHFLOW</title>
+<meta name="description" content="월 적립 + 연 수익률로 미래 자산을 계산합니다. 목표 금액까지 걸리는 기간과 필요 월납입액도 역산해요.">
+<link rel="stylesheet" href="tool.css">
+<style>
+  .chart{width:100%;height:190px;display:block;margin-top:6px}
+  .lg{display:flex;gap:14px;font-size:11.5px;color:var(--txt-3);font-weight:700;margin-top:8px;flex-wrap:wrap}
+  .lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>📈 복리 계산기</h1>
+    <p>매달 꾸준히 넣으면 <b>몇 년 뒤 얼마</b>가 될까요? 목표 금액까지 <b>걸리는 기간</b>과 <b>필요 월납입액</b>도 역산합니다.</p>
+  </section>
+
+  <div class="card">
+    <h3>🎯 계산 방식</h3>
+    <div class="seg" id="modeSeg">
+      <button class="on" data-m="future">미래 자산 계산</button>
+      <button data-m="period">목표까지 기간</button>
+      <button data-m="monthly">필요 월납입액</button>
+    </div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="fld"><label>초기 투자금</label><div class="inbox"><input id="init" type="text" inputmode="decimal" value="10,000,000"><span class="sym">원</span></div></div>
+      <div class="fld" id="mBox"><label>월 적립액</label><div class="inbox"><input id="monthly" type="text" inputmode="decimal" value="500,000"><span class="sym">원</span></div></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label>연 수익률</label><div class="inbox"><input id="rate" type="text" inputmode="decimal" value="8"><span class="sym">%</span></div></div>
+      <div class="fld" id="yBox"><label>투자 기간</label><div class="inbox"><input id="years" type="text" inputmode="decimal" value="20"><span class="sym">년</span></div></div>
+      <div class="fld" id="tBox" style="display:none"><label>목표 금액</label><div class="inbox"><input id="target" type="text" inputmode="decimal" value="1,000,000,000"><span class="sym">원</span></div></div>
+    </div>
+    <div class="seg" style="margin-top:14px" id="rateQuick">
+      <button data-r="3">예금 3%</button>
+      <button data-r="7">S&P500 7%</button>
+      <button class="on" data-r="8">주식 평균 8%</button>
+      <button data-r="10">공격적 10%</button>
+      <button data-r="15">고위험 15%</button>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="big">
+      <div class="b"><div class="k" id="mainK">최종 자산</div><div class="v mono" id="rMain">—</div><div class="s" id="rMainSub"></div></div>
+      <div class="b"><div class="k">투자 수익</div><div class="v mono up" id="rProfit">—</div><div class="s" id="rProfitSub">원금 대비</div></div>
+    </div>
+    <div class="kv"><span class="k">총 투자 원금</span><span class="v mono" id="rPrin">—</span></div>
+    <div class="kv"><span class="k">복리 효과 (수익)</span><span class="v mono up" id="rComp">—</span></div>
+    <div class="kv"><span class="k">원금 대비 배수</span><span class="v mono" id="rMult">—</span></div>
+    <div class="tip" id="tipBox">금액과 기간을 입력하면 계산됩니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>📊 자산 성장 그래프 <span class="hint">원금 vs 수익</span></h3>
+    <svg class="chart" id="chart" viewBox="0 0 700 190" preserveAspectRatio="none"></svg>
+    <div class="lg"><span><i style="background:#9aa0ab"></i>투자 원금</span><span><i style="background:#1f9d57"></i>복리 수익</span></div>
+  </div>
+
+  <div class="card">
+    <h3>🗓️ 연도별 자산 <span class="hint">5년 단위</span></h3>
+    <table class="tbl">
+      <thead><tr><th>경과</th><th class="r">원금 누계</th><th class="r">평가금액</th><th class="r">수익</th></tr></thead>
+      <tbody id="yrBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-deposit.html">🏦 예금·적금 계산기</a>
+      <a href="tool-breakeven.html">⚖️ 손익분기 계산기</a>
+      <a href="index.html">🏠 홈</a>
+    </div>
+  </div>
+
+  <div class="disc">월 복리(매월 말 적립, 연 수익률을 12로 나눠 월 적용)를 가정한 단순 계산입니다. 실제 투자는 수익률이 매년 달라지고 세금·수수료·인플레이션이 반영되므로 결과가 크게 다를 수 있습니다. 과거 수익률이 미래를 보장하지 않습니다. 정보 제공용이며 투자 권유가 아닙니다.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+  const shortWon=n=>{const a=Math.abs(n);
+    if(a>=1e8)return (n/1e8).toFixed(a>=1e9?0:1)+'억';
+    if(a>=1e4)return Math.round(n/1e4).toLocaleString('ko-KR')+'만';
+    return Math.round(n).toLocaleString('ko-KR');};
+  let mode='future';
+
+  // 월복리: FV = P*(1+i)^n + M*(((1+i)^n -1)/i)
+  function fv(P,M,rPct,months){
+    const i=rPct/100/12;
+    if(i===0)return P+M*months;
+    const g=Math.pow(1+i,months);
+    return P*g+M*(g-1)/i;
+  }
+  function monthsToTarget(P,M,rPct,T){
+    if(T<=P)return 0;
+    const i=rPct/100/12;
+    for(let m=1;m<=1200;m++){ if(fv(P,M,rPct,m)>=T)return m; }
+    return null;
+  }
+  function monthlyForTarget(P,rPct,months,T){
+    const i=rPct/100/12;
+    const g=Math.pow(1+i,months);
+    const base=P*g;
+    if(T<=base)return 0;
+    return i===0?(T-P)/months:(T-base)*i/(g-1);
+  }
+
+  function calc(){
+    const P=num($('init').value), rPct=num($('rate').value);
+    let M=num($('monthly').value), months=Math.round(num($('years').value)*12), T=num($('target').value);
+    let mainVal='',mainSub='';
+    if(mode==='period'){
+      const m=monthsToTarget(P,M,rPct,T);
+      if(m==null||!(T>0)){ $('rMain').textContent='—'; $('tipBox').textContent='목표 금액을 입력하면 계산됩니다.'; return; }
+      months=m;
+      $('mainK').textContent='목표 도달 기간';
+      mainVal=(m>=12?Math.floor(m/12)+'년 ':'')+(m%12)+'개월';
+      mainSub='목표 '+shortWon(T)+'원 달성';
+      $('rMain').textContent=mainVal;
+    }else if(mode==='monthly'){
+      if(!(T>0&&months>0)){ $('rMain').textContent='—'; return; }
+      M=monthlyForTarget(P,rPct,months,T);
+      $('mainK').textContent='필요 월납입액';
+      $('rMain').textContent=won(M);
+      mainSub=(months/12)+'년 안에 '+shortWon(T)+'원 달성';
+    }else{
+      if(!(months>0)){ $('rMain').textContent='—'; return; }
+      $('mainK').textContent='최종 자산';
+      $('rMain').textContent=won(fv(P,M,rPct,months));
+      mainSub=(months/12)+'년 후 · 연 '+rPct+'% 월복리';
+    }
+    $('rMainSub').textContent=mainSub;
+
+    const total=fv(P,M,rPct,months), prin=P+M*months, profit=total-prin;
+    $('rProfit').textContent='+'+won(profit);
+    $('rProfitSub').textContent=prin>0?('원금 대비 +'+(profit/prin*100).toFixed(1)+'%'):'';
+    $('rPrin').textContent=won(prin);
+    $('rComp').textContent='+'+won(profit);
+    $('rMult').textContent=prin>0?(total/prin).toFixed(2)+'배':'—';
+
+    const yrs=(months/12).toFixed(months%12?1:0);
+    $('tipBox').innerHTML=(mode==='monthly'
+      ? '매달 <b>'+won(M)+'</b>씩 '+yrs+'년간 넣으면 목표 <b>'+won(T)+'</b>에 도달합니다. 이 중 <b>'+won(profit)+'</b>이 복리 수익이에요.'
+      : '총 <b>'+won(prin)+'</b>을 넣어 <b>'+won(total)+'</b>이 됩니다. 복리로 불어난 돈이 <b>'+won(profit)+'</b>으로, 원금의 <b>'+(prin>0?(profit/prin*100).toFixed(0):0)+'%</b>예요.')
+      +(months>=120?' 기간이 길수록 수익 비중이 급격히 커지는 게 복리의 힘입니다.':'');
+
+    drawChart(P,M,rPct,months);
+    // 연도별
+    const step=months<=60?12:months<=180?24:60;
+    const rows=[];
+    for(let m=step;m<=months;m+=step)rows.push(m);
+    if(rows[rows.length-1]!==months)rows.push(months);
+    $('yrBody').innerHTML=rows.map(m=>{
+      const v=fv(P,M,rPct,m), pr=P+M*m;
+      return `<tr><td>${(m/12).toFixed(m%12?1:0)}년</td><td class="r">${won(pr)}</td><td class="r"><b>${won(v)}</b></td><td class="r up">+${won(v-pr)}</td></tr>`;
+    }).join('');
+  }
+
+  function drawChart(P,M,rPct,months){
+    const W=700,H=190,pad=6;
+    const N=Math.min(months,600);
+    const pts=[];let max=0;
+    for(let k=0;k<=N;k++){
+      const m=Math.round(k*months/N);
+      const v=fv(P,M,rPct,m), pr=P+M*m;
+      pts.push({m,v,pr}); if(v>max)max=v;
+    }
+    if(max<=0){$('chart').innerHTML='';return;}
+    const x=i=>pad+i/(pts.length-1)*(W-pad*2);
+    const y=v=>H-pad-(v/max)*(H-pad*2);
+    const line=(key,col,fill)=>{
+      let d=pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(p[key]).toFixed(1)).join(' ');
+      let area=d+' L'+x(pts.length-1).toFixed(1)+','+(H-pad)+' L'+x(0).toFixed(1)+','+(H-pad)+' Z';
+      return `<path d="${area}" fill="${fill}"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2"/>`;
+    };
+    $('chart').innerHTML=line('v','#1f9d57','rgba(31,157,87,.14)')+line('pr','#9aa0ab','rgba(154,160,171,.28)');
+  }
+
+  $('modeSeg').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{$('modeSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      mode=b.dataset.m;
+      $('tBox').style.display=(mode==='future')?'none':'block';
+      $('yBox').style.display=(mode==='period')?'none':'block';
+      $('mBox').style.display=(mode==='monthly')?'none':'block';
+      calc();};
+  });
+  $('rateQuick').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{$('rateQuick').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      $('rate').value=b.dataset.r;calc();};
+  });
+  ['init','monthly','rate','years','target'].forEach(id=>$(id).addEventListener('input',calc));
+  calc();
+</script>
+</body>
+</html>

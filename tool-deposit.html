@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>예금·적금 이자 계산기 · RICHFLOW</title>
+<meta name="description" content="예금·적금 만기 수령액을 세후로 계산합니다. 단리·월복리, 이자소득세 15.4%, 비과세·세금우대까지 반영해요.">
+<link rel="stylesheet" href="tool.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>🏦 예금·적금 이자 계산기</h1>
+    <p>만기에 <b>실제로 받는 돈</b>을 계산합니다. 이자소득세 <b>15.4%</b>를 뗀 세후 금액과, 적금의 실질 수익률까지 알려드려요.</p>
+  </section>
+
+  <div class="card">
+    <h3>💰 상품 유형</h3>
+    <div class="seg" id="typeSeg">
+      <button class="on" data-t="deposit">예금 (목돈 예치)</button>
+      <button data-t="saving">적금 (매달 납입)</button>
+    </div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="fld"><label id="amtLab">예치금액</label><div class="inbox"><input id="amt" type="text" inputmode="decimal" value="10,000,000"><span class="sym">원</span></div></div>
+      <div class="fld"><label>연 이자율</label><div class="inbox"><input id="rate" type="text" inputmode="decimal" value="3.5"><span class="sym">%</span></div></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label>기간</label><div class="inbox"><input id="months" type="text" inputmode="decimal" value="12"><span class="sym">개월</span></div></div>
+      <div class="fld"><label>이자 방식</label><div class="inbox"><select id="method"><option value="simple">단리</option><option value="compound">월복리</option></select></div></div>
+    </div>
+    <div class="seg" style="margin-top:14px" id="taxSeg">
+      <button class="on" data-x="15.4">일반과세 15.4%</button>
+      <button data-x="9.5">세금우대 9.5%</button>
+      <button data-x="1.4">농특세 1.4%</button>
+      <button data-x="0">비과세 0%</button>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="big">
+      <div class="b"><div class="k">만기 수령액 (세후)</div><div class="v mono" id="rNet">—</div><div class="s" id="rNetSub"></div></div>
+      <div class="b"><div class="k">세후 이자</div><div class="v mono up" id="rInt">—</div><div class="s" id="rIntSub"></div></div>
+    </div>
+    <div class="kv"><span class="k" id="kPrin">원금 합계</span><span class="v mono" id="rPrin">—</span></div>
+    <div class="kv"><span class="k">세전 이자</span><span class="v mono" id="rGross">—</span></div>
+    <div class="kv"><span class="k" id="kTax">이자소득세 (15.4%)</span><span class="v mono down" id="rTax">—</span></div>
+    <div class="kv"><span class="k">실질 수익률 (원금 대비)</span><span class="v mono" id="rYield">—</span></div>
+    <div class="tip" id="tipBox">금액과 이자율을 입력하면 계산됩니다.</div>
+  </div>
+
+  <div class="card" id="cmpCard">
+    <h3>📊 기간별 비교 <span class="hint">같은 조건 · 세후 이자</span></h3>
+    <table class="tbl">
+      <thead><tr><th>기간</th><th class="r">원금</th><th class="r">세후 이자</th><th class="r">만기 수령액</th></tr></thead>
+      <tbody id="cmpBody"><tr><td colspan="4" style="text-align:center;color:var(--txt-3);padding:16px">입력하면 표시됩니다</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>💡 알아두면 좋아요</h3>
+    <div class="kv"><span class="k">적금 실수령이 적은 이유</span><span class="v" style="font-weight:600;color:var(--txt-2);font-size:12.5px">첫 달만 12개월치, 마지막 달은 1개월치 이자</span></div>
+    <div class="kv"><span class="k">예금 vs 적금</span><span class="v" style="font-weight:600;color:var(--txt-2);font-size:12.5px">같은 금리면 예금이 이자 약 2배</span></div>
+    <div class="kv"><span class="k">이자소득세</span><span class="v" style="font-weight:600;color:var(--txt-2);font-size:12.5px">소득세 14% + 지방세 1.4% = 15.4%</span></div>
+    <div class="note">※ 연 2,000만원 초과 금융소득은 <b>금융소득종합과세</b> 대상이 됩니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-compound.html">📈 복리 계산기</a>
+      <a href="tool-breakeven.html">⚖️ 손익분기 계산기</a>
+      <a href="index.html">🏠 홈</a>
+    </div>
+  </div>
+
+  <div class="disc">본 계산기는 단리·월복리 기준의 단순 계산이며, 실제 금융상품은 이자 계산 방식(일할 계산, 우대금리 조건, 중도해지 이율 등)이 다를 수 있습니다. 적금은 매월 같은 금액을 <b>월초에</b> 납입하는 정액적립식을 가정합니다. 정보 제공용이며 금융상품 가입 시에는 해당 금융기관의 상품설명서를 확인하세요.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+  let type='deposit', taxRate=15.4;
+
+  // 예금: 단리 = P*r*(m/12) / 월복리 = P*((1+r/12)^m - 1)
+  // 적금(정액적립): 단리 = M*r/12*(m(m+1)/2) / 월복리 = 각 회차별 복리 합
+  function calcGross(P,rPct,m,method){
+    const r=rPct/100;
+    if(type==='deposit'){
+      return method==='compound' ? P*(Math.pow(1+r/12,m)-1) : P*r*(m/12);
+    }else{
+      if(method==='compound'){
+        let tot=0;
+        for(let i=1;i<=m;i++) tot+=P*Math.pow(1+r/12,m-i+1);
+        return tot-P*m;
+      }
+      return P*(r/12)*(m*(m+1)/2);
+    }
+  }
+  function principal(P,m){ return type==='deposit'?P:P*m; }
+
+  function calc(){
+    const P=num($('amt').value), rPct=num($('rate').value), m=Math.round(num($('months').value)), method=$('method').value;
+    if(!(P>0&&m>0)){reset();return;}
+    const gross=calcGross(P,rPct,m,method), prin=principal(P,m);
+    const tax=gross*taxRate/100, net=gross-tax, total=prin+net;
+    $('rNet').textContent=won(total);
+    $('rNetSub').textContent=(type==='deposit'?'예금':'적금')+' · '+m+'개월 · 연 '+rPct+'% '+(method==='compound'?'월복리':'단리');
+    $('rInt').textContent='+'+won(net);
+    $('rIntSub').textContent='세전 '+won(gross)+' − 세금 '+won(tax);
+    $('rPrin').textContent=won(prin);
+    $('rGross').textContent=won(gross);
+    $('rTax').textContent='−'+won(tax);
+    const y=prin>0?net/prin*100:0;
+    $('rYield').textContent=y.toFixed(2)+'% (연 '+(m>0?(y*12/m).toFixed(2):'0')+'%)';
+    // 팁
+    let tip='';
+    if(type==='saving'){
+      const dep=calcGross(P*m,rPct,m,method)*(1-taxRate/100);
+      tip='매달 <b>'+won(P)+'</b>씩 '+m+'개월 넣으면 원금 <b>'+won(prin)+'</b>에 세후 이자 <b>'+won(net)+'</b>을 받아요. '
+        +'같은 돈(<b>'+won(prin)+'</b>)을 한 번에 예금하면 이자가 <b>'+won(dep)+'</b>이라, 적금 실질 이율은 표면금리의 <b>약 '+(dep>0?Math.round(net/dep*100):0)+'%</b> 수준입니다.';
+    }else{
+      const eff=y*12/m;
+      tip='<b>'+won(P)+'</b>을 '+m+'개월 예치하면 세후 <b>'+won(total)+'</b>을 받습니다. 세금 <b>'+won(tax)+'</b>을 떼고 나면 실질 연 수익률은 <b>'+eff.toFixed(2)+'%</b>예요'
+        +(rPct>0?' (표면금리 '+rPct+'% 대비 '+(rPct-eff).toFixed(2)+'%p 감소)':'')+'.';
+    }
+    $('tipBox').innerHTML=tip;
+    // 기간 비교
+    const spans=[6,12,24,36].filter(x=>x!==m).slice(0,3);
+    const list=[m,...spans].sort((a,b)=>a-b);
+    $('cmpBody').innerHTML=list.map(mm=>{
+      const g=calcGross(P,rPct,mm,method), pr=principal(P,mm), nt=g*(1-taxRate/100);
+      const cur=mm===m?' style="background:var(--card-2)"':'';
+      return `<tr${cur}><td>${mm}개월${mm===m?' <b>(현재)</b>':''}</td><td class="r">${won(pr)}</td><td class="r up">+${won(nt)}</td><td class="r"><b>${won(pr+nt)}</b></td></tr>`;
+    }).join('');
+  }
+  function reset(){
+    ['rNet','rInt','rPrin','rGross','rTax','rYield'].forEach(id=>$(id).textContent='—');
+    $('rNetSub').textContent='';$('rIntSub').textContent='';
+    $('tipBox').textContent='금액과 이자율을 입력하면 계산됩니다.';
+    $('cmpBody').innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--txt-3);padding:16px">입력하면 표시됩니다</td></tr>';
+  }
+  $('typeSeg').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{$('typeSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      type=b.dataset.t;
+      $('amtLab').textContent=type==='deposit'?'예치금액':'월 납입액';
+      $('kPrin').textContent=type==='deposit'?'원금':'원금 합계 (납입 총액)';
+      if(type==='saving'&&num($('amt').value)>=1000000)$('amt').value='500,000';
+      if(type==='deposit'&&num($('amt').value)<1000000)$('amt').value='10,000,000';
+      calc();};
+  });
+  $('taxSeg').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{$('taxSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      taxRate=parseFloat(b.dataset.x); $('kTax').textContent='이자소득세 ('+taxRate+'%)'; calc();};
+  });
+  ['amt','rate','months'].forEach(id=>$(id).addEventListener('input',calc));
+  $('method').addEventListener('change',calc);
+  calc();
+</script>
+</body>
+</html>

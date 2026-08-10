@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>손익분기 계산기 (본전 계산) · RICHFLOW</title>
+<meta name="description" content="−30% 손실이면 본전까지 +42.9%가 필요합니다. 손실률별 필요 회복률을 한눈에 보여주는 손익분기 계산기.">
+<link rel="stylesheet" href="tool.css">
+<style>
+  .bar{height:10px;border-radius:6px;background:var(--card-2);overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--down)}
+  .lossgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:6px}
+  .lossgrid button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12.5px;font-weight:700;padding:9px;border-radius:10px;cursor:pointer;font-family:inherit}
+  .lossgrid button:hover{color:var(--txt);border-color:var(--line-2)}
+  .lossgrid button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>⚖️ 손익분기 계산기</h1>
+    <p>손실은 <b>비대칭</b>입니다. −50%를 잃으면 본전까지 <b>+100%</b>가 필요해요. 지금 내 손실이 본전까지 얼마나 남았는지 계산합니다.</p>
+  </section>
+
+  <div class="card">
+    <h3>📉 현재 손실률</h3>
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="fld"><label>손실률 (마이너스)</label><div class="inbox"><input id="loss" type="text" inputmode="decimal" value="30"><span class="sym">%</span></div></div>
+      <div class="fld"><label>투자 원금 (선택)</label><div class="inbox"><input id="cap" type="text" inputmode="decimal" value="10,000,000"><span class="sym">원</span></div></div>
+    </div>
+    <label style="display:block;font-size:11.5px;font-weight:700;color:var(--txt-3);margin-bottom:6px">빠른 선택</label>
+    <div class="lossgrid" id="quick"></div>
+  </div>
+
+  <div class="res">
+    <div class="big">
+      <div class="b"><div class="k">본전까지 필요 상승률</div><div class="v mono down" id="rNeed">—</div><div class="s" id="rNeedSub"></div></div>
+      <div class="b"><div class="k">현재 평가금액</div><div class="v mono" id="rNow">—</div><div class="s" id="rNowSub">원금 대비</div></div>
+    </div>
+    <div class="bar"><i id="bar" style="width:0%"></i></div>
+    <div class="kv" style="margin-top:10px"><span class="k">손실 금액</span><span class="v mono down" id="rLoss">—</span></div>
+    <div class="kv"><span class="k">본전 도달 시 필요 수익금</span><span class="v mono up" id="rGain">—</span></div>
+    <div class="kv"><span class="k">비대칭 배율</span><span class="v mono" id="rRatio">—</span></div>
+    <div class="tip" id="tipBox">손실률을 입력하면 계산됩니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>📊 손실률별 본전 회복률 <span class="hint">외워두면 좋은 표</span></h3>
+    <table class="tbl">
+      <thead><tr><th>손실률</th><th class="r">남은 자산</th><th class="r">본전까지 필요</th><th class="r">배율</th></tr></thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+    <div class="note">손실이 커질수록 회복 난이도는 <b>기하급수적으로</b> 올라갑니다. −10%는 +11%면 되지만, −70%는 <b>+233%</b>가 필요해요. 손절 기준을 미리 정해두는 이유입니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-avgdown.html">📉 물타기 계산기</a>
+      <a href="tool-journal.html">📝 매매일지</a>
+      <a href="tool-compound.html">📈 복리 계산기</a>
+    </div>
+  </div>
+
+  <div class="disc">본전 회복률은 <b>1/(1−손실률) − 1</b> 공식으로 계산한 단순 산술값이며, 세금·수수료·배당은 반영하지 않았습니다. 정보 제공용이며 투자 권유가 아닙니다.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+  const QUICK=[5,10,20,30,40,50,60,70,80,90];
+
+  function needFor(lossPct){ const L=lossPct/100; return L>=1?Infinity:(1/(1-L)-1)*100; }
+
+  function calc(){
+    const loss=Math.abs(num($('loss').value)), cap=num($('cap').value);
+    if(!(loss>0)){ ['rNeed','rNow','rLoss','rGain','rRatio'].forEach(id=>$(id).textContent='—');
+      $('tipBox').textContent='손실률을 입력하면 계산됩니다.'; $('bar').style.width='0%'; return; }
+    const need=needFor(loss);
+    const remain=100-loss;
+    $('rNeed').textContent=need===Infinity?'회복 불가':'+'+need.toFixed(1)+'%';
+    $('rNeedSub').textContent='−'+loss+'% → 원금 복귀';
+    $('bar').style.width=Math.min(100,loss)+'%';
+    if(cap>0){
+      const now=cap*remain/100, lossAmt=cap-now, gainAmt=cap-now;
+      $('rNow').textContent=won(now);
+      $('rNowSub').textContent='원금 '+won(cap)+' 대비 '+remain.toFixed(1)+'%';
+      $('rLoss').textContent='−'+won(lossAmt);
+      $('rGain').textContent='+'+won(gainAmt);
+    }else{
+      $('rNow').textContent='—';$('rLoss').textContent='—';$('rGain').textContent='—';
+    }
+    $('rRatio').textContent=need===Infinity?'—':(need/loss).toFixed(2)+'배';
+    let tip;
+    if(loss>=90)tip='<b>−'+loss+'%</b>는 본전까지 <b>+'+need.toFixed(0)+'%</b>가 필요합니다. 원금의 10분의 1 이하로 줄어든 상태라, 같은 종목의 회복을 기다리기보다 <b>남은 자금의 재배치</b>를 고민할 시점이에요.';
+    else if(loss>=50)tip='<b>−'+loss+'%</b>에서 본전은 <b>+'+need.toFixed(1)+'%</b>. 손실률의 <b>'+(need/loss).toFixed(1)+'배</b>를 벌어야 제자리입니다. 반토막에서 두 배는 완전히 다른 난이도예요.';
+    else if(loss>=20)tip='<b>−'+loss+'%</b>는 <b>+'+need.toFixed(1)+'%</b>로 회복됩니다. 아직 손실률과 회복률 차이가 크지 않은 구간이라, <b>추가 하락을 막는 것</b>이 회복보다 중요해요.';
+    else tip='<b>−'+loss+'%</b>는 <b>+'+need.toFixed(1)+'%</b>면 본전입니다. 손실 초기에는 회복 부담이 거의 같아요 — 이 구간에서 손절 기준을 지키는 게 큰 손실을 막는 핵심입니다.';
+    $('tipBox').innerHTML=tip;
+  }
+  $('quick').innerHTML=QUICK.map(v=>`<button data-v="${v}">−${v}%</button>`).join('');
+  $('quick').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{ $('quick').querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+      $('loss').value=b.dataset.v; calc(); };
+  });
+  $('tblBody').innerHTML=QUICK.map(v=>{
+    const n=needFor(v);
+    return `<tr><td class="down"><b>−${v}%</b></td><td class="r">${(100-v)}%</td><td class="r up"><b>+${n.toFixed(1)}%</b></td><td class="r">${(n/v).toFixed(2)}배</td></tr>`;
+  }).join('');
+  ['loss','cap'].forEach(id=>$(id).addEventListener('input',calc));
+  calc();
+</script>
+</body>
+</html>
