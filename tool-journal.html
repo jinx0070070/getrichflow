@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매매일지 · RICHFLOW</title>
+<meta name="description" content="매매 기록과 복기를 한곳에. 손익·승률·평균 수익률이 자동 집계되고, 매매 이유를 남겨 패턴을 찾을 수 있어요.">
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--amber-bg:rgba(192,127,36,.12);--radius:20px;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:940px;margin:0 auto;padding:0 20px}
+  .mono{font-variant-numeric:tabular-nums}.up{color:var(--up)}.down{color:var(--down)}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .logo .bot{width:34px;height:34px;display:block}
+  .back{margin-left:auto;font-size:13px;font-weight:700;color:var(--txt-2);background:var(--card);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .phead{padding:26px 0 8px}
+  .phead h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:7px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:600}
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow-sm)}
+  .stat .k{font-size:11.5px;color:var(--txt-2);font-weight:600;margin-bottom:5px}
+  .stat .v{font-size:21px;font-weight:800;letter-spacing:-.02em}
+  .stat .s{font-size:11px;color:var(--txt-3);font-weight:600;margin-top:2px}
+  /* form */
+  .frm{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+  .frm2{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+  .frm input,.frm2 input,.frm select,.frm2 select{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13.5px;color:var(--txt);outline:none;min-width:0;width:100%}
+  .frm input.num,.frm2 input.num{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+  .frm label,.frm2 label{display:block;font-size:11px;color:var(--txt-3);font-weight:700;margin-bottom:5px}
+  .addbtn{background:var(--brand);border:1px solid var(--brand);color:#fff;font-size:13px;font-weight:800;padding:11px 20px;border-radius:11px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .addbtn:hover{background:var(--brand-2)}
+  /* list */
+  .tr{display:flex;align-items:center;gap:12px;padding:13px 8px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tr:last-child{border:none}
+  .tr .nm{font-size:14px;font-weight:800;min-width:96px}
+  .tr .dt{font-size:11px;color:var(--txt-3);font-weight:600}
+  .tr .mid{flex:1;min-width:150px;font-size:12px;color:var(--txt-2)}
+  .tr .memo{font-size:11.5px;color:var(--txt-3);margin-top:3px;font-style:italic}
+  .tr .pl{text-align:right;min-width:104px}
+  .tr .pl .a{font-size:15px;font-weight:800}
+  .tr .pl .p{font-size:11.5px;font-weight:700}
+  .tr .act{display:flex;gap:5px}
+  .tr .act button{background:var(--card-2);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit}
+  .tr .act button:hover{color:var(--txt);border-color:var(--line-2)}
+  .tag{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:5px;background:var(--card-2);color:var(--txt-3)}
+  .tag.open{background:var(--amber-bg);color:var(--amber)}
+  .empty{text-align:center;padding:36px 16px;color:var(--txt-3);font-size:13.5px;line-height:1.7}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .seg button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .tools{margin-left:auto;display:flex;gap:6px}
+  .tools button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-3);font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .note{font-size:11.5px;color:var(--txt-3);line-height:1.65;margin-top:12px}
+  .note b{color:var(--txt-2)}
+  .links{display:flex;gap:8px;flex-wrap:wrap}
+  .links a{font-size:12.5px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:14px 2px 44px}
+  @media(max-width:760px){.stats{grid-template-columns:1fr 1fr}.frm{grid-template-columns:1fr 1fr}.frm2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>📝 매매일지</h1>
+    <p>매매를 기록하면 <b>손익·승률·평균 수익률</b>이 자동으로 집계됩니다. 산 이유를 함께 남기면 복기할 때 패턴이 보여요.</p>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><div class="k">실현 손익</div><div class="v mono" id="sPl">0원</div><div class="s" id="sPlSub">종료된 매매</div></div>
+    <div class="stat"><div class="k">승률</div><div class="v mono" id="sWin">—</div><div class="s" id="sWinSub">승 / 패</div></div>
+    <div class="stat"><div class="k">평균 수익률</div><div class="v mono" id="sAvg">—</div><div class="s">종료 매매 평균</div></div>
+    <div class="stat"><div class="k">기록</div><div class="v mono" id="sCnt">0</div><div class="s" id="sCntSub">건</div></div>
+  </div>
+
+  <div class="card">
+    <h3>➕ 매매 기록 추가</h3>
+    <div class="frm">
+      <div><label>종목</label><input id="fNm" placeholder="예: 삼성전자"></div>
+      <div><label>매수일</label><input id="fBd" type="date"></div>
+      <div><label>매수가</label><input id="fBp" class="num" inputmode="decimal" placeholder="0"></div>
+      <div><label>수량</label><input id="fQ" class="num" inputmode="decimal" placeholder="0"></div>
+      <div><label>통화</label><select id="fCur"><option value="KRW">원 ₩</option><option value="USD">달러 $</option></select></div>
+    </div>
+    <div class="frm2">
+      <div><label>매도일 (안 팔았으면 비워두기)</label><input id="fSd" type="date"></div>
+      <div><label>매도가</label><input id="fSp" class="num" inputmode="decimal" placeholder="미매도"></div>
+      <div style="display:flex;align-items:flex-end"><button class="addbtn" id="btnAdd">기록 추가</button></div>
+    </div>
+    <div style="margin-top:8px"><label style="display:block;font-size:11px;color:var(--txt-3);font-weight:700;margin-bottom:5px">매매 이유 · 복기 메모</label>
+      <input id="fMemo" placeholder="예: 실적 서프라이즈 기대 / 손절 라인 -7% 설정" style="width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13.5px;color:var(--txt);outline:none"></div>
+  </div>
+
+  <div class="card">
+    <h3>📒 내 기록 <span class="hint" id="listHint"></span></h3>
+    <div class="seg" id="filterSeg">
+      <button class="on" data-f="all">전체</button>
+      <button data-f="open">보유 중</button>
+      <button data-f="closed">종료</button>
+      <div class="tools">
+        <button id="btnExport">내보내기</button>
+        <button id="btnClear">전체 삭제</button>
+      </div>
+    </div>
+    <div id="list"></div>
+    <div class="note">기록은 <b>이 브라우저에만 저장</b>됩니다(서버 전송 없음). 기기를 바꾸면 안 보이니 중요한 기록은 내보내기로 백업하세요.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-avgdown.html">📉 물타기 계산기</a>
+      <a href="tool-tax.html">🧾 양도세 계산기</a>
+      <a href="index.html">🏠 홈</a>
+    </div>
+  </div>
+
+  <div class="disc">매매일지는 브라우저 로컬 저장소(localStorage)에 저장되며 서버로 전송되지 않습니다. 브라우저 데이터를 삭제하면 기록도 사라집니다. 손익은 수수료·세금을 제외한 단순 계산이며, 정보 제공용입니다.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const KEY='richflow:journal';
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const fmtC=(n,cur)=>cur==='USD'?('$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})):(Math.round(Math.abs(n)).toLocaleString('ko-KR')+'원');
+  let filter='all';
+
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[];}catch(e){return [];}}
+  function save(l){try{localStorage.setItem(KEY,JSON.stringify(l));}catch(e){}}
+  let items=load();
+
+  function plOf(t){
+    const bp=num(t.bp),sp=num(t.sp),q=num(t.q);
+    if(!(bp>0&&q>0&&sp>0))return null;
+    return {amt:(sp-bp)*q, pct:(sp/bp-1)*100};
+  }
+  const today=()=>new Date().toISOString().slice(0,10);
+
+  function stats(){
+    const closed=items.filter(t=>plOf(t));
+    const krw=closed.filter(t=>t.cur!=='USD'), usd=closed.filter(t=>t.cur==='USD');
+    const sum=arr=>arr.reduce((n,t)=>n+plOf(t).amt,0);
+    const kAmt=sum(krw), uAmt=sum(usd);
+    let plTxt=[];
+    if(krw.length)plTxt.push((kAmt>=0?'+':'−')+fmtC(kAmt,'KRW'));
+    if(usd.length)plTxt.push((uAmt>=0?'+':'−')+fmtC(uAmt,'USD'));
+    $('sPl').textContent=plTxt.length?plTxt.join(' · '):'0원';
+    $('sPl').className='v mono '+((kAmt+uAmt)>=0?'up':'down');
+    $('sPlSub').textContent=closed.length?('종료 '+closed.length+'건'):'종료된 매매';
+    const wins=closed.filter(t=>plOf(t).amt>0).length, loses=closed.length-wins;
+    $('sWin').textContent=closed.length?Math.round(wins/closed.length*100)+'%':'—';
+    $('sWinSub').textContent=closed.length?(wins+'승 '+loses+'패'):'승 / 패';
+    const avg=closed.length?closed.reduce((n,t)=>n+plOf(t).pct,0)/closed.length:null;
+    $('sAvg').textContent=avg==null?'—':((avg>=0?'+':'')+avg.toFixed(2)+'%');
+    $('sAvg').className='v mono '+(avg==null?'':(avg>=0?'up':'down'));
+    $('sCnt').textContent=items.length;
+    $('sCntSub').textContent='보유 '+(items.length-closed.length)+' · 종료 '+closed.length;
+  }
+
+  function render(){
+    stats();
+    let list=items.slice().sort((a,b)=>String(b.bd||'').localeCompare(String(a.bd||'')));
+    if(filter==='open')list=list.filter(t=>!plOf(t));
+    if(filter==='closed')list=list.filter(t=>plOf(t));
+    $('listHint').textContent=list.length+'건';
+    if(!list.length){
+      $('list').innerHTML='<div class="empty">아직 기록이 없어요.<br>위에서 종목·매수가·수량을 넣고 <b>기록 추가</b>를 눌러보세요.</div>';return;
+    }
+    $('list').innerHTML=list.map(t=>{
+      const pl=plOf(t), i=items.indexOf(t), cur=t.cur||'KRW';
+      const plHtml=pl
+        ? `<div class="a ${pl.amt>=0?'up':'down'}">${pl.amt>=0?'+':'−'}${fmtC(pl.amt,cur)}</div><div class="p ${pl.pct>=0?'up':'down'}">${pl.pct>=0?'+':''}${pl.pct.toFixed(2)}%</div>`
+        : `<div class="a" style="color:var(--txt-3);font-size:12.5px">보유 중</div>`;
+      const mid=`${fmtC(num(t.bp),cur)} × ${num(t.q).toLocaleString('ko-KR')}주${pl?(' → '+fmtC(num(t.sp),cur)):''}`;
+      return `<div class="tr">
+        <div><div class="nm">${esc(t.nm||'-')}</div><div class="dt">${esc(t.bd||'')}${t.sd?(' ~ '+esc(t.sd)):''}</div></div>
+        <div class="mid">${mid}${t.memo?`<div class="memo">“${esc(t.memo)}”</div>`:''}</div>
+        <div class="pl">${plHtml}</div>
+        <div class="act">${pl?'':`<button data-sell="${i}">매도 기록</button>`}<button data-del="${i}">삭제</button></div>
+      </div>`;
+    }).join('');
+    $('list').querySelectorAll('[data-del]').forEach(b=>{b.onclick=()=>{ if(confirm('이 기록을 삭제할까요?')){items.splice(+b.dataset.del,1);save(items);render();} };});
+    $('list').querySelectorAll('[data-sell]').forEach(b=>{b.onclick=()=>{
+      const i=+b.dataset.sell,t=items[i];
+      const sp=prompt('매도가를 입력하세요 ('+(t.cur==='USD'?'달러':'원')+')','');
+      if(sp==null)return; const v=num(sp); if(!(v>0)){alert('숫자를 입력해 주세요');return;}
+      t.sp=String(v); t.sd=today(); save(items); render();
+    };});
+  }
+
+  $('btnAdd').onclick=()=>{
+    const nm=$('fNm').value.trim(), bp=num($('fBp').value), q=num($('fQ').value);
+    if(!nm){alert('종목명을 입력해 주세요');return;}
+    if(!(bp>0&&q>0)){alert('매수가와 수량을 입력해 주세요');return;}
+    items.push({nm,bd:$('fBd').value||today(),bp:String(bp),q:String(q),sd:$('fSd').value||'',sp:$('fSp').value?String(num($('fSp').value)):'',cur:$('fCur').value,memo:$('fMemo').value.trim(),ts:Date.now()});
+    save(items);
+    ['fNm','fBp','fQ','fSp','fMemo'].forEach(id=>$(id).value='');
+    $('fSd').value='';
+    render();
+  };
+  $('filterSeg').querySelectorAll('button[data-f]').forEach(b=>{
+    b.onclick=()=>{$('filterSeg').querySelectorAll('button[data-f]').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.f;render();};
+  });
+  $('btnClear').onclick=()=>{ if(!items.length)return; if(confirm('기록을 모두 삭제할까요? 되돌릴 수 없어요.')){items=[];save(items);render();} };
+  $('btnExport').onclick=()=>{
+    if(!items.length){alert('내보낼 기록이 없어요');return;}
+    const head='종목,매수일,매수가,수량,매도일,매도가,통화,손익,수익률,메모';
+    const rows=items.map(t=>{const pl=plOf(t);
+      return [t.nm,t.bd,t.bp,t.q,t.sd||'',t.sp||'',t.cur||'KRW',pl?Math.round(pl.amt):'',pl?pl.pct.toFixed(2)+'%':'',(t.memo||'').replace(/,/g,' ')].join(',');});
+    const csv='﻿'+[head,...rows].join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    a.download='richflow-매매일지-'+today()+'.csv';a.click();URL.revokeObjectURL(a.href);
+  };
+  $('fBd').value=today();
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>해외주식 양도소득세 계산기 · RICHFLOW</title>
+<meta name="description" content="미국주식 양도소득세를 손익통산·250만원 기본공제·22% 세율로 계산합니다. 실시간 환율 반영, 절세용 손실 확정 금액까지 알려드려요.">
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--amber-bg:rgba(192,127,36,.12);--radius:20px;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  .mono{font-variant-numeric:tabular-nums}.up{color:var(--up)}.down{color:var(--down)}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .logo .bot{width:34px;height:34px;display:block}
+  .back{margin-left:auto;font-size:13px;font-weight:700;color:var(--txt-2);background:var(--card);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .phead{padding:26px 0 8px}
+  .phead h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:7px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:600}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .seg button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  /* rows */
+  .row{display:grid;grid-template-columns:1.4fr 1fr 1fr 34px;gap:8px;align-items:center;margin-bottom:8px}
+  .row input{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13.5px;color:var(--txt);outline:none;min-width:0;width:100%}
+  .row input.num{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+  .row .del{background:var(--card-2);border:1px solid var(--line);border-radius:9px;height:38px;cursor:pointer;color:var(--txt-3);font-size:14px}
+  .row .del:hover{background:var(--down-bg);color:var(--down)}
+  .rowhead{display:grid;grid-template-columns:1.4fr 1fr 1fr 34px;gap:8px;font-size:11px;color:var(--txt-3);font-weight:700;margin-bottom:6px;padding:0 3px}
+  .addbtn{background:var(--card-2);border:1px dashed var(--line-2);color:var(--txt-2);font-size:12.5px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer;font-family:inherit;width:100%;margin-top:4px}
+  .addbtn:hover{color:var(--txt)}
+  /* result */
+  .res{background:linear-gradient(135deg,#eef0f3,#e4e6ea);border:1px solid var(--line-2);border-radius:16px;padding:20px;margin-bottom:16px}
+  .big{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:14px}
+  .big .b{flex:1;min-width:140px}
+  .big .k{font-size:12px;color:var(--txt-2);font-weight:600;margin-bottom:4px}
+  .big .v{font-size:27px;font-weight:800;letter-spacing:-.03em}
+  .big .s{font-size:11.5px;color:var(--txt-3);margin-top:2px;font-weight:600}
+  .kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .kv:last-child{border:none}.kv .k{color:var(--txt-2);font-weight:600}.kv .v{font-weight:800}
+  .tip{background:var(--amber-bg);border:1px solid rgba(192,127,36,.25);border-radius:12px;padding:12px 15px;font-size:12.5px;color:var(--txt-2);line-height:1.6;margin-top:12px}
+  .tip b{color:var(--txt)}
+  .fxline{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--txt-2);flex-wrap:wrap}
+  .fxline input{background:var(--card-2);border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-family:inherit;font-size:13px;font-weight:800;color:var(--txt);width:110px;text-align:right;outline:none;font-variant-numeric:tabular-nums}
+  .note{font-size:11.5px;color:var(--txt-3);line-height:1.65;margin-top:12px}
+  .note b{color:var(--txt-2)}
+  .links{display:flex;gap:8px;flex-wrap:wrap}
+  .links a{font-size:12.5px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:14px 2px 44px}
+  @media(max-width:620px){.row,.rowhead{grid-template-columns:1fr 1fr 34px}.rowhead span:nth-child(2){display:none}.row input:nth-child(2){grid-column:1/-1}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html?m=us" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html?m=us" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>🧾 해외주식 양도소득세 계산기</h1>
+    <p>같은 해에 판 종목들의 <b>손익을 합산(손익통산)</b>하고 <b>250만원 기본공제</b>를 뺀 뒤 <b>22%</b>를 계산합니다. 다음 해 5월 신고 대상이에요.</p>
+  </section>
+
+  <div class="card">
+    <h3>💵 입력 통화 <span class="hint">달러 입력 시 환율로 원화 환산</span></h3>
+    <div class="seg" id="curSeg">
+      <button class="on" data-c="KRW">원화(₩)로 입력</button>
+      <button data-c="USD">달러($)로 입력</button>
+    </div>
+    <div class="fxline" id="fxLine" style="display:none">
+      적용 환율 <input id="fx" type="text" inputmode="decimal" value=""> 원/$
+      <span id="fxInfo" style="color:var(--txt-3)">실시간 불러오는 중…</span>
+    </div>
+    <div class="note" id="curNote">매도한 종목의 <b>실현 손익</b>만 입력하세요. 아직 안 판 종목(평가손익)은 과세 대상이 아니에요.</div>
+  </div>
+
+  <div class="card">
+    <h3>📋 올해 매도한 종목 <span class="hint">손익통산</span></h3>
+    <div class="rowhead"><span>종목명</span><span>매수금액</span><span>매도금액</span><span></span></div>
+    <div id="rows"></div>
+    <button class="addbtn" id="addRow">＋ 종목 추가</button>
+    <div class="note">매수·매도 <b>총액</b>을 넣으면 손익이 자동 계산됩니다. 손실 종목도 꼭 넣으세요 — 이익과 상계돼 세금이 줄어요.</div>
+  </div>
+
+  <div class="res">
+    <div class="big">
+      <div class="b"><div class="k">예상 양도소득세</div><div class="v mono" id="rTax">0원</div><div class="s">지방소득세 포함 22%</div></div>
+      <div class="b"><div class="k">세후 실수령</div><div class="v mono" id="rNet">0원</div><div class="s" id="rNetSub">순손익 기준</div></div>
+    </div>
+    <div class="kv"><span class="k">총 매도금액</span><span class="v mono" id="rSell">0원</span></div>
+    <div class="kv"><span class="k">총 매수금액</span><span class="v mono" id="rBuy">0원</span></div>
+    <div class="kv"><span class="k">양도차익 (손익통산)</span><span class="v mono" id="rGain">0원</span></div>
+    <div class="kv"><span class="k">기본공제</span><span class="v mono" id="rDed">−2,500,000원</span></div>
+    <div class="kv"><span class="k">과세표준</span><span class="v mono" id="rBase">0원</span></div>
+    <div class="kv"><span class="k">세율 (양도세 20% + 지방세 2%)</span><span class="v mono">22%</span></div>
+    <div class="tip" id="tipBox">종목을 입력하면 계산됩니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>🗓️ 신고·납부 일정</h3>
+    <div class="kv"><span class="k">신고 기간</span><span class="v">다음 해 <b>5월 1일 ~ 5월 31일</b></span></div>
+    <div class="kv"><span class="k">신고 대상</span><span class="v">1/1~12/31 결제(정산)된 매도분</span></div>
+    <div class="kv"><span class="k">기본공제</span><span class="v">연 250만원 (인별)</span></div>
+    <div class="kv"><span class="k">손익통산</span><span class="v">같은 해 해외주식끼리 가능</span></div>
+    <div class="note">※ 국내주식(대주주 아닌 경우)과는 통산되지 않습니다. 증권사에서 신고대행을 해주는 경우가 많으니 확인해 보세요.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-fx.html">💱 환율 계산기</a>
+      <a href="tool-journal.html">📝 매매일지</a>
+      <a href="index.html?m=us">🇺🇸 미장 홈</a>
+    </div>
+  </div>
+
+  <div class="disc">해외주식 양도소득세는 매매차익에서 연 250만원을 공제한 금액에 22%(양도소득세 20% + 지방소득세 2%)가 부과되며, 다음 해 5월에 신고·납부합니다. 실제 과세표준은 <b>거래 시점의 기준환율로 환산한 원화 금액</b>과 증권사 수수료·제비용을 반영해 계산되므로 본 계산기 결과와 차이가 있을 수 있습니다. 본 계산기는 정보 제공용 참고 자료이며 세무 자문이 아닙니다. 정확한 신고는 증권사 양도세 신고대행 또는 세무 전문가와 상담하세요.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const DED=2500000, RATE=0.22;
+  let curMode='KRW', fxRate=null;
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+  async function fetchJSON(url,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||9000);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json();}catch(e){return null;}finally{clearTimeout(t);}}
+  async function loadFx(){
+    const d=await fetchJSON(WK+encodeURIComponent('https://api.stock.naver.com/marketindex/exchange/FX_USDKRW'));
+    const e=d&&(d.exchangeInfo||d);
+    if(e&&e.closePrice){ fxRate=num(e.closePrice); if(!$('fx').value)$('fx').value=fxRate.toFixed(2);
+      $('fxInfo').textContent='(현재 '+fxRate.toFixed(2)+'원 · 하나은행 기준)'; }
+    else $('fxInfo').textContent='(환율 자동입력 실패 — 직접 입력)';
+    calc();
+  }
+
+  let rows=[{n:'',b:'',s:''},{n:'',b:'',s:''}];
+  function render(){
+    $('rows').innerHTML=rows.map((r,i)=>`<div class="row" data-i="${i}">
+      <input class="nm" placeholder="예: 엔비디아" value="${esc(r.n)}">
+      <input class="num bu" inputmode="decimal" placeholder="매수" value="${esc(r.b)}">
+      <input class="num se" inputmode="decimal" placeholder="매도" value="${esc(r.s)}">
+      <button class="del" title="삭제">✕</button></div>`).join('');
+    $('rows').querySelectorAll('.row').forEach(el=>{
+      const i=+el.dataset.i;
+      el.querySelector('.nm').addEventListener('input',e=>{rows[i].n=e.target.value;});
+      el.querySelector('.bu').addEventListener('input',e=>{rows[i].b=e.target.value;calc();});
+      el.querySelector('.se').addEventListener('input',e=>{rows[i].s=e.target.value;calc();});
+      el.querySelector('.del').onclick=()=>{rows.splice(i,1);if(!rows.length)rows=[{n:'',b:'',s:''}];render();calc();};
+    });
+  }
+  $('addRow').onclick=()=>{rows.push({n:'',b:'',s:''});render();};
+  $('curSeg').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{$('curSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      curMode=b.dataset.c; $('fxLine').style.display=curMode==='USD'?'flex':'none';
+      $('curNote').innerHTML=curMode==='USD'
+        ? '달러로 입력하면 위 환율로 원화 환산해 계산합니다. 실제 신고는 <b>거래일별 기준환율</b>을 적용해요.'
+        : '매도한 종목의 <b>실현 손익</b>만 입력하세요. 아직 안 판 종목(평가손익)은 과세 대상이 아니에요.';
+      calc();};
+  });
+  $('fx').addEventListener('input',calc);
+
+  function calc(){
+    const k=curMode==='USD'?(num($('fx').value)||fxRate||0):1;
+    let buy=0,sell=0,cnt=0,lossSum=0,gainSum=0;
+    rows.forEach(r=>{
+      const b=num(r.b),s=num(r.s);
+      if(b>0||s>0){cnt++;buy+=b*k;sell+=s*k;const g=(s-b)*k;if(g>=0)gainSum+=g;else lossSum+=g;}
+    });
+    const gain=sell-buy;
+    const base=Math.max(0,gain-DED);
+    const tax=base*RATE;
+    const net=gain-tax;
+    $('rSell').textContent=won(sell);$('rBuy').textContent=won(buy);
+    $('rGain').textContent=(gain>=0?'+':'−')+won(Math.abs(gain));
+    $('rGain').className='v mono '+(gain>=0?'up':'down');
+    $('rDed').textContent=gain>0?('−'+won(Math.min(DED,gain))):'−0원';
+    $('rBase').textContent=won(base);
+    $('rTax').textContent=won(tax);
+    $('rNet').textContent=(net>=0?'':'−')+won(Math.abs(net));
+    $('rNet').className='v mono '+(net>=0?'up':'down');
+    $('rNetSub').textContent=gain>=0?'양도차익 − 세금':'손실 (세금 없음)';
+
+    let tip='';
+    if(!cnt){tip='종목을 입력하면 계산됩니다.';}
+    else if(gain<=0){tip='올해 <b>순손실</b>이라 양도세가 없습니다. 손실은 <b>다음 해로 이월되지 않으니</b>, 이익 난 종목이 있다면 같은 해에 함께 실현해 상계하는 게 유리해요.';}
+    else if(gain<=DED){tip='양도차익이 기본공제 <b>250만원 이하</b>라 세금이 <b>0원</b>입니다. 공제 여유가 <b>'+won(DED-gain)+'</b> 남았어요 — 이 범위 안에서 이익 실현하면 비과세입니다.';}
+    else{
+      const needLoss=gain-DED;
+      tip='과세표준 <b>'+won(base)+'</b>에 22%가 적용돼 <b>'+won(tax)+'</b>이 예상됩니다. 손실 중인 종목을 <b>'+won(needLoss)+'</b>만큼 올해 안에 정리(손실 확정)하면 세금을 <b>0원</b>으로 줄일 수 있어요.';
+    }
+    $('tipBox').innerHTML=tip;
+  }
+  render();loadFx();calc();
+</script>
+</body>
+</html>
