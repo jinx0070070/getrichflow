@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 포트폴리오 · RICHFLOW</title>
+<meta name="description" content="보유 종목을 넣으면 실시간 시세로 평가금액·비중·손익을 자동 계산합니다. 국내·미국 주식을 한곳에서 원화 기준으로 관리하세요.">
+<link rel="stylesheet" href="tool.css">
+<style>
+  /* 검색 */
+  .srch-wrap{position:relative;margin-bottom:12px}
+  .srch{display:flex;align-items:center;gap:9px;background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+  .srch input{flex:1;min-width:0;background:none;border:none;outline:none;font-family:inherit;font-size:14px;color:var(--txt)}
+  .drop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow);z-index:20;overflow:hidden;display:none}
+  .drop.on{display:block}
+  .drop .it{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--line)}
+  .drop .it:last-child{border:none}.drop .it:hover{background:var(--card-2)}
+  .drop .it .n{font-size:13.5px;font-weight:700;flex:1}
+  .drop .it .c{font-size:11px;color:var(--txt-3);font-weight:600}
+  /* 요약 */
+  .sum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .sc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow-sm)}
+  .sc .k{font-size:11.5px;color:var(--txt-2);font-weight:600;margin-bottom:5px}
+  .sc .v{font-size:20px;font-weight:800;letter-spacing:-.02em}
+  .sc .s{font-size:11px;color:var(--txt-3);font-weight:600;margin-top:2px}
+  /* 보유 목록 */
+  .hold{display:flex;align-items:center;gap:12px;padding:13px 8px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .hold:last-child{border:none}
+  .hold .lg{width:34px;height:34px;flex:none;border-radius:10px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:12px;font-weight:800;color:var(--brand)}
+  .hold .lg img{width:100%;height:100%;object-fit:contain}
+  .hold .nm{min-width:118px;flex:1}
+  .hold .nm .n{font-size:14px;font-weight:800;letter-spacing:-.02em}
+  .hold .nm .s{font-size:11px;color:var(--txt-3);font-weight:600;margin-top:1px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .hold .mid{min-width:132px;font-size:12px;color:var(--txt-2);text-align:right}
+  .hold .pl{min-width:112px;text-align:right}
+  .hold .pl .a{font-size:14.5px;font-weight:800}
+  .hold .pl .p{font-size:11.5px;font-weight:700}
+  .hold .wt{min-width:74px;text-align:right}
+  .hold .wt .b{height:6px;border-radius:4px;background:var(--card-2);overflow:hidden;margin-top:4px}
+  .hold .wt .b i{display:block;height:100%;background:var(--brand-2)}
+  .hold .act button{background:var(--card-2);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--txt-3);cursor:pointer;font-family:inherit}
+  .hold .act button:hover{color:var(--down);border-color:var(--down)}
+  .flag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:5px;background:var(--card-2);color:var(--txt-3)}
+  .empty{text-align:center;padding:36px 16px;color:var(--txt-3);font-size:13.5px;line-height:1.7}
+  /* 비중 바 */
+  .alloc{display:flex;height:36px;border-radius:10px;overflow:hidden;gap:2px;margin-bottom:10px}
+  .alloc i{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
+  .tools{margin-left:auto;display:flex;gap:6px}
+  .tools button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-3);font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer;font-family:inherit}
+  @media(max-width:760px){.sum{grid-template-columns:1fr 1fr}.hold .mid{min-width:0;flex:1;text-align:left}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>💼 내 포트폴리오</h1>
+    <p>보유 종목을 넣으면 <b>실시간 시세</b>로 평가금액·비중·손익을 자동 계산합니다. 국내·미국 주식을 <b>원화 기준</b>으로 한눈에 봐요.</p>
+  </section>
+
+  <div class="sum">
+    <div class="sc"><div class="k">총 평가금액</div><div class="v mono" id="sVal">—</div><div class="s" id="sValSub">원화 환산</div></div>
+    <div class="sc"><div class="k">총 매입금액</div><div class="v mono" id="sCost">—</div><div class="s" id="sCostSub">투입 원금</div></div>
+    <div class="sc"><div class="k">평가 손익</div><div class="v mono" id="sPl">—</div><div class="s" id="sPlSub">—</div></div>
+    <div class="sc"><div class="k">보유 종목</div><div class="v mono" id="sCnt">0</div><div class="s" id="sCntSub">국내 0 · 미국 0</div></div>
+  </div>
+
+  <div class="card">
+    <h3>➕ 보유 종목 추가</h3>
+    <div class="srch-wrap">
+      <div class="srch">🔍<input id="q" placeholder="종목명·티커 검색 (예: 삼성전자, NVDA)" autocomplete="off"></div>
+      <div class="drop" id="drop"></div>
+    </div>
+    <div id="addBox" style="display:none">
+      <div style="font-size:13px;font-weight:800;margin-bottom:10px" id="pickName"></div>
+      <div class="grid3">
+        <div class="fld"><label>평단가</label><div class="inbox"><input id="fAvg" type="text" inputmode="decimal" placeholder="0"><span class="sym" id="uSym">원</span></div></div>
+        <div class="fld"><label>수량</label><div class="inbox"><input id="fQty" type="text" inputmode="decimal" placeholder="0"><span class="sym">주</span></div></div>
+        <div class="fld"><label>&nbsp;</label><button id="btnAdd" style="width:100%;background:var(--brand);border:1px solid var(--brand);color:#fff;font-size:13.5px;font-weight:800;padding:12px;border-radius:12px;cursor:pointer;font-family:inherit">추가</button></div>
+      </div>
+      <div class="note" id="pxNote"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📊 자산 비중 <span class="hint" id="allocHint">평가금액 기준</span></h3>
+    <div class="alloc" id="alloc"><div style="width:100%;background:var(--card-2);border-radius:10px"></div></div>
+    <div class="note" id="allocNote">종목을 추가하면 비중이 표시됩니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>📋 보유 종목 <span class="hint" id="listHint"></span>
+      <span class="tools"><button id="btnRefresh">↻ 시세 갱신</button><button id="btnExport">내보내기</button><button id="btnClear">전체 삭제</button></span>
+    </h3>
+    <div id="list"></div>
+    <div class="note">기록은 <b>이 브라우저에만 저장</b>됩니다(서버 전송 없음). 시세는 <b>1분마다</b> 자동 갱신돼요. 환율은 <span id="fxNow">—</span> 기준.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-journal.html">📝 매매일지</a>
+      <a href="tool-avgdown.html">📉 물타기 계산기</a>
+      <a href="tool-usprofit.html">🇺🇸 미국주식 실수익</a>
+      <a href="tool-tax.html">🧾 양도세 계산기</a>
+    </div>
+  </div>
+
+  <div class="disc">보유 내역은 브라우저 로컬 저장소(localStorage)에 저장되며 서버로 전송되지 않습니다. 시세는 네이버 금융(국내 실시간, 미국 정규장 실시간) 기준이며 장 마감 시에는 종가가 표시됩니다. 미국 종목은 실시간 환율로 원화 환산하며, 손익은 수수료·세금·환전 스프레드를 제외한 단순 계산입니다. 정보 제공용이며 투자 권유가 아닙니다.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const KEY='richflow:portfolio';
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+  const shortWon=n=>{const a=Math.abs(n),sg=n<0?'−':'';
+    if(a>=1e8)return sg+(a/1e8).toFixed(a>=1e9?0:1)+'억';
+    if(a>=1e4)return sg+Math.round(a/1e4).toLocaleString('ko-KR')+'만';
+    return sg+Math.round(a).toLocaleString('ko-KR');};
+  const COLORS=['#434955','#5c626d','#767c86','#8b919b','#9aa0ab','#a8aeb8','#b6bcc5','#c4c9d1'];
+  let items=load(), fx=null, prices={};
+
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[];}catch(e){return [];}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(items));}catch(e){}}
+
+  async function fetchJSON(url,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||9000);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json();}catch(e){return null;}finally{clearTimeout(t);}}
+  async function pool(arr,n,fn){const out=[];let i=0;async function w(){while(i<arr.length){const k=i++;out[k]=await fn(arr[k]);}}await Promise.all(Array.from({length:Math.min(n,arr.length)},w));return out;}
+
+  const logoUrl=it=>it.mkt==='kr'
+    ? 'https://ssl.pstatic.net/imgstock/fn/real/logo/stock/Stock'+encodeURIComponent(it.code)+'.svg'
+    : 'https://financialmodelingprep.com/image-stock/'+encodeURIComponent(it.code)+'.png';
+
+  /* 검색 */
+  let tmr=null, picked=null;
+  $('q').addEventListener('input',()=>{
+    clearTimeout(tmr);const v=$('q').value.trim();
+    if(!v){$('drop').classList.remove('on');return;}
+    tmr=setTimeout(async()=>{
+      const d=await fetchJSON(WK+encodeURIComponent('https://ac.stock.naver.com/ac?q='+encodeURIComponent(v)+'&target=stock'));
+      const list=((d&&d.items)||[]).filter(x=>x.nationCode==='KOR'||x.nationCode==='USA');
+      if(!list.length){$('drop').classList.remove('on');return;}
+      $('drop').innerHTML=list.slice(0,7).map((x,i)=>
+        `<div class="it" data-i="${i}"><span class="n">${esc(x.name)}</span><span class="c">${x.nationCode==='KOR'?'🇰🇷':'🇺🇸'} ${esc(x.code)}</span></div>`).join('');
+      $('drop').classList.add('on');
+      $('drop').querySelectorAll('.it').forEach(el=>{el.onclick=()=>pick(list[+el.dataset.i]);});
+    },260);
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('.srch-wrap'))$('drop').classList.remove('on');});
+
+  async function pick(x){
+    $('drop').classList.remove('on');$('q').value=x.name;
+    const kr=x.nationCode==='KOR';
+    picked={mkt:kr?'kr':'us',code:x.code,name:x.name,rc:x.reutersCode||x.code};
+    $('addBox').style.display='block';
+    $('pickName').innerHTML=(kr?'🇰🇷 ':'🇺🇸 ')+esc(x.name)+' <span style="color:var(--txt-3);font-weight:600;font-size:11.5px">'+esc(x.code)+'</span>';
+    $('uSym').textContent=kr?'원':'$';
+    $('pxNote').textContent='현재가 확인 중…';
+    const p=await getPrice(picked);
+    if(p){prices[keyOf(picked)]=p;$('pxNote').innerHTML='현재가 <b>'+(picked.mkt==='kr'?won(p.price):('$'+p.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})))+'</b> · 평단가를 모르면 현재가를 넣어도 돼요.';
+      if(!$('fAvg').value)$('fAvg').value=picked.mkt==='kr'?String(Math.round(p.price)):String(p.price);}
+    else $('pxNote').textContent='현재가를 불러오지 못했어요. 평단가를 직접 입력해 주세요.';
+  }
+  const keyOf=it=>it.mkt+':'+it.code;
+
+  async function getPrice(it){
+    const url=it.mkt==='kr'
+      ? 'https://m.stock.naver.com/api/stock/'+it.code+'/basic'
+      : 'https://api.stock.naver.com/stock/'+encodeURIComponent(it.rc||it.code)+'/basic';
+    const d=await fetchJSON(WK+encodeURIComponent(url));
+    if(!d||!d.closePrice)return null;
+    return {price:num(d.closePrice),pct:num(d.fluctuationsRatio),name:d.stockName||it.name};
+  }
+  async function loadFx(){
+    const d=await fetchJSON(WK+encodeURIComponent('https://api.stock.naver.com/marketindex/exchange/FX_USDKRW'));
+    const e=d&&(d.exchangeInfo||d);
+    if(e&&e.closePrice){fx=num(e.closePrice);$('fxNow').textContent='1달러 = '+fx.toFixed(2)+'원';}
+    else $('fxNow').textContent='환율 불러오기 실패';
+  }
+  async function refresh(){
+    if(!items.length){render();return;}
+    $('listHint').textContent='시세 갱신 중…';
+    const res=await pool(items,5,async it=>({k:keyOf(it),p:await getPrice(it)}));
+    res.forEach(r=>{if(r.p)prices[r.k]=r.p;});
+    render();
+  }
+
+  $('btnAdd').onclick=()=>{
+    if(!picked){alert('먼저 종목을 검색해 주세요');return;}
+    const avg=num($('fAvg').value), qty=num($('fQty').value);
+    if(!(avg>0&&qty>0)){alert('평단가와 수량을 입력해 주세요');return;}
+    const k=keyOf(picked), ex=items.find(i=>keyOf(i)===k);
+    if(ex){ // 평단 합산
+      const tq=num(ex.qty)+qty, tc=num(ex.avg)*num(ex.qty)+avg*qty;
+      ex.avg=String(tc/tq); ex.qty=String(tq);
+    }else items.push({...picked,avg:String(avg),qty:String(qty),ts:Date.now()});
+    save();$('q').value='';$('fAvg').value='';$('fQty').value='';$('addBox').style.display='none';picked=null;
+    refresh();
+  };
+
+  function render(){
+    const rows=items.map(it=>{
+      const p=prices[keyOf(it)], rate=it.mkt==='us'?(fx||0):1;
+      const cur=p?p.price:num(it.avg);
+      const val=cur*num(it.qty)*rate, cost=num(it.avg)*num(it.qty)*rate;
+      return {it,p,cur,val,cost,pl:val-cost,pct:cost>0?(val-cost)/cost*100:0};
+    });
+    const totV=rows.reduce((n,r)=>n+r.val,0), totC=rows.reduce((n,r)=>n+r.cost,0);
+    const pl=totV-totC, plPct=totC>0?pl/totC*100:0;
+    $('sVal').textContent=totV>0?won(totV):'—';
+    $('sValSub').textContent=rows.length?('국내·미국 합산'):'원화 환산';
+    $('sCost').textContent=totC>0?won(totC):'—';
+    $('sPl').textContent=totC>0?((pl>=0?'+':'−')+won(Math.abs(pl))):'—';
+    $('sPl').className='v mono '+(pl>=0?'up':'down');
+    $('sPlSub').textContent=totC>0?((plPct>=0?'+':'')+plPct.toFixed(2)+'%'):'—';
+    $('sPlSub').className='s '+(pl>=0?'up':'down');
+    const kr=items.filter(i=>i.mkt==='kr').length;
+    $('sCnt').textContent=items.length;
+    $('sCntSub').textContent='국내 '+kr+' · 미국 '+(items.length-kr);
+    $('listHint').textContent=items.length?(items.length+'종목 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 갱신'):'';
+
+    if(!items.length){
+      $('list').innerHTML='<div class="empty">아직 보유 종목이 없어요.<br>위에서 종목을 검색하고 <b>평단가·수량</b>을 넣어보세요.</div>';
+      $('alloc').innerHTML='<div style="width:100%;background:var(--card-2);border-radius:10px"></div>';
+      $('allocNote').textContent='종목을 추가하면 비중이 표시됩니다.';return;
+    }
+    const sorted=rows.slice().sort((a,b)=>b.val-a.val);
+    $('list').innerHTML=sorted.map(r=>{
+      const it=r.it, w=totV>0?r.val/totV*100:0;
+      const href=it.mkt==='kr'?('stock.html?code='+encodeURIComponent(it.code)):('stock-us.html?t='+encodeURIComponent(it.code));
+      const curTxt=it.mkt==='kr'?won(r.cur):('$'+r.cur.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}));
+      const avgTxt=it.mkt==='kr'?won(num(it.avg)):('$'+num(it.avg).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}));
+      const dayTxt=r.p?`<span class="${r.p.pct>=0?'up':'down'}">${r.p.pct>=0?'+':''}${r.p.pct.toFixed(2)}%</span>`:'<span style="color:var(--txt-3)">시세 없음</span>';
+      return `<div class="hold">
+        <a class="lg" href="${href}"><img src="${logoUrl(it)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${esc(it.name[0])}'))"></a>
+        <div class="nm"><a href="${href}"><div class="n">${esc(it.name)}</div></a><div class="s"><span class="flag">${it.mkt==='kr'?'🇰🇷 국내':'🇺🇸 미국'}</span>${dayTxt}</div></div>
+        <div class="mid">${curTxt} × ${num(it.qty).toLocaleString('ko-KR')}주<div style="color:var(--txt-3);font-size:11px">평단 ${avgTxt}</div></div>
+        <div class="pl"><div class="a ${r.pl>=0?'up':'down'}">${r.pl>=0?'+':'−'}${shortWon(Math.abs(r.pl))}</div><div class="p ${r.pct>=0?'up':'down'}">${r.pct>=0?'+':''}${r.pct.toFixed(2)}%</div></div>
+        <div class="wt"><b style="font-size:13px">${w.toFixed(1)}%</b><div class="b"><i style="width:${w.toFixed(1)}%"></i></div></div>
+        <div class="act"><button data-del="${esc(keyOf(it))}">삭제</button></div>
+      </div>`;
+    }).join('');
+    $('list').querySelectorAll('[data-del]').forEach(b=>{b.onclick=()=>{
+      if(!confirm('이 종목을 삭제할까요?'))return;
+      items=items.filter(i=>keyOf(i)!==b.dataset.del);save();render();};});
+
+    // 비중 바
+    const top=sorted.slice(0,8);
+    const etc=sorted.slice(8).reduce((n,r)=>n+r.val,0);
+    const segs=top.map((r,i)=>({n:r.it.name,v:r.val,c:COLORS[i%COLORS.length]}));
+    if(etc>0)segs.push({n:'기타',v:etc,c:'#c9ced6'});
+    $('alloc').innerHTML=segs.map(s=>{
+      const w=totV>0?s.v/totV*100:0;
+      return `<i style="width:${w}%;background:${s.c}" title="${esc(s.n)} ${w.toFixed(1)}%">${w>=9?esc(s.n)+' '+w.toFixed(0)+'%':''}</i>`;
+    }).join('');
+    const topOne=sorted[0];
+    const krVal=rows.filter(r=>r.it.mkt==='kr').reduce((n,r)=>n+r.val,0);
+    $('allocNote').innerHTML=totV>0
+      ? `최대 비중은 <b>${esc(topOne.it.name)} ${(topOne.val/totV*100).toFixed(1)}%</b>입니다. 국내 <b>${(krVal/totV*100).toFixed(0)}%</b> · 미국 <b>${(100-krVal/totV*100).toFixed(0)}%</b>로 배분돼 있어요.`
+      : '평가금액이 계산되면 비중이 표시됩니다.';
+  }
+
+  $('btnRefresh').onclick=()=>{loadFx();refresh();};
+  $('btnClear').onclick=()=>{if(!items.length)return;if(confirm('보유 종목을 모두 삭제할까요?')){items=[];save();render();}};
+  $('btnExport').onclick=()=>{
+    if(!items.length){alert('내보낼 종목이 없어요');return;}
+    const head='종목,시장,코드,평단가,수량,현재가,평가금액(원),손익(원),수익률(%)';
+    const lines=items.map(it=>{
+      const p=prices[keyOf(it)],rate=it.mkt==='us'?(fx||0):1,cur=p?p.price:num(it.avg);
+      const val=cur*num(it.qty)*rate,cost=num(it.avg)*num(it.qty)*rate;
+      return [it.name,it.mkt==='kr'?'국내':'미국',it.code,num(it.avg),num(it.qty),cur,Math.round(val),Math.round(val-cost),cost>0?((val-cost)/cost*100).toFixed(2):''].join(',');
+    });
+    const csv='﻿'+[head,...lines].join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    a.download='richflow-포트폴리오-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(a.href);
+  };
+  loadFx().then(refresh);
+  setInterval(()=>{loadFx();refresh();},60000);
+</script>
+</body>
+</html>
