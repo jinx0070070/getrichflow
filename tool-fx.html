@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>환율 계산기 · RICHFLOW</title>
+<meta name="description" content="달러·엔·유로·위안을 원화로 양방향 환산. 하나은행 실시간 고시환율 반영, 환전 수수료(스프레드)까지 계산합니다.">
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--radius:20px;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px}
+  .mono{font-variant-numeric:tabular-nums}.up{color:var(--up)}.down{color:var(--down)}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .logo .bot{width:34px;height:34px;display:block}
+  .back{margin-left:auto;font-size:13px;font-weight:700;color:var(--txt-2);background:var(--card);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .phead{padding:26px 0 8px}
+  .phead h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:7px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:600}
+  /* rate banner */
+  .rate{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .rate .v{font-size:32px;font-weight:800;letter-spacing:-.03em}
+  .rate .c{font-size:14px;font-weight:700}
+  .rate .t{margin-left:auto;font-size:11px;color:var(--txt-3)}
+  /* currency tabs */
+  .cur-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .cur-tabs button{background:var(--card);border:1px solid var(--line);color:var(--txt-2);font-size:13px;font-weight:700;padding:8px 14px;border-radius:11px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
+  .cur-tabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  /* converter */
+  .conv{display:grid;grid-template-columns:1fr 44px 1fr;gap:10px;align-items:end}
+  .fld label{display:block;font-size:11.5px;font-weight:700;color:var(--txt-3);margin-bottom:6px}
+  .fld .inbox{display:flex;align-items:center;gap:8px;background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+  .fld input{flex:1;min-width:0;background:none;border:none;outline:none;font-family:inherit;font-size:19px;font-weight:800;color:var(--txt);font-variant-numeric:tabular-nums;text-align:right}
+  .fld .sym{font-size:13px;font-weight:800;color:var(--txt-3);flex:none}
+  .swap{height:44px;border:1px solid var(--line);background:var(--card-2);border-radius:12px;cursor:pointer;font-size:16px;color:var(--txt-2)}
+  .swap:hover{background:var(--card)}
+  .quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .quick button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .quick button:hover{color:var(--txt);border-color:var(--line-2)}
+  /* spread */
+  .kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .kv:last-child{border:none}.kv .k{color:var(--txt-2);font-weight:600}.kv .v{font-weight:800}
+  .seg{display:flex;gap:6px;margin:2px 0 14px;flex-wrap:wrap}
+  .seg button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12px;font-weight:700;padding:7px 12px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .note{font-size:11.5px;color:var(--txt-3);line-height:1.65;margin-top:12px}
+  .note b{color:var(--txt-2)}
+  .links{display:flex;gap:8px;flex-wrap:wrap}
+  .links a{font-size:12.5px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:14px 2px 44px}
+  @media(max-width:560px){.conv{grid-template-columns:1fr;gap:8px}.swap{width:100%;height:38px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>💱 환율 계산기</h1>
+    <p>하나은행 <b>실시간 고시환율</b>로 원화 ↔ 외화를 양방향 환산합니다. 환전 수수료(스프레드)를 반영한 <b>실제 지불 금액</b>까지 계산해요.</p>
+  </section>
+
+  <div class="card">
+    <div class="rate">
+      <span class="v mono" id="rateVal">…</span>
+      <span class="c mono" id="rateChg"></span>
+      <span class="t" id="rateTime">불러오는 중…</span>
+    </div>
+    <div class="note" id="rateSrc" style="margin-top:8px">하나은행 고시 기준</div>
+  </div>
+
+  <div class="card">
+    <h3>🔄 환산 <span class="hint" id="convHint"></span></h3>
+    <div class="cur-tabs" id="curTabs">
+      <button class="on" data-c="USD">🇺🇸 달러 USD</button>
+      <button data-c="JPY">🇯🇵 엔 JPY</button>
+      <button data-c="EUR">🇪🇺 유로 EUR</button>
+      <button data-c="CNY">🇨🇳 위안 CNY</button>
+    </div>
+    <div class="conv">
+      <div class="fld">
+        <label id="labA">외화</label>
+        <div class="inbox"><input id="inA" type="text" inputmode="decimal" value="100"><span class="sym" id="symA">USD</span></div>
+      </div>
+      <button class="swap" id="swapBtn" title="방향 바꾸기">⇄</button>
+      <div class="fld">
+        <label id="labB">원화</label>
+        <div class="inbox"><input id="inB" type="text" inputmode="decimal" value=""><span class="sym" id="symB">KRW</span></div>
+      </div>
+    </div>
+    <div class="quick" id="quickBox"></div>
+  </div>
+
+  <div class="card">
+    <h3>💳 환전 수수료 반영 <span class="hint">실제 지불·수령액</span></h3>
+    <div class="seg" id="spreadSeg">
+      <button data-s="1.75" class="on">현찰 1.75%</button>
+      <button data-s="1.0">전신환 1.0%</button>
+      <button data-s="0.5">우대 50%</button>
+      <button data-s="0.175">우대 90%</button>
+      <button data-s="0">수수료 0%</button>
+    </div>
+    <div class="kv"><span class="k">기준 환율 (매매기준율)</span><span class="v mono" id="spBase">—</span></div>
+    <div class="kv"><span class="k">살 때 (내가 외화 구매)</span><span class="v mono down" id="spBuy">—</span></div>
+    <div class="kv"><span class="k">팔 때 (내가 외화 판매)</span><span class="v mono up" id="spSell">—</span></div>
+    <div class="kv"><span class="k" id="spAmtK">100 USD 살 때 필요 원화</span><span class="v mono" id="spAmt">—</span></div>
+    <div class="note">※ 은행·증권사마다 스프레드가 다릅니다. 증권사 해외주식 환전은 보통 <b>전신환(약 1%)</b>에 우대율이 적용돼요. 실제 적용 환율은 거래 시점 고시가 기준입니다.</div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 함께 쓰면 좋아요</h3>
+    <div class="links">
+      <a href="tool-tax.html">🧾 양도세 계산기</a>
+      <a href="tool-market-hours.html">🕒 미국 증시 개장</a>
+      <a href="index.html?m=us">🇺🇸 미장 홈</a>
+    </div>
+  </div>
+
+  <div class="disc">환율은 네이버 금융이 제공하는 하나은행 고시환율(매매기준율) 기준이며, 고시 시점에 따라 실제 거래 환율과 차이가 있을 수 있습니다. 엔화(JPY)는 100엔 기준으로 고시되며 본 계산기는 1엔 단위로 환산해 표시합니다. 정보 제공용이며 실제 환전 시에는 거래 기관의 고시 환율을 확인하세요.</div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const CUR={
+    USD:{code:'FX_USDKRW',name:'미국 달러',flag:'🇺🇸',unit:1,dec:2},
+    JPY:{code:'FX_JPYKRW',name:'일본 엔',flag:'🇯🇵',unit:100,dec:2},
+    EUR:{code:'FX_EURKRW',name:'유로',flag:'🇪🇺',unit:1,dec:2},
+    CNY:{code:'FX_CNYKRW',name:'중국 위안',flag:'🇨🇳',unit:1,dec:2}
+  };
+  const QUICK={USD:[1,10,100,1000,10000],JPY:[100,1000,10000,100000],EUR:[1,10,100,1000],CNY:[10,100,1000,10000]};
+  let cur='USD', rate=null, dir='F2K', spread=1.75; // dir: F2K(외화→원), K2F
+  const num=s=>{const v=parseFloat(String(s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const fmt=(n,d)=>n.toLocaleString('ko-KR',{minimumFractionDigits:d==null?0:d,maximumFractionDigits:d==null?0:d});
+
+  async function fetchJSON(url,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||9000);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json();}catch(e){return null;}finally{clearTimeout(t);}}
+
+  async function loadRate(){
+    const c=CUR[cur];
+    const d=await fetchJSON(WK+encodeURIComponent('https://api.stock.naver.com/marketindex/exchange/'+c.code));
+    const e=d&&(d.exchangeInfo||d);
+    if(!e||!e.closePrice){ $('rateTime').textContent='환율을 불러오지 못했어요'; return; }
+    const per=num(e.closePrice);           // c.unit 단위당 원화
+    rate=per/c.unit;                        // 1단위당 원화
+    const chg=num(e.fluctuations), pct=num(e.fluctuationsRatio), up=chg>=0;
+    $('rateVal').textContent='1 '+cur+' = '+fmt(rate,2)+'원';
+    $('rateChg').innerHTML='<span class="'+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+fmt(Math.abs(chg)/c.unit,2)+' ('+(up?'+':'−')+Math.abs(pct).toFixed(2)+'%)</span>';
+    const at=e.localTradedAt?new Date(e.localTradedAt):new Date();
+    $('rateTime').textContent=at.toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 기준';
+    $('rateSrc').innerHTML='<b>'+c.flag+' '+c.name+'</b> · 하나은행 고시 매매기준율'+(c.unit>1?' (고시는 '+c.unit+'단위 기준 '+fmt(per,2)+'원)':'');
+    recalc('A'); renderSpread();
+  }
+
+  function renderTabs(){
+    $('curTabs').querySelectorAll('button').forEach(b=>{
+      b.onclick=()=>{ $('curTabs').querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+        cur=b.dataset.c; renderQuick(); applyDir(); loadRate(); };
+    });
+  }
+  function renderQuick(){
+    $('quickBox').innerHTML=(QUICK[cur]||[]).map(v=>`<button data-q="${v}">${fmt(v)} ${dir==='F2K'?cur:'원'}</button>`).join('')
+      +`<button data-q="clear">지우기</button>`;
+    $('quickBox').querySelectorAll('button').forEach(b=>{
+      b.onclick=()=>{ if(b.dataset.q==='clear'){$('inA').value='';$('inB').value='';return;} $('inA').value=b.dataset.q; recalc('A'); };
+    });
+  }
+  function applyDir(){
+    const c=CUR[cur];
+    if(dir==='F2K'){ $('labA').textContent=c.name+' ('+cur+')'; $('symA').textContent=cur; $('labB').textContent='원화 (KRW)'; $('symB').textContent='KRW'; }
+    else { $('labA').textContent='원화 (KRW)'; $('symA').textContent='KRW'; $('labB').textContent=c.name+' ('+cur+')'; $('symB').textContent=cur; }
+    $('convHint').textContent=dir==='F2K'?cur+' → 원화':'원화 → '+cur;
+    renderQuick();
+  }
+  function recalc(from){
+    if(!rate)return;
+    if(from==='A'){
+      const a=num($('inA').value);
+      $('inB').value = $('inA').value===''?'':(dir==='F2K'? fmt(a*rate,0) : fmt(a/rate,2));
+    }else{
+      const b=num($('inB').value);
+      $('inA').value = $('inB').value===''?'':(dir==='F2K'? fmt(b/rate,2) : fmt(b*rate,0));
+    }
+    renderSpread();
+  }
+  function renderSpread(){
+    if(!rate)return;
+    const s=spread/100, buy=rate*(1+s), sell=rate*(1-s);
+    $('spBase').textContent=fmt(rate,2)+'원';
+    $('spBuy').textContent=fmt(buy,2)+'원';
+    $('spSell').textContent=fmt(sell,2)+'원';
+    const amt=dir==='F2K'?num($('inA').value):num($('inB').value);
+    $('spAmtK').textContent=fmt(amt,0)+' '+cur+' 살 때 필요 원화';
+    $('spAmt').textContent=fmt(amt*buy,0)+'원';
+  }
+  $('inA').addEventListener('input',()=>recalc('A'));
+  $('inB').addEventListener('input',()=>recalc('B'));
+  $('swapBtn').onclick=()=>{ dir=dir==='F2K'?'K2F':'F2K'; const a=$('inA').value; $('inA').value=$('inB').value; $('inB').value=a; applyDir(); recalc('A'); };
+  $('spreadSeg').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{ $('spreadSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); spread=parseFloat(b.dataset.s); renderSpread(); };
+  });
+  renderTabs(); applyDir(); loadRate(); setInterval(loadRate,60000);
+</script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>미국 증시 개장 시간 · RICHFLOW</title>
+<meta name="description" content="지금 미국 장 열렸나? 프리마켓·정규장·애프터마켓 현재 상태와 다음 개장까지 남은 시간을 한국시간으로 알려드려요.">
+<style>
+  :root{
+    --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
+    --line:#d3d6dd;--line-2:#c1c5ce;--txt:#1b1e24;--txt-2:#474d58;--txt-3:#5c6470;
+    --brand:#434955;--brand-2:#5c626d;--up:#1f9d57;--up-bg:rgba(31,157,87,.11);
+    --down:#d8455a;--down-bg:rgba(216,69,90,.11);--amber:#c07f24;--amber-bg:rgba(192,127,36,.12);--radius:20px;
+    --shadow:0 10px 30px rgba(60,66,80,.12);--shadow-sm:0 2px 8px rgba(60,66,80,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 560px at 88% -12%,rgba(124,131,143,.14),transparent 60%),var(--bg);
+    color:var(--txt);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+  .mono{font-variant-numeric:tabular-nums}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(229,230,234,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .logo .bot{width:34px;height:34px;display:block}
+  .back{margin-left:auto;font-size:13px;font-weight:700;color:var(--txt-2);background:var(--card);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .phead{padding:26px 0 8px}
+  .phead h1{font-size:26px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
+  .phead p{color:var(--txt-2);font-size:14px;margin-top:7px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+  .card h3{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{margin-left:auto;font-size:11px;color:var(--txt-3);font-weight:600}
+  /* status hero */
+  .hero{text-align:center;padding:26px 20px}
+  .st-badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;padding:7px 16px;border-radius:22px;margin-bottom:16px}
+  .st-open{background:var(--up-bg);color:var(--up)}
+  .st-pre,.st-post{background:var(--amber-bg);color:var(--amber)}
+  .st-closed{background:var(--card-2);color:var(--txt-3)}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .cd{font-size:44px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
+  .cd small{font-size:18px;font-weight:700;color:var(--txt-3);margin-left:2px}
+  .cd-label{font-size:13px;color:var(--txt-2);margin-top:8px;font-weight:600}
+  .now{font-size:12px;color:var(--txt-3);margin-top:14px}
+  /* session table */
+  .ses{display:flex;align-items:center;gap:12px;padding:12px 8px;border-bottom:1px solid var(--line)}
+  .ses:last-child{border:none}
+  .ses .nm{font-size:13.5px;font-weight:700;width:92px;flex:none}
+  .ses .tm{flex:1;font-size:13px;color:var(--txt-2)}
+  .ses .tag{font-size:10px;font-weight:800;padding:3px 9px;border-radius:6px;background:var(--card-2);color:var(--txt-3);white-space:nowrap}
+  .ses.on .tag{background:var(--up-bg);color:var(--up)}
+  .ses .et{font-size:11px;color:var(--txt-3);margin-top:2px}
+  .note{font-size:11.5px;color:var(--txt-3);line-height:1.65;margin-top:12px}
+  .note b{color:var(--txt-2)}
+  .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .links a{font-size:12.5px;font-weight:700;color:var(--brand);background:var(--card-2);border:1px solid var(--line);padding:8px 13px;border-radius:10px}
+  .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:14px 2px 44px}
+  @media(max-width:640px){.cd{font-size:36px}.ses .nm{width:76px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mascot" viewBox="0 0 100 100">
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="#8b919b"/><rect x="6" y="6" width="88" height="88" rx="24" fill="none" stroke="#767c86" stroke-width="2"/>
+  <rect x="1" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="91" y="42" width="8" height="16" rx="4" fill="#7d838d"/><rect x="20" y="22" width="60" height="54" rx="15" fill="#a2a8b0"/>
+  <path d="M30 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 40 q10 -5 18 0" stroke="#4c525c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="39" cy="50" r="9.5" fill="#fff"/><circle cx="61" cy="50" r="9.5" fill="#fff"/><circle cx="41" cy="52" r="5" fill="#1c1f24"/><circle cx="63" cy="52" r="5" fill="#1c1f24"/>
+  <path d="M43 66 q7 3 14 0" stroke="#4c525c" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="42" y="86" width="16" height="6" rx="2" fill="#6f757f"/>
+</symbol></svg>
+
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html?m=us" class="logo"><svg class="bot"><use href="#mascot"/></svg><span>RICHFLOW</span></a>
+  <a href="index.html?m=us" class="back">← 홈</a>
+</div></header>
+
+<div class="wrap">
+  <section class="phead">
+    <h1>🕒 미국 증시 개장 시간</h1>
+    <p>지금 미국 장이 열렸는지, 다음 개장까지 얼마나 남았는지 <b>한국시간</b>으로 보여드려요. 서머타임과 미국 휴장일도 자동 반영합니다.</p>
+  </section>
+
+  <div class="card hero">
+    <div class="st-badge st-closed" id="stBadge"><span class="live-dot"></span><span id="stText">확인 중…</span></div>
+    <div class="cd mono" id="cd">--:--:--</div>
+    <div class="cd-label" id="cdLabel">남은 시간 계산 중…</div>
+    <div class="now mono" id="nowLine"></div>
+  </div>
+
+  <div class="card">
+    <h3>📅 오늘 세션 <span class="hint" id="sesHint">한국시간 기준</span></h3>
+    <div id="sesList"></div>
+    <div class="note" id="dstNote"></div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 바로가기</h3>
+    <div class="links">
+      <a href="index.html?m=us">🇺🇸 미장 홈</a>
+      <a href="stock-us.html?t=NVDA">엔비디아</a>
+      <a href="stock-us.html?t=TSLA">테슬라</a>
+      <a href="tool-fx.html">💱 환율 계산기</a>
+    </div>
+  </div>
+
+  <div class="disc">미국 정규장은 현지 09:30~16:00(ET), 프리마켓 04:00~09:30, 애프터마켓 16:00~20:00입니다. 서머타임(3월 둘째 일요일~11월 첫째 일요일)에는 한국시간 기준 1시간 앞당겨집니다. 미국 증시 휴장일(신정·마틴루터킹데이·대통령의날·성금요일·메모리얼데이·준틴스·독립기념일·노동절·추수감사절·크리스마스)은 자동 반영하며, 조기 종료일(추수감사절 다음날 등)은 13:00 ET에 마감합니다. 정보 제공용입니다.</div>
+</div>
+
+<script>
+  /* ===== 미국 증시 개장 시간 (ET 기준 자동 계산) ===== */
+  const $=id=>document.getElementById(id);
+  const pad=n=>String(n).padStart(2,'0');
+
+  // 특정 시각의 ET(America/New_York) 각 필드 얻기
+  function etParts(d){
+    const f=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,weekday:'short'});
+    const o={};f.formatToParts(d).forEach(p=>{o[p.type]=p.value;});
+    return {y:+o.year,m:+o.month,d:+o.day,hh:+(o.hour==='24'?'0':o.hour),mm:+o.minute,ss:+o.second,wd:o.weekday};
+  }
+  // ET 오프셋(분) — 해당 시점이 EDT(-4)인지 EST(-5)인지
+  function etOffsetMin(d){
+    const s=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',timeZoneName:'shortOffset'}).formatToParts(d).find(p=>p.type==='timeZoneName').value; // e.g. GMT-4
+    const m=s.match(/GMT([+-]\d+)/); return m?(+m[1])*60:-300;
+  }
+  // ET 벽시계(y,m,d,hh,mm) → UTC Date
+  function etToDate(y,m,d,hh,mm){
+    const guess=Date.UTC(y,m-1,d,hh,mm,0);
+    const off=etOffsetMin(new Date(guess));         // 분 단위(음수)
+    return new Date(guess-off*60000);
+  }
+  // 부활절(성금요일 계산용) — Anonymous Gregorian algorithm
+  function easter(y){
+    const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+      h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+      mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+    return {m:mo,d:da};
+  }
+  const nthWeekday=(y,m,wd,n)=>{ // n번째 wd요일(0=일)
+    const first=new Date(Date.UTC(y,m-1,1)).getUTCDay();
+    return 1+((wd-first+7)%7)+(n-1)*7;
+  };
+  const lastWeekday=(y,m,wd)=>{
+    const days=new Date(Date.UTC(y,m,0)).getUTCDate();
+    const last=new Date(Date.UTC(y,m-1,days)).getUTCDay();
+    return days-((last-wd+7)%7);
+  };
+  function observed(y,m,d){ // 토→금, 일→월 대체휴일
+    const wd=new Date(Date.UTC(y,m-1,d)).getUTCDay();
+    if(wd===6)return {m,d:d-1}; if(wd===0)return {m,d:d+1}; return {m,d};
+  }
+  function holidays(y){
+    const H=[];const add=(m,d,nm,half)=>H.push({m,d,nm,half});
+    let o=observed(y,1,1);add(o.m,o.d,'신정');
+    add(1,nthWeekday(y,1,1,3),'마틴 루터 킹 데이');
+    add(2,nthWeekday(y,2,1,3),'대통령의 날');
+    const e=easter(y);const gf=new Date(Date.UTC(y,e.m-1,e.d-2));add(gf.getUTCMonth()+1,gf.getUTCDate(),'성금요일');
+    add(5,lastWeekday(y,5,1),'메모리얼 데이');
+    o=observed(y,6,19);add(o.m,o.d,'준틴스');
+    o=observed(y,7,4);add(o.m,o.d,'독립기념일');
+    add(9,nthWeekday(y,9,1,1),'노동절');
+    const tg=nthWeekday(y,11,4,4);add(11,tg,'추수감사절');add(11,tg+1,'추수감사절 다음날',true);
+    o=observed(y,12,25);add(o.m,o.d,'크리스마스');
+    add(12,24,'크리스마스 이브',true);
+    return H;
+  }
+  function holidayOf(y,m,d){ return holidays(y).find(h=>h.m===m&&h.d===d)||null; }
+
+  // 해당 ET 날짜의 세션 경계(Date) — 휴장이면 null
+  function sessionsFor(y,m,d){
+    const wd=new Date(Date.UTC(y,m-1,d)).getUTCDay();
+    if(wd===0||wd===6)return null;
+    const h=holidayOf(y,m,d);
+    if(h&&!h.half)return null;
+    const close=h&&h.half?13:16;
+    return {
+      pre:[etToDate(y,m,d,4,0),etToDate(y,m,d,9,30)],
+      reg:[etToDate(y,m,d,9,30),etToDate(y,m,d,close,0)],
+      post:[etToDate(y,m,d,close,0),etToDate(y,m,d,close===13?17:20,0)],
+      half:!!(h&&h.half),holiday:h
+    };
+  }
+  function addDays(y,m,d,n){const t=new Date(Date.UTC(y,m-1,d+n));return {y:t.getUTCFullYear(),m:t.getUTCMonth()+1,d:t.getUTCDate()};}
+  function nextOpen(from){ // 다음 정규장 시작 Date
+    let p=etParts(from);
+    for(let i=0;i<14;i++){
+      const c=addDays(p.y,p.m,p.d,i);
+      const s=sessionsFor(c.y,c.m,c.d);
+      if(s&&s.reg[0]>from)return {at:s.reg[0],sess:s,ymd:c};
+    }
+    return null;
+  }
+  const kstStr=d=>d.toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  const kstTime=d=>d.toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'});
+
+  function render(){
+    const now=new Date();
+    const p=etParts(now);
+    const s=sessionsFor(p.y,p.m,p.d);
+    const badge=$('stBadge'),txt=$('stText'),cd=$('cd'),lbl=$('cdLabel');
+    let state='closed',label='',target=null;
+
+    if(s){
+      if(now>=s.pre[0]&&now<s.pre[1]){state='pre';label='정규장 개장까지';target=s.reg[0];}
+      else if(now>=s.reg[0]&&now<s.reg[1]){state='open';label='정규장 마감까지';target=s.reg[1];}
+      else if(now>=s.post[0]&&now<s.post[1]){state='post';label='애프터마켓 종료까지';target=s.post[1];}
+    }
+    if(!target){ // 휴장/장외 → 다음 개장
+      const nx=nextOpen(now);
+      if(nx){
+        // 프리마켓 시작이 더 가까우면 그걸로
+        const preStart=sessionsFor(nx.ymd.y,nx.ymd.m,nx.ymd.d).pre[0];
+        if(now<preStart){label='프리마켓 시작까지';target=preStart;}
+        else {label='정규장 개장까지';target=nx.at;}
+      }
+    }
+    const STL={open:['st-open','정규장 진행 중'],pre:['st-pre','프리마켓 진행 중'],post:['st-post','애프터마켓 진행 중'],closed:['st-closed','장 마감']};
+    const todayHol=s?null:(holidayOf(p.y,p.m,p.d));
+    let stLabel=STL[state][1];
+    if(state==='closed'){
+      const wd=new Date(Date.UTC(p.y,p.m-1,p.d)).getUTCDay();
+      if(todayHol)stLabel='휴장 · '+todayHol.nm;
+      else if(wd===0||wd===6)stLabel='주말 휴장';
+    }
+    badge.className='st-badge '+STL[state][0];
+    txt.textContent=stLabel;
+
+    if(target){
+      let diff=Math.max(0,target-now);
+      const hh=Math.floor(diff/3600000),mm=Math.floor(diff%3600000/60000),ss=Math.floor(diff%60000/1000);
+      cd.innerHTML=pad(hh)+'<small>시간</small> '+pad(mm)+'<small>분</small> '+pad(ss)+'<small>초</small>';
+      lbl.textContent=label+' · '+kstStr(target)+' (한국시간)';
+    }else{cd.textContent='—';lbl.textContent='';}
+
+    $('nowLine').textContent='한국 '+now.toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit'})
+      +'  ·  미국 동부 '+pad(p.hh)+':'+pad(p.mm)+':'+pad(p.ss);
+
+    // 세션 목록
+    const box=$('sesList');
+    if(s){
+      const rows=[['프리마켓',s.pre,'pre'],['정규장',s.reg,'reg'],['애프터마켓',s.post,'post']];
+      box.innerHTML=rows.map(([nm,rg,key])=>{
+        const on=(now>=rg[0]&&now<rg[1]);
+        const cur=(key==='pre'&&state==='pre')||(key==='reg'&&state==='open')||(key==='post'&&state==='post');
+        return `<div class="ses${on?' on':''}"><span class="nm">${nm}</span><span class="tm">${kstTime(rg[0])} ~ ${kstTime(rg[1])}<div class="et">한국시간</div></span><span class="tag">${cur?'진행 중':(now<rg[0]?'예정':'종료')}</span></div>`;
+      }).join('');
+      $('sesHint').textContent='한국시간 기준';
+    }else{
+      const nx=nextOpen(now);
+      const why=todayHol?todayHol.nm+' 휴장':'주말 휴장';
+      box.innerHTML=`<div class="ses"><span class="nm">오늘</span><span class="tm">${why} — 거래 없음</span><span class="tag">휴장</span></div>`+
+        (nx?`<div class="ses"><span class="nm">다음 개장</span><span class="tm">${kstStr(nx.at)} 정규장<div class="et">한국시간</div></span><span class="tag">예정</span></div>`:'');
+    }
+    // DST 안내
+    const off=etOffsetMin(now);
+    $('dstNote').innerHTML=(off===-240
+      ? '현재 <b>서머타임(EDT)</b> 적용 중 — 한국시간 <b>22:30~05:00</b>이 정규장입니다.'
+      : '현재 <b>표준시(EST)</b> — 한국시간 <b>23:30~06:00</b>이 정규장입니다.')
+      +(s&&s.half?' · 오늘은 <b>조기 종료일</b>(13:00 ET 마감)입니다.':'');
+  }
+  render();setInterval(render,1000);
+</script>
+</body>
+</html>

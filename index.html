@@ -108,6 +108,16 @@
   /* ===== Section titles ===== */
   .sec{padding:22px 0}
   .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  /* 투자 도구 */
+  .tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:12px}
+  .tool{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;text-decoration:none;color:inherit;box-shadow:var(--shadow-sm);transition:border-color .15s,transform .15s}
+  .tool:hover{border-color:var(--brand);transform:translateY(-1px)}
+  .tool .ico{width:36px;height:36px;flex:none;border-radius:11px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px}
+  .tool .tb{min-width:0;flex:1}
+  .tool .tt{font-size:13.5px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .tool .tag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:5px;background:var(--card-2);color:var(--txt-3)}
+  .tool .tag.live{background:var(--up-bg);color:var(--up)}
+  .tool .td{font-size:11.5px;color:var(--txt-3);margin-top:4px;line-height:1.45}
   .sec-head h2{font-size:19px;font-weight:800;letter-spacing:-.02em}
   .sec-head .more{margin-left:auto;font-size:13px;color:var(--txt-2);font-weight:600}
   .sec-head .more:hover{color:var(--brand)}
@@ -733,6 +743,36 @@
 
     </aside>
   </div>
+
+  <!-- 투자 도구 -->
+  <section class="sec" id="toolsSec">
+    <div class="sec-head">
+      <h2>💡 투자 도구</h2>
+      <span class="hint" style="font-size:12px;color:var(--txt-3)">실시간 시세·환율 연동</span>
+    </div>
+    <div class="tool-grid">
+      <a class="tool" href="tool-market-hours.html">
+        <span class="ico">🕒</span>
+        <span class="tb"><span class="tt">미국 증시 개장 시간 <span class="tag live">실시간</span></span><span class="td">지금 열렸나? 다음 개장까지 한국시간 카운트다운</span></span>
+      </a>
+      <a class="tool" href="tool-fx.html">
+        <span class="ico">💱</span>
+        <span class="tb"><span class="tt">환율 계산기 <span class="tag live">실시간</span></span><span class="td">원↔달러 양방향 · 하나은행 실시간 환율 반영</span></span>
+      </a>
+      <a class="tool" href="tool-avgdown.html">
+        <span class="ico">📉</span>
+        <span class="tb"><span class="tt">물타기 계산기 <span class="tag live">시세연동</span></span><span class="td">새 평단가·본전 상승률 + 현재가 자동 입력</span></span>
+      </a>
+      <a class="tool" href="tool-tax.html">
+        <span class="ico">🧾</span>
+        <span class="tb"><span class="tt">양도세 계산기 <span class="tag">미국주식</span></span><span class="td">손익통산 + 250만 공제 + 22% 세액 계산</span></span>
+      </a>
+      <a class="tool" href="tool-journal.html">
+        <span class="ico">📝</span>
+        <span class="tb"><span class="tt">매매일지 <span class="tag">실전</span></span><span class="td">매매 기록·복기 · 손익/승률 자동 집계</span></span>
+      </a>
+    </div>
+  </section>
 
   <section id="homeCommunity"></section>
 
