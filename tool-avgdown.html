@@ -241,7 +241,7 @@
       $('rPl').textContent=(pl>=0?'+':'−')+money(Math.abs(pl));
       $('rPl').className='v mono '+(pl>=0?'up':'down');
       $('resNote').innerHTML=aq>0
-        ? '추가로 <b>'+fmtN(aq,market==='us'?4:0)+'주</b>를 <b>'+price(px)+'</b>에 매수하면 평단가가 <b>'+price(nAvg)+'</b>가 됩니다. 추가 투입금은 <b>'+money(px*aq)+'</b>예요.'
+        ? '추가로 <b>'+fmtN(aq,market==='us'?4:0)+'주</b>를 <b>'+price(px)+'</b>에 매수하면 평단가가 <b>'+price(nAvg)+'</b>이 됩니다. 추가 투입금은 <b>'+money(px*aq)+'</b>이에요.'
         : '추가 매수 수량을 입력하면 새 평단가가 계산됩니다.';
       renderSim(avg,qty,px);
     }else{
