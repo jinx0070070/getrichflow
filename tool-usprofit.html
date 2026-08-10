@@ -170,7 +170,7 @@
 
     let tip;
     if(fxPct<-0.5&&usdPct>0)tip='달러로는 <b>+'+usdPct.toFixed(1)+'%</b> 벌었지만 환율이 <b>'+fxPct.toFixed(1)+'%</b> 빠져서 원화 수익은 <b>'+pct.toFixed(1)+'%</b>로 줄었어요. 환율이 수익을 <b>'+won(Math.abs(fxOnly))+'</b> 깎았습니다.';
-    else if(fxPct>0.5&&usdPct>0)tip='주가 <b>+'+usdPct.toFixed(1)+'%</b>에 환율까지 <b>+'+fxPct.toFixed(1)+'%</b> 올라 원화 수익이 <b>'+pct.toFixed(1)+'%</b>로 커졌어요. 환율이 <b>'+won(fxOnly)+'</b>를 더해줬습니다.';
+    else if(fxPct>0.5&&usdPct>0)tip='주가 <b>+'+usdPct.toFixed(1)+'%</b>에 환율까지 <b>+'+fxPct.toFixed(1)+'%</b> 올라 원화 수익이 <b>'+pct.toFixed(1)+'%</b>로 커졌어요. 환율이 <b>'+won(fxOnly)+'</b>을 더해줬습니다.';
     else if(usdPct<0&&fxPct>0)tip='주가는 <b>'+usdPct.toFixed(1)+'%</b> 빠졌지만 환율이 <b>+'+fxPct.toFixed(1)+'%</b> 올라 손실이 <b>'+pct.toFixed(1)+'%</b>로 완화됐어요. 달러 자산의 헤지 효과입니다.';
     else tip='달러 수익률 <b>'+usdPct.toFixed(1)+'%</b>, 환율 <b>'+fxPct.toFixed(1)+'%</b>, 비용 <b>'+won(Math.abs(costTotal))+'</b>이 합쳐져 실질 <b>'+pct.toFixed(1)+'%</b>가 됩니다.';
     $('tipBox').innerHTML=tip;
