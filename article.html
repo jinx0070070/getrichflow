@@ -291,7 +291,8 @@
   const baseArticles=market==='us'?(window.RICHFLOW_US_ARTICLES || []):(window.RICHFLOW_ARTICLES || []);
   /* 자동 생성 리서치(research.html에서 만든 것)를 세션 캐시에서 함께 사용 */
   let autoArticles=[];
-  try{ const c=sessionStorage.getItem('richflow:auto:'+market); if(c)autoArticles=JSON.parse(c)||[]; }catch(e){}
+  const AUTO_KEY='richflow:auto:v'+((window.RichflowAutoResearch&&RichflowAutoResearch.VERSION)||'1')+':'+market;
+  try{ const c=sessionStorage.getItem(AUTO_KEY); if(c)autoArticles=JSON.parse(c)||[]; }catch(e){}
   const articles=autoArticles.concat(baseArticles);
   const wantId=params.get('id')||'';
   let article=articles.find(a=>a.id===wantId) || articles[0];
@@ -300,7 +301,7 @@
     sessionStorage.setItem('richflow:autoRetry','1');
     if(window.RichflowAutoResearch){
       RichflowAutoResearch.build(market).then(function(list){
-        if(list&&list.length){ try{sessionStorage.setItem('richflow:auto:'+market,JSON.stringify(list));}catch(e){} }
+        if(list&&list.length){ try{sessionStorage.setItem(AUTO_KEY,JSON.stringify(list));}catch(e){} }
         location.reload();
       }).catch(function(){});
     }

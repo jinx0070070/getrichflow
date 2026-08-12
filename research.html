@@ -315,7 +315,7 @@
     RichflowAutoResearch.build(market).then(function(auto){
       if(!auto||!auto.length)return;
       window.RICHFLOW_AUTO_CACHE=auto;
-      try{ sessionStorage.setItem('richflow:auto:'+market, JSON.stringify(auto)); }catch(e){}
+      try{ sessionStorage.setItem('richflow:auto:v'+(RichflowAutoResearch.VERSION||'1')+':'+market, JSON.stringify(auto)); }catch(e){}
       const ids=new Set(ARTS.map(a=>a.id));
       ARTS=auto.filter(a=>!ids.has(a.id)).concat(ARTS);
       renderFeatured();renderSidebar();render();

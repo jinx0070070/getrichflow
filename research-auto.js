@@ -327,6 +327,7 @@
   }
 
   window.RichflowAutoResearch={
+    VERSION:'2',
     build:function(market){ return market==='us'?buildUS():buildKR(); }
   };
 })();
