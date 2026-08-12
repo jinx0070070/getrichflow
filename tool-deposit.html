@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>예금·적금 이자 계산기 · RICHFLOW</title>
 <meta name="description" content="예금·적금 만기 수령액을 세후로 계산합니다. 단리·월복리, 이자소득세 15.4%, 비과세·세금우대까지 반영해요.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="예금·적금 계산기 · RICHFLOW"><meta property="og:description" content="예금·적금 만기 수령액과 세후 이자를 계산합니다."><meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="tool.css">
 </head>
 <body>
@@ -103,9 +104,11 @@
       return method==='compound' ? P*(Math.pow(1+r/12,m)-1) : P*r*(m/12);
     }else{
       if(method==='compound'){
-        let tot=0;
-        for(let i=1;i<=m;i++) tot+=P*Math.pow(1+r/12,m-i+1);
-        return tot-P*m;
+        const i=r/12;
+        if(i===0)return 0;
+        const q=1+i;
+        const maturity=P*q*(Math.pow(q,m)-1)/i;
+        return maturity-P*m;
       }
       return P*(r/12)*(m*(m+1)/2);
     }
@@ -115,7 +118,9 @@
   function calc(){
     const P=num($('amt').value), rPct=num($('rate').value), m=Math.round(num($('months').value)), method=$('method').value;
     if(!(P>0&&m>0)){reset();return;}
+    if(P>1e12||rPct<0||rPct>100||m>600){reset();$('tipBox').textContent='금액은 1조원 이하, 금리는 0~100%, 기간은 1~600개월로 입력해 주세요.';return;}
     const gross=calcGross(P,rPct,m,method), prin=principal(P,m);
+    if(!Number.isFinite(gross)||!Number.isFinite(prin)){reset();$('tipBox').textContent='계산 범위를 벗어난 값입니다. 입력값을 줄여 주세요.';return;}
     const tax=gross*taxRate/100, net=gross-tax, total=prin+net;
     $('rNet').textContent=won(total);
     $('rNetSub').textContent=(type==='deposit'?'예금':'적금')+' · '+m+'개월 · 연 '+rPct+'% '+(method==='compound'?'월복리':'단리');

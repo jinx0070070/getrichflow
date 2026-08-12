@@ -4,7 +4,7 @@
 (function(){
   var TOOLS=[
     {f:'tool-portfolio.html',  i:'💼', n:'내 포트폴리오',    d:'평가금액·비중·손익 자동 계산', live:1},
-    {f:'tool-dividend.html',   i:'💰', n:'배당 캘린더',      d:'배당금·수익률·다음 배당 예상', live:1},
+    {f:'tool-dividend.html',   i:'💰', n:'한·미 배당주·ETF', d:'QQQ·SCHD·국내 배당주·월분배 ETF', live:1},
     {f:'tool-journal.html',    i:'📝', n:'매매일지',          d:'손익·승률 자동 집계'},
     {f:'tool-usprofit.html',   i:'🇺🇸', n:'미국주식 실수익',  d:'주가·환율·수수료 분해', live:1},
     {f:'tool-avgdown.html',    i:'📉', n:'물타기 계산기',      d:'새 평단가·본전 상승률', live:1},

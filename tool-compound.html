@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>복리 계산기 (적립식 투자) · RICHFLOW</title>
 <meta name="description" content="월 적립 + 연 수익률로 미래 자산을 계산합니다. 목표 금액까지 걸리는 기간과 필요 월납입액도 역산해요.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="복리 계산기 · RICHFLOW"><meta property="og:description" content="월 적립과 연 수익률로 미래 자산·목표 기간·필요 월납입액을 계산합니다."><meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="tool.css">
 <style>
   .chart{width:100%;height:190px;display:block;margin-top:6px}
@@ -124,27 +125,39 @@
     if(T<=base)return 0;
     return i===0?(T-P)/months:(T-base)*i/(g-1);
   }
+  function invalid(message){
+    ['rMain','rProfit','rPrin','rComp','rMult'].forEach(id=>$(id).textContent='—');
+    $('rMainSub').textContent='';$('rProfitSub').textContent='';$('tipBox').textContent=message;
+    $('chart').innerHTML='';$('yrBody').innerHTML='';
+  }
 
   function calc(){
     const P=num($('init').value), rPct=num($('rate').value);
     let M=num($('monthly').value), months=Math.round(num($('years').value)*12), T=num($('target').value);
+    if(P<0||P>1e15||rPct<0||rPct>100
+      ||(mode!=='monthly'&&(M<0||M>1e12))
+      ||(mode!=='future'&&(T<0||T>1e18))
+      ||(mode!=='period'&&months>1200)){
+      invalid('금액은 양수, 수익률은 0~100%, 투자 기간은 100년 이하로 입력해 주세요.');return;
+    }
     let mainVal='',mainSub='';
     if(mode==='period'){
       const m=monthsToTarget(P,M,rPct,T);
-      if(m==null||!(T>0)){ $('rMain').textContent='—'; $('tipBox').textContent='목표 금액을 입력하면 계산됩니다.'; return; }
+      if(m==null||!(T>0)){ invalid(m==null?'100년 안에 목표에 도달하지 못합니다. 금액이나 수익률을 조정해 주세요.':'목표 금액을 입력하면 계산됩니다.'); return; }
       months=m;
       $('mainK').textContent='목표 도달 기간';
       mainVal=(m>=12?Math.floor(m/12)+'년 ':'')+(m%12)+'개월';
       mainSub='목표 '+shortWon(T)+'원 달성';
       $('rMain').textContent=mainVal;
     }else if(mode==='monthly'){
-      if(!(T>0&&months>0)){ $('rMain').textContent='—'; return; }
+      if(!(T>0&&months>0)){ invalid('목표 금액과 100년 이하의 기간을 입력해 주세요.'); return; }
       M=monthlyForTarget(P,rPct,months,T);
+      if(!Number.isFinite(M)||M<0||M>1e15){invalid('필요 월납입액이 계산 범위를 벗어났습니다. 입력값을 조정해 주세요.');return;}
       $('mainK').textContent='필요 월납입액';
       $('rMain').textContent=won(M);
       mainSub=(months/12)+'년 안에 '+shortWon(T)+'원 달성';
     }else{
-      if(!(months>0)){ $('rMain').textContent='—'; return; }
+      if(!(months>0)){ invalid('투자 기간을 입력해 주세요.'); return; }
       $('mainK').textContent='최종 자산';
       $('rMain').textContent=won(fv(P,M,rPct,months));
       mainSub=(months/12)+'년 후 · 연 '+rPct+'% 월복리';
@@ -152,6 +165,7 @@
     $('rMainSub').textContent=mainSub;
 
     const total=fv(P,M,rPct,months), prin=P+M*months, profit=total-prin;
+    if(!Number.isFinite(total)||!Number.isFinite(prin)){invalid('계산 범위를 벗어난 값입니다. 입력값을 줄여 주세요.');return;}
     $('rProfit').textContent='+'+won(profit);
     $('rProfitSub').textContent=prin>0?('원금 대비 +'+(profit/prin*100).toFixed(1)+'%'):'';
     $('rPrin').textContent=won(prin);

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>물타기 계산기 · RICHFLOW</title>
 <meta name="description" content="추가 매수 시 새 평단가와 본전까지 필요한 상승률을 계산합니다. 종목 검색으로 현재가 자동 입력, 목표 평단가 역산도 지원해요.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="물타기 계산기 · RICHFLOW"><meta property="og:description" content="추가 매수 후 새 평단가와 본전 상승률을 계산하고 목표 평단가를 역산합니다."><meta name="twitter:card" content="summary">
 <style>
   :root{
     --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
@@ -223,9 +224,11 @@
 
   function calc(){
     const avg=num($('avg').value), qty=num($('qty').value);
+    if(avg<0||qty<0||avg>1e12||qty>1e9){reset();$('resNote').textContent='가격과 수량은 양수이며 입력 범위 안이어야 합니다.';return;}
     if(mode==='add'){
       const px=num($('px').value), aq=num($('aqty').value);
       if(!(avg>0&&qty>0)){reset();return;}
+      if(px<0||aq<0||px>1e12||aq>1e9){reset();$('resNote').textContent='추가 매수가와 수량은 0 이상의 값으로 입력해 주세요.';return;}
       const totQ=qty+aq, totC=avg*qty+px*aq;
       const nAvg=totQ>0?totC/totQ:0;
       const now=px>0?px:(curPrice||0);
@@ -246,6 +249,7 @@
       renderSim(avg,qty,px);
     }else{
       const px=num($('px2').value), tavg=num($('tavg').value);
+      if(px<0||tavg<0||px>1e12||tavg>1e12){reset();$('resNote').textContent='가격은 양수이며 입력 범위 안이어야 합니다.';return;}
       if(!(avg>0&&qty>0&&px>0&&tavg>0)){reset();return;}
       // avg*qty + px*x = tavg*(qty+x)  →  x = qty*(avg-tavg)/(tavg-px)
       const need=(tavg-px)!==0?qty*(avg-tavg)/(tavg-px):NaN;

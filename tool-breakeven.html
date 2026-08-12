@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>손익분기 계산기 (본전 계산) · RICHFLOW</title>
 <meta name="description" content="−30% 손실이면 본전까지 +42.9%가 필요합니다. 손실률별 필요 회복률을 한눈에 보여주는 손익분기 계산기.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="손익분기 계산기 · RICHFLOW"><meta property="og:description" content="손실률별로 본전까지 필요한 회복률을 정확히 계산합니다."><meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="tool.css">
 <style>
   .bar{height:10px;border-radius:6px;background:var(--card-2);overflow:hidden;margin-top:6px}
@@ -90,6 +91,11 @@
     const loss=Math.abs(num($('loss').value)), cap=num($('cap').value);
     if(!(loss>0)){ ['rNeed','rNow','rLoss','rGain','rRatio'].forEach(id=>$(id).textContent='—');
       $('tipBox').textContent='손실률을 입력하면 계산됩니다.'; $('bar').style.width='0%'; return; }
+    if(loss>=100||cap<0||cap>1e15){
+      ['rNow','rLoss','rGain','rRatio'].forEach(id=>$(id).textContent='—');
+      $('rNeed').textContent='계산 불가';$('rNeedSub').textContent='손실률은 100% 미만이어야 합니다.';
+      $('bar').style.width='100%';$('tipBox').textContent='손실률은 0% 초과 100% 미만, 원금은 양수로 입력해 주세요.';return;
+    }
     const need=needFor(loss);
     const remain=100-loss;
     $('rNeed').textContent=need===Infinity?'회복 불가':'+'+need.toFixed(1)+'%';

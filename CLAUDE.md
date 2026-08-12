@@ -44,6 +44,46 @@
 - `community.js`, `price-alert.js`, `research-*.js` — 커뮤니티/리서치.
 - 그 외 `whale*.html`, `theme*.html`, `screener*.html`, `calendar*.html`, `idea*.html`, `ai*.html` 등은 대부분 정적 샘플 디자인 시안.
 
+## 현재 작업 인수인계 (2026-08-10)
+
+작업 폴더는 `C:\GcadAI\prototype`이며 로컬 확인 주소는 `http://127.0.0.1:8765/`이다. 현재 브라우저에서 미장 홈은 `http://127.0.0.1:8765/index.html?m=us`로 확인했다.
+
+### 오늘 반영한 핵심 기능
+- `index.html` 미장 산업별 히트맵을 16개 산업, 총 100개 종목까지 펼쳐 실제 화면에서 검사했다.
+- 접힌 산업의 로고가 lazy loading을 시작하지 않아 빈칸처럼 보이던 문제를 수정했다.
+- 히트맵 타일과 산업 상세 팝업 모두 로딩 중/실패 시 종목 이니셜을 남기며, 정상 로딩 시 로고로 교체된다.
+- 투명 배경의 흰색 로고는 캔버스 밝기 분석 후 `logo-dark` 배경을 자동 적용한다.
+- 브라우저 검증 결과 미장 히트맵 로고 100개 모두 정상 표시됐고 `pending=0`, `fallback=0`, `blank=0`이었다. 자동차 산업 상세 팝업의 Ford/GM/Stellantis/Toyota 로고도 정상 확인했다.
+- `tool-dividend.html`을 한·미 배당주와 ETF 통합 도구로 확장했다. 탭 구성은 미국 배당주 30, 미국 ETF 30, 월배당 20, 한국 배당주 30, 한국 ETF 24, 포트폴리오다.
+- QQQ, SCHD, VOO, JEPI, JEPQ와 SOL/TIGER/ACE/KODEX 국내 ETF 등을 포함한다. 미국은 USD·환율·간이 원천징수 15%, 한국은 KRW·간이 배당소득세 15.4% 기준 계산이다.
+- 배당 데이터는 미국은 Yahoo dividend events, 한국은 네이버 basic/integration과 Yahoo `.KS`/`.KQ` 분배 이력을 조합한다. 검색은 회사명/ETF명/티커/종목코드를 지원한다.
+- `tool-nav.js`와 홈 도구 카드의 명칭을 `한·미 배당주·ETF`로 맞췄다.
+
+### 현재 미커밋 작업
+다음 13개 파일에 작업 내용이 있으므로 기존 변경을 되돌리거나 덮어쓰지 말 것.
+
+- `index.html`
+- `tool-avgdown.html`
+- `tool-breakeven.html`
+- `tool-compound.html`
+- `tool-deposit.html`
+- `tool-dividend.html`
+- `tool-fx.html`
+- `tool-journal.html`
+- `tool-market-hours.html`
+- `tool-nav.js`
+- `tool-portfolio.html`
+- `tool-tax.html`
+- `tool-usprofit.html`
+
+`git diff --check`는 통과했으며 Windows 줄바꿈(LF→CRLF) 경고만 있다. 사용자가 명시적으로 요청하기 전에는 이 변경들을 reset/checkout하지 말고, commit/push도 임의로 하지 않는다.
+
+### 바로 이어서 작업할 때
+1. `git status --short`와 `git diff --stat`으로 위 변경이 그대로인지 확인한다.
+2. 로컬 서버가 꺼졌다면 `C:\GcadAI\prototype`을 문서 루트로 정적 서버를 8765 포트에 실행한다.
+3. UI 수정 뒤에는 `index.html?m=kr`, `index.html?m=us`, `tool-dividend.html`을 실제 브라우저에서 확인한다.
+4. 인라인 JS 수정 시 `<script>`를 추출해 Node 문법검사를 하고 `git diff --check`도 실행한다.
+
 ## 차트 엔진 (stock.html / stock-us.html 공용 구조, 각 파일에 인라인)
 SVG viewBox(720×320) 기반. 상태객체 `CH`.
 - 캔들/라인 전환, 10개 타임프레임(5분~월, 2/4/12h는 1h 집계), 일봉 5년/기본 200봉.

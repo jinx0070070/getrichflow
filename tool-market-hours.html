@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>미국 증시 개장 시간 · RICHFLOW</title>
 <meta name="description" content="지금 미국 장 열렸나? 프리마켓·정규장·애프터마켓 현재 상태와 다음 개장까지 남은 시간을 한국시간으로 알려드려요.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="미국 증시 개장 시간 · RICHFLOW"><meta property="og:description" content="미국 프리마켓·정규장·애프터마켓 상태와 다음 개장 시간을 한국시간으로 확인합니다."><meta name="twitter:card" content="summary">
 <style>
   :root{
     --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
@@ -102,7 +103,7 @@
     </div>
   </div>
 
-  <div class="disc">미국 정규장은 현지 09:30~16:00(ET), 프리마켓 04:00~09:30, 애프터마켓 16:00~20:00입니다. 서머타임(3월 둘째 일요일~11월 첫째 일요일)에는 한국시간 기준 1시간 앞당겨집니다. 미국 증시 휴장일(신정·마틴루터킹데이·대통령의날·성금요일·메모리얼데이·준틴스·독립기념일·노동절·추수감사절·크리스마스)은 자동 반영하며, 조기 종료일(추수감사절 다음날 등)은 13:00 ET에 마감합니다. 정보 제공용입니다.</div>
+  <div class="disc">미국 정규장은 현지 09:30~16:00(ET), 프리마켓 04:00~09:30, 애프터마켓 16:00~20:00입니다. 서머타임(3월 둘째 일요일~11월 첫째 일요일)에는 한국시간 기준 1시간 앞당겨집니다. 미국 증시 주요 휴장일은 자동 계산하며, <b>2025~2028년 조기 종료일은 NYSE 공식 연도별 일정</b>을 반영했습니다. 거래소·상품별 시간은 다를 수 있으므로 실제 주문 전 거래 증권사를 확인하세요.</div>
 </div>
 
 <script>
@@ -147,6 +148,13 @@
     const wd=new Date(Date.UTC(y,m-1,d)).getUTCDay();
     if(wd===6)return {m,d:d-1}; if(wd===0)return {m,d:d+1}; return {m,d};
   }
+  // NYSE가 공지한 연도별 13:00 ET 조기 종료일. 규칙 추정 대신 공식 일정표를 우선한다.
+  const EARLY_CLOSE={
+    2025:[[7,3,'독립기념일 전날'],[11,28,'추수감사절 다음날'],[12,24,'크리스마스 이브']],
+    2026:[[11,27,'추수감사절 다음날'],[12,24,'크리스마스 이브']],
+    2027:[[11,26,'추수감사절 다음날']],
+    2028:[[7,3,'독립기념일 전날'],[11,24,'추수감사절 다음날']]
+  };
   function holidays(y){
     const H=[];const add=(m,d,nm,half)=>H.push({m,d,nm,half});
     let o=observed(y,1,1);add(o.m,o.d,'신정');
@@ -157,9 +165,10 @@
     o=observed(y,6,19);add(o.m,o.d,'준틴스');
     o=observed(y,7,4);add(o.m,o.d,'독립기념일');
     add(9,nthWeekday(y,9,1,1),'노동절');
-    const tg=nthWeekday(y,11,4,4);add(11,tg,'추수감사절');add(11,tg+1,'추수감사절 다음날',true);
+    const tg=nthWeekday(y,11,4,4);add(11,tg,'추수감사절');
     o=observed(y,12,25);add(o.m,o.d,'크리스마스');
-    add(12,24,'크리스마스 이브',true);
+    const early=EARLY_CLOSE[y]||[[11,tg+1,'추수감사절 다음날'],[12,24,'크리스마스 이브']];
+    early.forEach(([m,d,nm])=>{const wd=new Date(Date.UTC(y,m-1,d)).getUTCDay();if(wd!==0&&wd!==6)add(m,d,nm,true);});
     return H;
   }
   function holidayOf(y,m,d){ return holidays(y).find(h=>h.m===m&&h.d===d)||null; }

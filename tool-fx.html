@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>환율 계산기 · RICHFLOW</title>
 <meta name="description" content="달러·엔·유로·위안을 원화로 양방향 환산. 하나은행 실시간 고시환율 반영, 환전 수수료(스프레드)까지 계산합니다.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="환율 계산기 · RICHFLOW"><meta property="og:description" content="달러·엔·유로·위안을 원화로 환산하고 실제 환전 스프레드를 계산합니다."><meta name="twitter:card" content="summary">
 <style>
   :root{
     --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
@@ -215,8 +216,9 @@
     $('spBuy').textContent=fmt(buy,2)+'원';
     $('spSell').textContent=fmt(sell,2)+'원';
     const amt=dir==='F2K'?num($('inA').value):num($('inB').value);
-    $('spAmtK').textContent=fmt(amt,0)+' '+cur+' 살 때 필요 원화';
-    $('spAmt').textContent=fmt(amt*buy,0)+'원';
+    const applied=dir==='F2K'?sell:buy;
+    $('spAmtK').textContent=fmt(amt,0)+' '+cur+' '+(dir==='F2K'?'팔 때 수령 원화':'살 때 필요 원화');
+    $('spAmt').textContent=fmt(amt*applied,0)+'원';
   }
   $('inA').addEventListener('input',()=>recalc('A'));
   $('inB').addEventListener('input',()=>recalc('B'));

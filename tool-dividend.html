@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>배당 캘린더 · RICHFLOW</title>
-<meta name="description" content="미국 배당주의 배당락일·배당금·배당수익률을 한눈에. 과거 배당 이력으로 다음 배당 시기를 예상하고, 내 보유 종목의 예상 배당금을 원화로 계산합니다.">
+<title>한·미 배당주·ETF 캘린더 · RICHFLOW</title>
+<meta name="description" content="미국·한국 배당주와 ETF의 배당금·분배금·수익률·예상 일정을 한눈에 보고 보유 수량별 예상 수령액을 계산합니다.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="한·미 배당주·ETF 캘린더 · RICHFLOW"><meta property="og:description" content="QQQ·SCHD부터 국내 고배당주와 월배당 ETF까지 배당·분배금 정보를 확인합니다."><meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="tool.css">
 <style>
   .dv{display:flex;align-items:center;gap:12px;padding:13px 8px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .dv:last-child{border:none}
   .dv .lg{width:34px;height:34px;flex:none;border-radius:10px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:12px;font-weight:800;color:var(--brand)}
-  .dv .lg img{width:100%;height:100%;object-fit:contain}
+  .dv .lg img{width:100%;height:100%;object-fit:contain;display:block}.dv .lg.has-image{background:#fff}.dv .lg.logo-dark{background:#15171c}.dv .lg.has-image .sh-logo-letter{display:none}.dv .lg .sh-logo-letter{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
   .dv .nm{min-width:120px;flex:1}
   .dv .nm .n{font-size:14px;font-weight:800;letter-spacing:-.02em}
   .dv .nm .s{font-size:11px;color:var(--txt-3);font-weight:600;margin-top:1px}
@@ -21,11 +22,19 @@
   .dv .dday{min-width:86px;text-align:right}
   .dv .dday .d{font-size:13.5px;font-weight:800;display:block}
   .dv .dday .s{font-size:10.5px;color:var(--txt-3);font-weight:600;margin-top:1px;display:block}
+  .pill{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:var(--card-2);border:1px solid var(--line);color:var(--txt-3);font-size:9.5px;font-weight:800;vertical-align:1px;margin-left:3px}
   .soon{color:var(--amber)}
   .empty{text-align:center;padding:32px 16px;color:var(--txt-3);font-size:13.5px;line-height:1.7}
   .miniq{display:flex;align-items:center;gap:8px;background:var(--card-2);border:1px solid var(--line);border-radius:11px;padding:10px 13px;margin-bottom:12px}
   .miniq input{flex:1;min-width:0;background:none;border:none;outline:none;font-family:inherit;font-size:13.5px;color:var(--txt)}
-  @media(max-width:720px){.dv .mid{min-width:0;flex:1;text-align:left}}
+  .srch-wrap{position:relative}
+  .drop{display:none;position:absolute;z-index:20;left:0;right:0;top:calc(100% - 8px);background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 30px rgba(15,23,42,.14);overflow:hidden}
+  .drop.on{display:block}
+  .drop .it{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:0;border-bottom:1px solid var(--line);background:var(--card);color:var(--txt);font-family:inherit;text-align:left;cursor:pointer}
+  .drop .it:last-child{border:none}.drop .it:hover{background:var(--card-2)}
+  .drop .n{font-size:13px;font-weight:800}.drop .c{font-size:11px;color:var(--txt-3);font-weight:700}
+  #presetSeg{flex-wrap:wrap}
+  @media(max-width:720px){.dv .mid{min-width:0;flex:1;text-align:left}.dv .dday{min-width:100%;display:flex;justify-content:space-between;align-items:center}.dv .dday .s{margin:0}.grid3{grid-template-columns:1fr!important}}
 </style>
 </head>
 <body>
@@ -44,20 +53,22 @@
 
 <div class="wrap">
   <section class="phead">
-    <h1>💰 배당 캘린더</h1>
-    <p>미국 배당주의 <b>배당금·배당수익률·배당 주기</b>를 실제 지급 이력으로 보여줍니다. 다음 배당 시기는 <b>과거 주기로 예상</b>한 값이에요.</p>
+    <h1>💰 한·미 배당주·ETF</h1>
+    <p>미국·한국의 대표 배당주와 <b>QQQ·SCHD 같은 ETF</b>를 함께 봅니다. 배당·분배금 이력을 기준으로 수익률과 주기를 계산하며, 다음 날짜는 <b>과거 주기로 추정한 예상일</b>이에요.</p>
   </section>
 
   <div class="card">
-    <h3>🔍 종목 추가 <span class="hint">미국 배당주</span></h3>
-    <div class="miniq">🔍<input id="q" placeholder="티커 입력 후 Enter (예: KO, JNJ, O)" autocomplete="off"></div>
+    <h3>🔍 종목 찾기 <span class="hint">목록 밖 종목도 검색 가능</span></h3>
+    <div class="srch-wrap"><div class="miniq">🔍<input id="q" placeholder="회사명·ETF명·티커·종목코드 (예: SCHD, 삼성전자, 446720)" autocomplete="off"></div><div class="drop" id="drop"></div></div>
     <div class="seg" id="presetSeg">
-      <button class="on" data-p="popular">인기 배당주</button>
-      <button data-p="aristocrat">배당 귀족주</button>
-      <button data-p="monthly">월배당</button>
+      <button class="on" data-p="usStock">🇺🇸 배당주 30</button>
+      <button data-p="usEtf">🇺🇸 ETF 30</button>
+      <button data-p="monthly">🗓️ 월배당 20</button>
+      <button data-p="krStock">🇰🇷 배당주 30</button>
+      <button data-p="krEtf">🇰🇷 ETF 24</button>
       <button data-p="mine">내 포트폴리오</button>
     </div>
-    <div class="note" id="presetNote">배당 이력이 있는 종목만 표시됩니다. 배당을 안 주는 성장주는 목록에 안 나와요.</div>
+    <div class="note" id="presetNote">미국 대표 배당·배당성장주 30종목입니다. 탭을 누르면 시장·유형별 전체 목록을 불러와요.</div>
   </div>
 
   <div class="card">
@@ -70,11 +81,11 @@
     <div class="grid3">
       <div class="fld"><label>종목</label><div class="inbox"><select id="calcSym"></select></div></div>
       <div class="fld"><label>보유 수량</label><div class="inbox"><input id="calcQty" type="text" inputmode="decimal" value="100"><span class="sym">주</span></div></div>
-      <div class="fld"><label>환율</label><div class="inbox"><input id="calcFx" type="text" inputmode="decimal" value=""><span class="sym">원</span></div></div>
+      <div class="fld" id="calcFxWrap"><label>원/달러 환율</label><div class="inbox"><input id="calcFx" type="text" inputmode="decimal" value=""><span class="sym">원</span></div></div>
     </div>
     <div class="kv" style="margin-top:12px"><span class="k">1회 배당금 (세전)</span><span class="v mono" id="cOnce">—</span></div>
     <div class="kv"><span class="k">연간 배당금 (세전)</span><span class="v mono up" id="cYear">—</span></div>
-    <div class="kv"><span class="k">배당소득세 15% (미국 원천징수)</span><span class="v mono down" id="cTax">—</span></div>
+    <div class="kv"><span class="k" id="taxLabel">배당소득세 15% (미국 원천징수 가정)</span><span class="v mono down" id="cTax">—</span></div>
     <div class="kv"><span class="k">연간 실수령 (원화)</span><span class="v mono" id="cNet">—</span></div>
     <div class="kv"><span class="k">월 평균</span><span class="v mono" id="cMonth">—</span></div>
     <div class="tip" id="tipBox">종목을 선택하면 계산됩니다.</div>
@@ -89,137 +100,211 @@
     </div>
   </div>
 
-  <div class="disc">배당 데이터는 야후 파이낸스의 <b>실제 배당 지급 이력</b>을 기준으로 합니다. <b>다음 배당 예상일은 과거 지급 간격으로 추정한 값</b>이며 회사가 공식 발표한 확정일이 아닙니다 — 실제 배당락일·지급일은 기업 IR을 확인하세요. 배당수익률은 최근 4회 배당 합계를 현재가로 나눈 값입니다. 미국 주식 배당은 <b>15% 원천징수</b> 후 지급되며 국내에서 추가 과세되지 않습니다(금융소득 2천만원 초과 시 종합과세 대상). 정보 제공용이며 투자 권유가 아닙니다.</div>
+  <div class="disc">미국 종목은 야후 파이낸스의 <b>배당 이벤트 이력</b>, 한국 종목은 네이버 증권 현재가·배당 지표와 야후 파이낸스 분배 이력을 함께 사용합니다. <b>다음 예상일은 과거 지급 간격으로 계산한 추정치</b>이며 확정 공시가 아닙니다. ETF 분배금은 운용 결과와 정책에 따라 달라지거나 지급되지 않을 수 있습니다. 세금은 미국 15%, 국내 상장 상품 15.4%의 단순 원천징수 가정이며 계좌·상품·과세표준에 따라 실제 세액이 다릅니다. 투자·세무 자문이 아닙니다.</div>
 </div>
-
+<script src="stock-logo.js"></script>
 <script>
-  const $=id=>document.getElementById(id);
-  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
-  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
-  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
-  const usd=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const PRESET={
-    popular:[['AAPL','애플'],['MSFT','마이크로소프트'],['JNJ','존슨앤드존슨'],['KO','코카콜라'],['PG','P&G'],['JPM','JP모건'],['XOM','엑슨모빌'],['VZ','버라이즌'],['PEP','펩시코'],['CVX','셰브론']],
-    aristocrat:[['KO','코카콜라'],['PG','P&G'],['JNJ','존슨앤드존슨'],['MMM','3M'],['CL','콜게이트'],['MCD','맥도날드'],['WMT','월마트'],['CAT','캐터필러'],['LOW','로우스'],['ED','콘에디슨']],
-    monthly:[['O','리얼티인컴'],['MAIN','메인스트리트'],['STAG','스태그'],['AGNC','AGNC'],['GLAD','글래드스톤'],['LTC','LTC프로퍼티']]
+  const $d=id=>document.getElementById(id);
+  const WK2='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const n2=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const e2=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const won2=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+  const usd2=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const U=(sym,name,type='stock',freq=0)=>({sym,name,market:'us',type,freq});
+  const K=(sym,name,type='stock',freq=0)=>({sym,name,market:'kr',type,freq});
+
+  const LISTS={
+    usStock:[
+      U('AAPL','애플'),U('MSFT','마이크로소프트'),U('JNJ','존슨앤드존슨'),U('KO','코카콜라'),U('PG','P&G'),
+      U('JPM','JP모건'),U('XOM','엑슨모빌'),U('VZ','버라이즌'),U('PEP','펩시코'),U('CVX','셰브론'),
+      U('ABBV','애브비'),U('MRK','머크'),U('MCD','맥도날드'),U('WMT','월마트'),U('CAT','캐터필러'),
+      U('LOW','로우스'),U('ED','콘에디슨'),U('CL','콜게이트'),U('MMM','3M'),U('T','AT&T'),
+      U('MO','알트리아'),U('PM','필립모리스'),U('IBM','IBM'),U('HD','홈디포'),U('TXN','텍사스 인스트루먼트'),
+      U('UPS','UPS'),U('NEE','넥스트에라 에너지'),U('DUK','듀크 에너지'),U('SO','서던 컴퍼니'),U('AMGN','암젠')
+    ],
+    usEtf:[
+      U('SCHD','Schwab 미국배당주 ETF','etf'),U('QQQ','Invesco 나스닥100 ETF','etf'),U('VOO','Vanguard S&P500 ETF','etf'),U('SPY','SPDR S&P500 ETF','etf'),U('IVV','iShares S&P500 ETF','etf'),
+      U('VTI','Vanguard 미국전체 ETF','etf'),U('VT','Vanguard 전세계 ETF','etf'),U('VIG','Vanguard 배당성장 ETF','etf'),U('DGRO','iShares 배당성장 ETF','etf'),U('HDV','iShares 고배당 ETF','etf'),
+      U('SPYD','SPDR 고배당 ETF','etf'),U('SDY','SPDR 배당귀족 ETF','etf'),U('NOBL','ProShares 배당귀족 ETF','etf'),U('DGRW','WisdomTree 배당성장 ETF','etf'),U('VYM','Vanguard 고배당 ETF','etf'),
+      U('DVY','iShares 배당주 ETF','etf'),U('IDV','iShares 글로벌배당 ETF','etf'),U('JEPI','JPMorgan 프리미엄인컴 ETF','etf',12),U('JEPQ','JPMorgan 나스닥 인컴 ETF','etf',12),U('DIVO','Amplify 배당인컴 ETF','etf',12),
+      U('QYLD','Global X 나스닥 커버드콜','etf',12),U('XYLD','Global X S&P500 커버드콜','etf',12),U('RYLD','Global X 러셀2000 커버드콜','etf',12),U('DIV','Global X 슈퍼디비던드','etf',12),U('VNQ','Vanguard 미국리츠 ETF','etf'),
+      U('SPLV','Invesco 저변동성 ETF','etf'),U('BND','Vanguard 미국채권 ETF','etf',12),U('TLT','iShares 미국20년국채 ETF','etf',12),U('SGOV','iShares 미국초단기국채 ETF','etf',12),U('BIL','SPDR 미국단기국채 ETF','etf',12)
+    ],
+    krStock:[
+      K('005930','삼성전자'),K('005935','삼성전자우'),K('000660','SK하이닉스'),K('005380','현대차'),K('005387','현대차2우B'),
+      K('000270','기아'),K('005490','POSCO홀딩스'),K('105560','KB금융'),K('055550','신한지주'),K('086790','하나금융지주'),
+      K('316140','우리금융지주'),K('024110','기업은행'),K('138930','BNK금융지주'),K('175330','JB금융지주'),K('139130','iM금융지주'),
+      K('000810','삼성화재'),K('005830','DB손해보험'),K('001450','현대해상'),K('005940','NH투자증권'),K('016360','삼성증권'),
+      K('006800','미래에셋증권'),K('030200','KT'),K('017670','SK텔레콤'),K('032640','LG유플러스'),K('033780','KT&G'),
+      K('010950','S-Oil'),K('088980','맥쿼리인프라'),K('035250','강원랜드'),K('078930','GS'),K('001120','LX인터내셔널')
+    ],
+    krEtf:[
+      K('161510','PLUS 고배당주','etf',12),K('279530','KODEX 고배당주','etf',12),K('210780','TIGER 코스피고배당','etf',4),K('104530','KIWOOM 고배당','etf',4),
+      K('458730','TIGER 미국배당다우존스','etf',12),K('446720','SOL 미국배당다우존스','etf',12),K('402970','ACE 미국배당다우존스','etf',12),K('452360','SOL 미국배당다우존스(H)','etf',12),
+      K('069500','KODEX 200','etf',4),K('102110','TIGER 200','etf',4),K('360750','TIGER 미국S&P500','etf',4),K('133690','TIGER 미국나스닥100','etf',4),
+      K('379800','KODEX 미국S&P500','etf',4),K('379810','KODEX 미국나스닥100','etf',4),K('449180','KODEX 미국S&P500(H)','etf',4),K('433330','SOL 미국S&P500','etf',4),
+      K('441800','TIMEFOLIO Korea플러스배당액티브','etf',12),K('476800','KODEX 한국부동산리츠인프라','etf',12),K('091170','KODEX 은행','etf',12),K('495850','KODEX 코리아밸류업','etf',12),
+      K('498410','KODEX 금융고배당TOP10타겟위클리커버드콜','etf',12),K('483290','KODEX 미국배당다우존스타겟커버드콜','etf',12),K('481060','KODEX 미국30년국채타겟커버드콜(H)','etf',12),K('484790','KODEX 미국30년국채액티브(H)','etf',12)
+    ]
   };
-  let cache={}, fx=null, rows=[];
+  LISTS.monthly=[
+    U('JEPI','JPMorgan 프리미엄인컴 ETF','etf',12),U('JEPQ','JPMorgan 나스닥 인컴 ETF','etf',12),U('DIVO','Amplify 배당인컴 ETF','etf',12),U('QYLD','Global X 나스닥 커버드콜','etf',12),
+    U('XYLD','Global X S&P500 커버드콜','etf',12),U('RYLD','Global X 러셀2000 커버드콜','etf',12),U('O','리얼티인컴','stock',12),U('MAIN','메인스트리트 캐피털','stock',12),
+    U('STAG','STAG 인더스트리얼','stock',12),U('AGNC','AGNC 인베스트먼트','stock',12),U('SPYI','NEOS S&P500 인컴 ETF','etf',12),U('QQQI','NEOS 나스닥100 인컴 ETF','etf',12),
+    K('279530','KODEX 고배당주','etf',12),K('446720','SOL 미국배당다우존스','etf',12),K('458730','TIGER 미국배당다우존스','etf',12),K('402970','ACE 미국배당다우존스','etf',12),
+    K('476800','KODEX 한국부동산리츠인프라','etf',12),K('498410','KODEX 금융고배당TOP10타겟위클리커버드콜','etf',12),K('483290','KODEX 미국배당다우존스타겟커버드콜','etf',12),K('481060','KODEX 미국30년국채타겟커버드콜(H)','etf',12)
+  ];
 
-  async function fetchJSON(url,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||12000);
-    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json();}catch(e){return null;}finally{clearTimeout(t);}}
-  async function pool(arr,n,fn){const out=[];let i=0;async function w(){while(i<arr.length){const k=i++;out[k]=await fn(arr[k]);}}await Promise.all(Array.from({length:Math.min(n,arr.length)},w));return out;}
-  const d2s=t=>new Date(t*1000).toISOString().slice(0,10);
-  const fmtMd=s=>{const p=String(s).split('-');return p.length===3?(+p[1])+'/'+(+p[2]):s;};
+  const NOTES={
+    usStock:'미국 대표 배당·배당성장주 30종목입니다. 실제 배당 이력이 확인되는 종목만 표시해요.',
+    usEtf:'QQQ·SCHD·VOO부터 월분배·채권 ETF까지 미국 상장 ETF 30종을 모았습니다.',
+    monthly:'미국 월배당주·ETF 12종과 국내 상장 월분배 ETF 8종을 함께 봅니다.',
+    krStock:'금융·통신·자동차·에너지 등 국내 대표 배당주와 우선주 30종목입니다.',
+    krEtf:'국내 고배당·미국지수·월분배·커버드콜 ETF 24종입니다. 분배금은 매번 달라질 수 있어요.'
+  };
+  let divCache={}, rows2=[], fx2=0, loadSeq=0, searchSeq2=0, searchResults2=[];
 
-  async function getDiv(sym){
-    if(cache[sym])return cache[sym];
-    const d=await fetchJSON(WK+encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=2y&events=div'));
-    const r=d&&d.chart&&d.chart.result&&d.chart.result[0];
-    if(!r)return null;
-    const meta=r.meta||{}, price=num(meta.regularMarketPrice)||num(meta.previousClose);
-    const ev=(r.events&&r.events.dividends)||{};
-    const hist=Object.values(ev).map(v=>({t:v.date,amt:num(v.amount)})).sort((a,b)=>a.t-b.t);
-    if(!hist.length||!price)return null;
-    // 주기 추정
-    const gaps=[];for(let i=1;i<hist.length;i++)gaps.push((hist[i].t-hist[i-1].t)/86400);
-    const avgGap=gaps.length?Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length):91;
-    const freq=avgGap<=40?12:avgGap<=100?4:avgGap<=200?2:1;
-    const last=hist[hist.length-1];
-    // 최근 1년 배당 합
-    const yrAgo=Date.now()/1000-365*86400;
-    const recent=hist.filter(h=>h.t>=yrAgo);
-    const annual=recent.length?recent.reduce((n,h)=>n+h.amt,0):last.amt*freq;
-    const nextT=last.t+avgGap*86400;
-    const obj={sym,price,hist,last,annual,freq,avgGap,next:d2s(nextT),nextT,
-      yield:price>0?annual/price*100:0,
-      growth:hist.length>=5?(last.amt/hist[Math.max(0,hist.length-5)].amt-1)*100:null};
-    cache[sym]=obj;return obj;
+  async function fetchJ(url,ms=15000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json();}catch(e){return null;}finally{clearTimeout(t);}}
+  async function pool2(arr,n,fn){const out=[];let i=0;async function w(){while(i<arr.length){const k=i++;out[k]=await fn(arr[k],k);}}await Promise.all(Array.from({length:Math.min(n,arr.length)},w));return out;}
+  const key2=x=>x.market+':'+x.sym;
+  const daySec2=()=>{const p=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).filter(x=>x.type!=='literal').map(x=>[x.type,+x.value]));return Date.UTC(p.year,p.month-1,p.day)/1000;};
+  const date2=t=>t?new Date(t*1000).toISOString().slice(0,10):'';
+  const md2=s=>{const p=String(s||'').split('-');return p.length===3?(+p[1])+'/'+(+p[2]):s;};
+  const median=a=>{if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;};
+
+  function metrics(hist,price,fallbackFreq=0){
+    hist=(hist||[]).filter(x=>x.t&&x.amt>0).sort((a,b)=>a.t-b.t);
+    if(!hist.length)return {hist:[],last:null,annual:0,freq:fallbackFreq||0,avgGap:0,next:'',nextT:0,yield:0,growth:null};
+    const gaps=[];for(let i=1;i<hist.length;i++){const g=(hist[i].t-hist[i-1].t)/86400;if(g>7&&g<450)gaps.push(g);}
+    const avgGap=Math.round(median(gaps))||(fallbackFreq?Math.round(365/fallbackFreq):91);
+    const freq=fallbackFreq||(!gaps.length?1:avgGap<=45?12:avgGap<=115?4:avgGap<=220?2:1);
+    const now=Date.now()/1000, current=hist.filter(h=>h.t>=now-370*86400), previous=hist.filter(h=>h.t<now-370*86400&&h.t>=now-740*86400);
+    const annual=current.reduce((s,h)=>s+h.amt,0)||hist[hist.length-1].amt*freq;
+    const priorAnnual=previous.reduce((s,h)=>s+h.amt,0);
+    const growth=priorAnnual>0?(annual/priorAnnual-1)*100:null;
+    const last=hist[hist.length-1], today=daySec2();let nextT=hist.length>1?last.t+avgGap*86400:0;
+    for(let i=0;nextT&&nextT<today&&i<16;i++)nextT+=avgGap*86400;
+    return {hist,last,annual,freq,avgGap,next:date2(nextT),nextT,yield:price>0?annual/price*100:0,growth};
   }
 
-  async function loadList(list){
-    $('list').innerHTML='<div class="empty">배당 정보를 불러오는 중…</div>';
-    $('listHint').textContent='조회 중…';
-    const res=await pool(list,5,async ([sym,ko])=>{const d=await getDiv(sym);return d?{...d,ko}:null;});
-    rows=res.filter(Boolean).sort((a,b)=>a.nextT-b.nextT);
-    render();
+  async function yahooDiv(sym,fallbackFreq){
+    const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=3y&events=div';
+    const d=await fetchJ(WK2+encodeURIComponent(url));const r=d&&d.chart&&d.chart.result&&d.chart.result[0];if(!r)return null;
+    const price=n2((r.meta||{}).regularMarketPrice)||n2((r.meta||{}).previousClose);
+    const hist=Object.values((r.events&&r.events.dividends)||{}).map(v=>({t:v.date,amt:n2(v.amount)}));
+    return {price,...metrics(hist,price,fallbackFreq)};
   }
-  function render(){
-    if(!rows.length){$('list').innerHTML='<div class="empty">배당 이력이 있는 종목이 없어요.<br>티커를 직접 입력해 보세요.</div>';$('listHint').textContent='';return;}
-    $('listHint').textContent=rows.length+'종목 · 예상일 순';
-    const now=Date.now()/1000;
-    $('list').innerHTML=rows.map(r=>{
-      const dday=Math.round((r.nextT-now)/86400);
-      const ddTxt=dday<0?'지난 예상일':(dday===0?'오늘':'D-'+dday);
-      const freqTxt=r.freq===12?'월배당':r.freq===4?'분기배당':r.freq===2?'반기배당':'연배당';
-      const grow=r.growth!=null?`<span class="${r.growth>=0?'up':'down'}">${r.growth>=0?'+':''}${r.growth.toFixed(0)}%</span>`:'';
+
+  async function getDividend(raw){
+    const item={...raw,sym:String(raw.sym||raw.code||'').toUpperCase(),market:raw.market||raw.mkt||'us',name:raw.name||raw.ko||raw.sym,type:raw.type||'stock'};
+    const k=key2(item);if(divCache[k])return divCache[k];
+    let out=null;
+    if(item.market==='us'){
+      const y=await yahooDiv(item.sym,item.freq);if(y&&y.price&&y.annual)out={...item,...y};
+    }else{
+      const baseUrl='https://m.stock.naver.com/api/stock/'+encodeURIComponent(item.sym);
+      const [basic,integ]=await Promise.all([fetchJ(WK2+encodeURIComponent(baseUrl+'/basic')),fetchJ(WK2+encodeURIComponent(baseUrl+'/integration'))]);
+      if(basic){
+        const ex=basic.stockExchangeType&&basic.stockExchangeType.code;
+        const y=await yahooDiv(item.sym+(ex==='KQ'?'.KQ':'.KS'),item.freq);
+        const info={};((integ&&integ.totalInfos)||[]).forEach(x=>{info[x.key]=x.value;});
+        const price=n2(basic.closePrice)||(y&&y.price)||0, dps=n2(info['주당배당금']), infoYield=n2(info['배당수익률']);
+        const annual=(y&&y.annual)||dps||(price&&infoYield?price*infoYield/100:0);
+        const freq=(y&&y.freq)||item.freq||1, last=(y&&y.last)||{t:0,amt:annual/freq};
+        if(price&&annual)out={...item,name:basic.stockName||item.name,price,hist:(y&&y.hist)||[],last,annual,freq,avgGap:(y&&y.avgGap)||0,next:(y&&y.next)||'',nextT:(y&&y.nextT)||0,yield:infoYield||(annual/price*100),growth:y&&y.growth};
+      }
+    }
+    if(out)divCache[k]=out;return out;
+  }
+
+  async function loadList2(list){
+    const token=++loadSeq;rows2=[];$d('list').innerHTML='<div class="empty">배당·분배금 정보를 불러오는 중…</div>';$d('listHint').textContent='0 / '+list.length;
+    let done=0;const res=await pool2(list,list.some(x=>x.market==='kr')?4:7,async it=>{const d=await getDividend(it);done++;if(token===loadSeq)$d('listHint').textContent=done+' / '+list.length+' 조회 중…';return d;});
+    if(token!==loadSeq)return;rows2=res.filter(Boolean);sortRows();render2(list.length-rows2.length);
+  }
+  function sortRows(){rows2.sort((a,b)=>(a.nextT?0:1)-(b.nextT?0:1)||(a.nextT&&b.nextT?a.nextT-b.nextT:b.yield-a.yield));}
+  const freqName=r=>r.freq>=10?'월배당·분배':r.freq>=4?'분기배당·분배':r.freq===2?'반기배당·분배':'연배당·분배';
+  const money2=(r,n)=>r.market==='kr'?won2(n):usd2(n);
+  const stockLink=r=>r.market==='kr'?'stock.html?code='+encodeURIComponent(r.sym):'stock-us.html?t='+encodeURIComponent(r.sym);
+  function render2(failed=0){
+    const selected=$d('calcSym').value;
+    if(!rows2.length){$d('list').innerHTML='<div class="empty">배당·분배금 이력을 확인한 종목이 없어요.<br>다른 이름·티커·종목코드로 검색해 보세요.</div>';$d('listHint').textContent='조회 결과 없음';$d('calcSym').innerHTML='';calc2();return;}
+    $d('listHint').textContent=rows2.length+'종목'+(failed?' · '+failed+'종목 데이터 없음':'')+' · 예상일 순';
+    const today=daySec2();
+    $d('list').innerHTML=rows2.map(r=>{
+      const dday=r.nextT?Math.max(0,Math.round((r.nextT-today)/86400)):null;
+      const ddTxt=dday==null?'일정 미정':dday===0?'오늘':'D-'+dday;
+      const dateTxt=r.next?md2(r.next)+' 예상 배당락·분배 기준일':'운용사·기업 공시 확인';
+      const grow=r.growth!=null&&isFinite(r.growth)?`<span class="${r.growth>=0?'up':'down'}">${r.growth>=0?'+':''}${r.growth.toFixed(0)}%</span>`:'';
+      const href=stockLink(r), first=e2((r.name||r.sym).charAt(0));
       return `<div class="dv">
-        <a class="lg" href="stock-us.html?t=${encodeURIComponent(r.sym)}"><img src="https://financialmodelingprep.com/image-stock/${encodeURIComponent(r.sym)}.png" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${esc(r.sym[0])}'))"></a>
-        <div class="nm"><a href="stock-us.html?t=${encodeURIComponent(r.sym)}"><div class="n">${esc(r.ko||r.sym)} <span style="color:var(--txt-3);font-size:11.5px">${esc(r.sym)}</span></div></a>
-          <div class="s">${freqTxt} · 최근 ${usd(r.last.amt)} ${grow?('· 2년 배당성장 '+grow):''}</div></div>
-        <div class="mid">주가 ${usd(r.price)}<div style="color:var(--txt-3);font-size:11px">연 배당 ${usd(r.annual)}</div></div>
-        <div class="yld"><div class="v">${r.yield.toFixed(2)}%</div><div class="s">배당수익률</div></div>
-        <div class="dday"><div class="d ${dday>=0&&dday<=14?'soon':''}">${ddTxt}</div><div class="s">${fmtMd(r.next)} 예상</div></div>
+        <a class="lg" href="${href}" data-market="${r.market}" data-symbol="${e2(r.sym)}" data-name="${e2(r.name)}"><span class="sh-logo-letter">${first}</span></a>
+        <div class="nm"><a href="${href}"><div class="n">${e2(r.name||r.sym)} <span style="color:var(--txt-3);font-size:11.5px">${e2(r.sym)}</span><span class="pill">${r.market==='kr'?'한국':'미국'}</span><span class="pill">${r.type==='etf'?'ETF':'주식'}</span></div></a>
+          <div class="s">${freqName(r)} · 최근 ${money2(r,r.last.amt)} ${grow?('· 최근 1년 합계 전년 대비 '+grow):''}</div></div>
+        <div class="mid">현재가 ${money2(r,r.price)}<div style="color:var(--txt-3);font-size:11px">최근 1년 ${money2(r,r.annual)}</div></div>
+        <div class="yld"><div class="v">${r.yield.toFixed(2)}%</div><div class="s">배당·분배율</div></div>
+        <div class="dday"><div class="d ${dday!=null&&dday<=14?'soon':''}">${ddTxt}</div><div class="s">${dateTxt}</div></div>
       </div>`;
     }).join('');
-    // 계산기 셀렉트
-    $('calcSym').innerHTML=rows.map(r=>`<option value="${esc(r.sym)}">${esc(r.ko||r.sym)} (${esc(r.sym)})</option>`).join('');
-    calc();
+    $d('list').querySelectorAll('.lg[data-symbol]').forEach(el=>RichflowStockLogo.set(el,el.dataset.market,el.dataset.symbol,el.dataset.name));
+    $d('calcSym').innerHTML=rows2.map(r=>`<option value="${e2(key2(r))}">${r.market==='kr'?'🇰🇷':'🇺🇸'} ${e2(r.name||r.sym)} (${e2(r.sym)})</option>`).join('');
+    if(rows2.some(r=>key2(r)===selected))$d('calcSym').value=selected;calc2();
   }
 
-  function calc(){
-    const sym=$('calcSym').value, r=rows.find(x=>x.sym===sym);
-    if(!r){['cOnce','cYear','cTax','cNet','cMonth'].forEach(id=>$(id).textContent='—');return;}
-    const q=num($('calcQty').value), rate=num($('calcFx').value)||fx||0;
-    const once=r.last.amt*q, year=r.annual*q, tax=year*0.15, net=(year-tax)*rate;
-    $('cOnce').textContent=usd(once)+(rate?(' · '+won(once*rate)):'');
-    $('cYear').textContent=usd(year)+(rate?(' · '+won(year*rate)):'');
-    $('cTax').textContent='−'+usd(tax)+(rate?(' · '+won(tax*rate)):'');
-    $('cNet').textContent=rate?won(net):usd(year-tax);
-    $('cMonth').textContent=rate?won(net/12):usd((year-tax)/12);
-    const freqTxt=r.freq===12?'매달':r.freq===4?'분기마다':r.freq===2?'반년마다':'해마다';
-    $('tipBox').innerHTML=`<b>${esc(r.ko||r.sym)}</b> ${q.toLocaleString('ko-KR')}주를 보유하면 ${freqTxt} <b>${usd(once)}</b>씩, 연간 <b>${usd(year)}</b>을 받습니다. `
-      +`미국에서 15% 원천징수 후 실수령은 연 <b>${rate?won(net):usd(year-tax)}</b>, 월 평균 <b>${rate?won(net/12):usd((year-tax)/12)}</b>이에요. `
-      +`현재가 기준 배당수익률은 <b>${r.yield.toFixed(2)}%</b>입니다.`;
+  function calc2(){
+    const r=rows2.find(x=>key2(x)===$d('calcSym').value);
+    if(!r){['cOnce','cYear','cTax','cNet','cMonth'].forEach(id=>$d(id).textContent='—');$d('tipBox').textContent='종목을 선택하면 계산됩니다.';return;}
+    const qty=n2($d('calcQty').value), us=r.market==='us', rate=n2($d('calcFx').value)||fx2||0, taxRate=us?0.15:0.154;
+    const once=r.last.amt*qty, year=r.annual*qty, tax=year*taxRate, net=year-tax;
+    $d('calcFxWrap').style.display=us?'block':'none';
+    $d('taxLabel').textContent=us?'배당소득세 15% (미국 원천징수 가정)':'배당소득세 15.4% (국내 단순 가정)';
+    if(us){
+      $d('cOnce').textContent=usd2(once)+(rate?' · '+won2(once*rate):'');$d('cYear').textContent=usd2(year)+(rate?' · '+won2(year*rate):'');
+      $d('cTax').textContent='−'+usd2(tax)+(rate?' · '+won2(tax*rate):'');$d('cNet').textContent=rate?won2(net*rate):usd2(net);$d('cMonth').textContent=rate?won2(net*rate/12):usd2(net/12);
+    }else{
+      $d('cOnce').textContent=won2(once);$d('cYear').textContent=won2(year);$d('cTax').textContent='−'+won2(tax);$d('cNet').textContent=won2(net);$d('cMonth').textContent=won2(net/12);
+    }
+    const netText=us?(rate?won2(net*rate):usd2(net)):won2(net), monthText=us?(rate?won2(net*rate/12):usd2(net/12)):won2(net/12);
+    $d('tipBox').innerHTML=`<b>${e2(r.name||r.sym)}</b> ${qty.toLocaleString('ko-KR')}주 기준 연간 세전 <b>${money2(r,year)}</b>, 단순 세후 <b>${netText}</b>, 월평균 <b>${monthText}</b>입니다. 현재가 기준 배당·분배율은 <b>${r.yield.toFixed(2)}%</b>예요. <span style="color:var(--txt-3)">실제 세금과 분배금은 계좌·상품·공시에 따라 달라집니다.</span>`;
   }
 
-  async function loadFx(){
-    const d=await fetchJSON(WK+encodeURIComponent('https://api.stock.naver.com/marketindex/exchange/FX_USDKRW'));
-    const e=d&&(d.exchangeInfo||d);
-    if(e&&e.closePrice){fx=num(e.closePrice);if(!$('calcFx').value)$('calcFx').value=fx.toFixed(1);}
+  async function addItem2(item){
+    $d('drop').classList.remove('on');$d('listHint').textContent=(item.name||item.sym)+' 조회 중…';
+    const d=await getDividend(item);if(!d){$d('listHint').textContent='';alert((item.name||item.sym)+'의 최근 배당·분배금 이력을 찾지 못했어요.');return;}
+    if(!rows2.some(r=>key2(r)===key2(d)))rows2.push(d);sortRows();$d('q').value='';render2();
   }
-  $('presetSeg').querySelectorAll('button').forEach(b=>{
-    b.onclick=async()=>{
-      $('presetSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-      const p=b.dataset.p;
-      if(p==='mine'){
-        let mine=[];
-        try{const v=JSON.parse(localStorage.getItem('richflow:portfolio')||'[]');
-          mine=v.filter(x=>x.mkt==='us').map(x=>[x.code,x.name]);}catch(e){}
-        $('presetNote').textContent=mine.length?'내 포트폴리오의 미국 종목 중 배당을 주는 종목만 표시됩니다.':'포트폴리오에 미국 종목이 없어요. 먼저 포트폴리오에 추가해 주세요.';
-        if(!mine.length){rows=[];render();return;}
-        loadList(mine);
-      }else{
-        $('presetNote').textContent=p==='monthly'?'매달 배당을 주는 종목들이에요. 리츠(REITs)가 많습니다.'
-          :p==='aristocrat'?'25년 이상 배당을 늘려온 배당 귀족주(Dividend Aristocrats)입니다.'
-          :'배당 이력이 있는 종목만 표시됩니다. 배당을 안 주는 성장주는 목록에 안 나와요.';
-        loadList(PRESET[p]);
-      }
-    };
+  let searchTimer2=null,searchValue2='';
+  $d('q').addEventListener('input',()=>{
+    clearTimeout(searchTimer2);const q=$d('q').value.trim(),seq=++searchSeq2;searchValue2=q;if(!q){$d('drop').classList.remove('on');searchResults2=[];return;}
+    searchTimer2=setTimeout(async()=>{
+      const d=await fetchJ(WK2+encodeURIComponent('https://ac.stock.naver.com/ac?q='+encodeURIComponent(q)+'&target=stock'));
+      if(seq!==searchSeq2||$d('q').value.trim()!==q)return;
+      searchResults2=((d&&d.items)||[]).filter(x=>x.nationCode==='KOR'||x.nationCode==='USA').slice(0,8);
+      if(!searchResults2.length){$d('drop').classList.remove('on');return;}
+      $d('drop').innerHTML=searchResults2.map((x,i)=>`<button type="button" class="it" data-i="${i}"><span class="n">${e2(x.name)}</span><span class="c">${x.nationCode==='KOR'?'🇰🇷':'🇺🇸'} ${e2(x.code)}${/ETF/i.test((x.typeName||'')+' '+(x.typeCode||''))?' · ETF':''}</span></button>`).join('');$d('drop').classList.add('on');
+      $d('drop').querySelectorAll('.it').forEach(el=>el.onclick=()=>pickSearch2(searchResults2[+el.dataset.i]));
+    },250);
   });
-  $('q').addEventListener('keydown',async e=>{
-    if(e.key!=='Enter')return;
-    const sym=$('q').value.trim().toUpperCase().replace(/[^A-Z.\-]/g,'');
-    if(!sym)return;
-    $('listHint').textContent=sym+' 조회 중…';
-    const d=await getDiv(sym);
-    if(!d){$('listHint').textContent='';alert(sym+'의 배당 이력을 찾지 못했어요. 배당을 지급하지 않는 종목일 수 있습니다.');return;}
-    if(!rows.find(r=>r.sym===sym)){rows.push({...d,ko:sym});rows.sort((a,b)=>a.nextT-b.nextT);}
-    $('q').value='';render();
+  function pickSearch2(x){const market=x.nationCode==='KOR'?'kr':'us',all=[...LISTS.usStock,...LISTS.usEtf,...LISTS.krStock,...LISTS.krEtf],known=all.find(v=>v.market===market&&v.sym===String(x.code).toUpperCase());addItem2(known||{market,sym:String(x.code).toUpperCase(),name:x.name,type:/ETF/i.test((x.typeName||'')+' '+(x.typeCode||''))?'etf':'stock'});}
+  $d('q').addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return;e.preventDefault();const q=$d('q').value.trim();if(!q)return;
+    if(searchResults2.length&&q===searchValue2){pickSearch2(searchResults2[0]);return;}
+    const up=q.toUpperCase(),all=[...LISTS.usStock,...LISTS.usEtf,...LISTS.krStock,...LISTS.krEtf],known=all.find(x=>x.sym===up);
+    if(known)addItem2(known);else if(/^(?=.*\d)[0-9A-Z]{6}$/.test(up))addItem2(K(up,q));else addItem2(U(up.replace(/[^A-Z.\-]/g,''),up));
   });
-  ['calcQty','calcFx'].forEach(id=>$(id).addEventListener('input',calc));
-  $('calcSym').addEventListener('change',calc);
-  loadFx().then(()=>loadList(PRESET.popular));
+  document.addEventListener('click',e=>{if(!e.target.closest('.srch-wrap'))$d('drop').classList.remove('on');});
+
+  $d('presetSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $d('presetSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');const p=b.dataset.p;
+    if(p==='mine'){
+      let mine=[];try{mine=JSON.parse(localStorage.getItem('richflow:portfolio')||'[]').map(x=>({market:x.mkt||'us',sym:String(x.code||'').toUpperCase(),name:x.name||x.code,type:x.type||'stock'})).filter(x=>x.sym);}catch(e){}
+      $d('presetNote').textContent=mine.length?'내 포트폴리오의 한국·미국 종목 중 최근 배당·분배 이력이 확인되는 상품입니다.':'포트폴리오가 비어 있어요. 먼저 종목을 추가해 주세요.';
+      if(mine.length)loadList2(mine);else{++loadSeq;rows2=[];render2();}
+    }else{$d('presetNote').textContent=NOTES[p];loadList2(LISTS[p]);}
+  });
+  ['calcQty','calcFx'].forEach(id=>$d(id).addEventListener('input',calc2));$d('calcSym').addEventListener('change',calc2);
+  async function loadFx2(){const d=await fetchJ(WK2+encodeURIComponent('https://api.stock.naver.com/marketindex/exchange/FX_USDKRW'));const x=d&&(d.exchangeInfo||d);if(x&&x.closePrice){fx2=n2(x.closePrice);if(!$d('calcFx').value)$d('calcFx').value=fx2.toFixed(1);calc2();}}
+  loadFx2();loadList2(LISTS.usStock);
 </script>
 <script src="tool-nav.js"></script>
 </body>

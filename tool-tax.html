@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>해외주식 양도소득세 계산기 · RICHFLOW</title>
 <meta name="description" content="미국주식 양도소득세를 손익통산·250만원 기본공제·22% 세율로 계산합니다. 실시간 환율 반영, 절세용 손실 확정 금액까지 알려드려요.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="해외주식 양도소득세 계산기 · RICHFLOW"><meta property="og:description" content="해외주식 손익통산·기본공제·세율을 반영해 예상 양도소득세를 계산합니다."><meta name="twitter:card" content="summary">
 <style>
   :root{
     --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
@@ -91,7 +92,8 @@
       <button data-c="USD">달러($)로 입력</button>
     </div>
     <div class="fxline" id="fxLine" style="display:none">
-      적용 환율 <input id="fx" type="text" inputmode="decimal" value=""> 원/$
+      매수환율 <input id="fxBuy" type="text" inputmode="decimal" value=""> 원/$
+      매도환율 <input id="fxSell" type="text" inputmode="decimal" value=""> 원/$
       <span id="fxInfo" style="color:var(--txt-3)">실시간 불러오는 중…</span>
     </div>
     <div class="note" id="curNote">매도한 종목의 <b>실현 손익</b>만 입력하세요. 아직 안 판 종목(평가손익)은 과세 대상이 아니에요.</div>
@@ -154,7 +156,7 @@
   async function loadFx(){
     const d=await fetchJSON(WK+encodeURIComponent('https://api.stock.naver.com/marketindex/exchange/FX_USDKRW'));
     const e=d&&(d.exchangeInfo||d);
-    if(e&&e.closePrice){ fxRate=num(e.closePrice); if(!$('fx').value)$('fx').value=fxRate.toFixed(2);
+    if(e&&e.closePrice){ fxRate=num(e.closePrice); if(!$('fxBuy').value)$('fxBuy').value=fxRate.toFixed(2);if(!$('fxSell').value)$('fxSell').value=fxRate.toFixed(2);
       $('fxInfo').textContent='(현재 '+fxRate.toFixed(2)+'원 · 하나은행 기준)'; }
     else $('fxInfo').textContent='(환율 자동입력 실패 — 직접 입력)';
     calc();
@@ -180,18 +182,20 @@
     b.onclick=()=>{$('curSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
       curMode=b.dataset.c; $('fxLine').style.display=curMode==='USD'?'flex':'none';
       $('curNote').innerHTML=curMode==='USD'
-        ? '달러로 입력하면 위 환율로 원화 환산해 계산합니다. 실제 신고는 <b>거래일별 기준환율</b>을 적용해요.'
+        ? '달러로 입력하면 매수·매도 환율을 각각 적용합니다. 여러 거래를 합산했다면 각 칸에 <b>가중평균 환율</b>을 넣으세요. 실제 신고는 거래일별 기준환율을 적용해요.'
         : '매도한 종목의 <b>실현 손익</b>만 입력하세요. 아직 안 판 종목(평가손익)은 과세 대상이 아니에요.';
       calc();};
   });
-  $('fx').addEventListener('input',calc);
+  ['fxBuy','fxSell'].forEach(id=>$(id).addEventListener('input',calc));
 
   function calc(){
-    const k=curMode==='USD'?(num($('fx').value)||fxRate||0):1;
+    const kBuy=curMode==='USD'?(num($('fxBuy').value)||fxRate||0):1;
+    const kSell=curMode==='USD'?(num($('fxSell').value)||fxRate||0):1;
+    if(curMode==='USD'&&(!(kBuy>0&&kSell>0)||kBuy>1e6||kSell>1e6)){$('tipBox').textContent='매수환율과 매도환율을 올바르게 입력해 주세요.';return;}
     let buy=0,sell=0,cnt=0,lossSum=0,gainSum=0;
     rows.forEach(r=>{
       const b=num(r.b),s=num(r.s);
-      if(b>0||s>0){cnt++;buy+=b*k;sell+=s*k;const g=(s-b)*k;if(g>=0)gainSum+=g;else lossSum+=g;}
+      if(b>0||s>0){cnt++;buy+=b*kBuy;sell+=s*kSell;const g=s*kSell-b*kBuy;if(g>=0)gainSum+=g;else lossSum+=g;}
     });
     const gain=sell-buy;
     const base=Math.max(0,gain-DED);
@@ -213,7 +217,7 @@
     else if(gain<=DED){tip='양도차익이 기본공제 <b>250만원 이하</b>라 세금이 <b>0원</b>입니다. 공제 여유가 <b>'+won(DED-gain)+'</b> 남았어요 — 이 범위 안에서 이익 실현하면 비과세입니다.';}
     else{
       const needLoss=gain-DED;
-      tip='과세표준 <b>'+won(base)+'</b>에 22%가 적용돼 <b>'+won(tax)+'</b>이 예상됩니다. 손실 중인 종목을 <b>'+won(needLoss)+'</b>만큼 올해 안에 정리(손실 확정)하면 세금을 <b>0원</b>으로 줄일 수 있어요.';
+      tip='과세표준 <b>'+won(base)+'</b>에 22%가 적용돼 <b>'+won(tax)+'</b>이 예상됩니다. 단순 계산상 손실을 <b>'+won(needLoss)+'</b> 추가 확정하면 과세표준이 0원이지만, 실제 금액은 거래일 환율·수수료·제비용을 반영해 확인해야 합니다.';
     }
     $('tipBox').innerHTML=tip;
   }

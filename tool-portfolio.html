@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>내 포트폴리오 · RICHFLOW</title>
 <meta name="description" content="보유 종목을 넣으면 실시간 시세로 평가금액·비중·손익을 자동 계산합니다. 국내·미국 주식을 한곳에서 원화 기준으로 관리하세요.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="내 포트폴리오 · RICHFLOW"><meta property="og:description" content="국내·미국 주식의 평가금액·비중·주가손익·환차손익을 원화 기준으로 계산합니다."><meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="tool.css">
 <style>
   /* 검색 */
@@ -47,7 +48,9 @@
   .alloc i{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
   .tools{margin-left:auto;display:flex;gap:6px}
   .tools button{background:var(--card-2);border:1px solid var(--line);color:var(--txt-3);font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer;font-family:inherit}
-  @media(max-width:760px){.sum{grid-template-columns:1fr 1fr}.hold .mid{min-width:0;flex:1;text-align:left}}
+  .add-grid{display:grid;grid-template-columns:1fr 1fr 1fr 120px;gap:12px}
+  @media(max-width:760px){.sum{grid-template-columns:1fr 1fr}.hold .mid{min-width:0;flex:1;text-align:left}.add-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.add-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -85,9 +88,10 @@
     </div>
     <div id="addBox" style="display:none">
       <div style="font-size:13px;font-weight:800;margin-bottom:10px" id="pickName"></div>
-      <div class="grid3">
+      <div class="add-grid">
         <div class="fld"><label>평단가</label><div class="inbox"><input id="fAvg" type="text" inputmode="decimal" placeholder="0"><span class="sym" id="uSym">원</span></div></div>
         <div class="fld"><label>수량</label><div class="inbox"><input id="fQty" type="text" inputmode="decimal" placeholder="0"><span class="sym">주</span></div></div>
+        <div class="fld" id="fFxWrap" style="display:none"><label>매수 당시 환율</label><div class="inbox"><input id="fFx" type="text" inputmode="decimal" placeholder="예: 1350"><span class="sym">원/$</span></div></div>
         <div class="fld"><label>&nbsp;</label><button id="btnAdd" style="width:100%;background:var(--brand);border:1px solid var(--brand);color:#fff;font-size:13.5px;font-weight:800;padding:12px;border-radius:12px;cursor:pointer;font-family:inherit">추가</button></div>
       </div>
       <div class="note" id="pxNote"></div>
@@ -118,7 +122,7 @@
     </div>
   </div>
 
-  <div class="disc">보유 내역은 브라우저 로컬 저장소(localStorage)에 저장되며 서버로 전송되지 않습니다. 시세는 네이버 금융(국내 실시간, 미국 정규장 실시간) 기준이며 장 마감 시에는 종가가 표시됩니다. 미국 종목은 실시간 환율로 원화 환산하며, 손익은 수수료·세금·환전 스프레드를 제외한 단순 계산입니다. 정보 제공용이며 투자 권유가 아닙니다.</div>
+  <div class="disc">보유 내역은 브라우저 로컬 저장소(localStorage)에 저장되며 서버로 전송되지 않습니다. 시세는 네이버 금융 기준이며 장 마감 시에는 종가가 표시됩니다. 미국 종목은 <b>매수 당시 환율로 원금</b>을, 현재 환율로 평가금액을 환산해 환차손익을 포함합니다. 기존에 저장된 미국 종목은 매수환율이 없어 현재 환율을 임시 가정합니다. 수수료·세금·환전 스프레드는 제외한 단순 계산이며 정보 제공용입니다.</div>
 </div>
 
 <script>
@@ -147,12 +151,13 @@
     : 'https://financialmodelingprep.com/image-stock/'+encodeURIComponent(it.code)+'.png';
 
   /* 검색 */
-  let tmr=null, picked=null;
+  let tmr=null, picked=null, searchSeq=0;
   $('q').addEventListener('input',()=>{
-    clearTimeout(tmr);const v=$('q').value.trim();
+    clearTimeout(tmr);const v=$('q').value.trim(), seq=++searchSeq;
     if(!v){$('drop').classList.remove('on');return;}
     tmr=setTimeout(async()=>{
       const d=await fetchJSON(WK+encodeURIComponent('https://ac.stock.naver.com/ac?q='+encodeURIComponent(v)+'&target=stock'));
+      if(seq!==searchSeq||$('q').value.trim()!==v)return;
       const list=((d&&d.items)||[]).filter(x=>x.nationCode==='KOR'||x.nationCode==='USA');
       if(!list.length){$('drop').classList.remove('on');return;}
       $('drop').innerHTML=list.slice(0,7).map((x,i)=>
@@ -170,6 +175,8 @@
     $('addBox').style.display='block';
     $('pickName').innerHTML=(kr?'🇰🇷 ':'🇺🇸 ')+esc(x.name)+' <span style="color:var(--txt-3);font-weight:600;font-size:11.5px">'+esc(x.code)+'</span>';
     $('uSym').textContent=kr?'원':'$';
+    $('fFxWrap').style.display=kr?'none':'block';
+    if(!kr&&!$('fFx').value&&fx)$('fFx').value=fx.toFixed(2);
     $('pxNote').textContent='현재가 확인 중…';
     const p=await getPrice(picked);
     if(p){prices[keyOf(picked)]=p;$('pxNote').innerHTML='현재가 <b>'+(picked.mkt==='kr'?won(p.price):('$'+p.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})))+'</b> · 평단가를 모르면 현재가를 넣어도 돼요.';
@@ -196,7 +203,7 @@
     if(!items.length){render();return;}
     $('listHint').textContent='시세 갱신 중…';
     const res=await pool(items,5,async it=>({k:keyOf(it),p:await getPrice(it)}));
-    res.forEach(r=>{if(r.p)prices[r.k]=r.p;});
+    res.forEach(r=>{prices[r.k]=r.p||null;});
     render();
   }
 
@@ -204,26 +211,37 @@
     if(!picked){alert('먼저 종목을 검색해 주세요');return;}
     const avg=num($('fAvg').value), qty=num($('fQty').value);
     if(!(avg>0&&qty>0)){alert('평단가와 수량을 입력해 주세요');return;}
+    if(avg>1e12||qty>1e9){alert('평단가 또는 수량이 입력 범위를 벗어났어요');return;}
+    const buyFx=picked.mkt==='us'?num($('fFx').value):1;
+    if(picked.mkt==='us'&&!(buyFx>0&&buyFx<=1e6)){alert('미국 종목은 매수 당시 환율을 입력해 주세요');return;}
     const k=keyOf(picked), ex=items.find(i=>keyOf(i)===k);
     if(ex){ // 평단 합산
-      const tq=num(ex.qty)+qty, tc=num(ex.avg)*num(ex.qty)+avg*qty;
+      const oldQty=num(ex.qty), oldUsd=num(ex.avg)*oldQty, addUsd=avg*qty, tq=oldQty+qty, tc=oldUsd+addUsd;
+      if(ex.mkt==='us')ex.buyFx=String((oldUsd*(num(ex.buyFx)||fx||buyFx)+addUsd*buyFx)/tc);
       ex.avg=String(tc/tq); ex.qty=String(tq);
-    }else items.push({...picked,avg:String(avg),qty:String(qty),ts:Date.now()});
-    save();$('q').value='';$('fAvg').value='';$('fQty').value='';$('addBox').style.display='none';picked=null;
-    refresh();
+    }else items.push({...picked,avg:String(avg),qty:String(qty),buyFx:picked.mkt==='us'?String(buyFx):'',ts:Date.now()});
+    save();$('q').value='';$('fAvg').value='';$('fQty').value='';$('fFx').value='';$('fFxWrap').style.display='none';$('addBox').style.display='none';picked=null;
+    refreshAll();
   };
 
+  function rowOf(it){
+    const p=prices[keyOf(it)]||null, qty=num(it.qty), avg=num(it.avg), isUs=it.mkt==='us';
+    const currentFx=isUs?num(fx):1, savedBuyFx=isUs?num(it.buyFx):1, buyFx=isUs?(savedBuyFx||currentFx):1;
+    const valid=!!(p&&p.price>0&&currentFx>0&&buyFx>0);
+    const cur=p&&p.price>0?p.price:null;
+    const val=valid?cur*qty*currentFx:null, cost=buyFx>0?avg*qty*buyFx:null;
+    const pl=valid&&cost!=null?val-cost:null, pct=pl!=null&&cost>0?pl/cost*100:null;
+    const stockPl=valid?(cur-avg)*qty*buyFx:null;
+    const fxPl=valid&&isUs?cur*qty*(currentFx-buyFx):0;
+    return {it,p,cur,val,cost,pl,pct,stockPl,fxPl,buyFx,assumedFx:isUs&&!savedBuyFx,valid};
+  }
+
   function render(){
-    const rows=items.map(it=>{
-      const p=prices[keyOf(it)], rate=it.mkt==='us'?(fx||0):1;
-      const cur=p?p.price:num(it.avg);
-      const val=cur*num(it.qty)*rate, cost=num(it.avg)*num(it.qty)*rate;
-      return {it,p,cur,val,cost,pl:val-cost,pct:cost>0?(val-cost)/cost*100:0};
-    });
-    const totV=rows.reduce((n,r)=>n+r.val,0), totC=rows.reduce((n,r)=>n+r.cost,0);
+    const rows=items.map(rowOf), valued=rows.filter(r=>r.valid);
+    const totV=valued.reduce((n,r)=>n+r.val,0), totC=valued.reduce((n,r)=>n+r.cost,0);
     const pl=totV-totC, plPct=totC>0?pl/totC*100:0;
     $('sVal').textContent=totV>0?won(totV):'—';
-    $('sValSub').textContent=rows.length?('국내·미국 합산'):'원화 환산';
+    $('sValSub').textContent=rows.length?(valued.length===rows.length?'국내·미국 합산':('일부 제외 · '+valued.length+'/'+rows.length+'종목')):'원화 환산';
     $('sCost').textContent=totC>0?won(totC):'—';
     $('sPl').textContent=totC>0?((pl>=0?'+':'−')+won(Math.abs(pl))):'—';
     $('sPl').className='v mono '+(pl>=0?'up':'down');
@@ -232,66 +250,72 @@
     const kr=items.filter(i=>i.mkt==='kr').length;
     $('sCnt').textContent=items.length;
     $('sCntSub').textContent='국내 '+kr+' · 미국 '+(items.length-kr);
-    $('listHint').textContent=items.length?(items.length+'종목 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 갱신'):'';
+    const failed=rows.length-valued.length;
+    $('listHint').textContent=items.length?(items.length+'종목 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+(failed?' · 시세 실패 '+failed:' 갱신')):'';
 
     if(!items.length){
       $('list').innerHTML='<div class="empty">아직 보유 종목이 없어요.<br>위에서 종목을 검색하고 <b>평단가·수량</b>을 넣어보세요.</div>';
       $('alloc').innerHTML='<div style="width:100%;background:var(--card-2);border-radius:10px"></div>';
       $('allocNote').textContent='종목을 추가하면 비중이 표시됩니다.';return;
     }
-    const sorted=rows.slice().sort((a,b)=>b.val-a.val);
+    const sorted=rows.slice().sort((a,b)=>(b.val||0)-(a.val||0));
     $('list').innerHTML=sorted.map(r=>{
       const it=r.it, w=totV>0?r.val/totV*100:0;
       const href=it.mkt==='kr'?('stock.html?code='+encodeURIComponent(it.code)):('stock-us.html?t='+encodeURIComponent(it.code));
-      const curTxt=it.mkt==='kr'?won(r.cur):('$'+r.cur.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}));
+      const curTxt=r.valid?(it.mkt==='kr'?won(r.cur):('$'+r.cur.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))):'시세 확인 불가';
       const avgTxt=it.mkt==='kr'?won(num(it.avg)):('$'+num(it.avg).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}));
       const dayTxt=r.p?`<span class="${r.p.pct>=0?'up':'down'}">${r.p.pct>=0?'+':''}${r.p.pct.toFixed(2)}%</span>`:'<span style="color:var(--txt-3)">시세 없음</span>';
+      const plHtml=r.pl==null?'<div class="a" style="color:var(--txt-3)">—</div><div class="p" style="color:var(--txt-3)">데이터 없음</div>'
+        :`<div class="a ${r.pl>=0?'up':'down'}">${r.pl>=0?'+':'−'}${shortWon(Math.abs(r.pl))}</div><div class="p ${r.pct>=0?'up':'down'}">${r.pct>=0?'+':''}${r.pct.toFixed(2)}%</div>`;
+      const fxNote=it.mkt==='us'?` · 환율손익 ${r.fxPl==null?'—':((r.fxPl>=0?'+':'−')+shortWon(Math.abs(r.fxPl)))}${r.assumedFx?' (매수환율 가정)':''}`:'';
       return `<div class="hold">
-        <a class="lg" href="${href}"><img src="${logoUrl(it)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${esc(it.name[0])}'))"></a>
+        <a class="lg" href="${href}"><img src="${logoUrl(it)}" alt="${esc(it.name)} 로고" data-fallback="${esc(it.name[0]||'?')}" loading="lazy" referrerpolicy="no-referrer"></a>
         <div class="nm"><a href="${href}"><div class="n">${esc(it.name)}</div></a><div class="s"><span class="flag">${it.mkt==='kr'?'🇰🇷 국내':'🇺🇸 미국'}</span>${dayTxt}</div></div>
-        <div class="mid">${curTxt} × ${num(it.qty).toLocaleString('ko-KR')}주<div style="color:var(--txt-3);font-size:11px">평단 ${avgTxt}</div></div>
-        <div class="pl"><div class="a ${r.pl>=0?'up':'down'}">${r.pl>=0?'+':'−'}${shortWon(Math.abs(r.pl))}</div><div class="p ${r.pct>=0?'up':'down'}">${r.pct>=0?'+':''}${r.pct.toFixed(2)}%</div></div>
+        <div class="mid">${curTxt} × ${num(it.qty).toLocaleString('ko-KR')}주<div style="color:var(--txt-3);font-size:11px">평단 ${avgTxt}${fxNote}</div></div>
+        <div class="pl">${plHtml}</div>
         <div class="wt"><b style="font-size:13px">${w.toFixed(1)}%</b><div class="b"><i style="width:${w.toFixed(1)}%"></i></div></div>
         <div class="act"><button data-del="${esc(keyOf(it))}">삭제</button></div>
       </div>`;
     }).join('');
+    $('list').querySelectorAll('.lg img').forEach(img=>img.addEventListener('error',()=>{const s=document.createElement('span');s.textContent=(img.dataset.fallback||'?').slice(0,1);img.replaceWith(s);},{once:true}));
     $('list').querySelectorAll('[data-del]').forEach(b=>{b.onclick=()=>{
       if(!confirm('이 종목을 삭제할까요?'))return;
       items=items.filter(i=>keyOf(i)!==b.dataset.del);save();render();};});
 
     // 비중 바
-    const top=sorted.slice(0,8);
-    const etc=sorted.slice(8).reduce((n,r)=>n+r.val,0);
+    const top=valued.slice().sort((a,b)=>b.val-a.val).slice(0,8);
+    const etc=valued.slice().sort((a,b)=>b.val-a.val).slice(8).reduce((n,r)=>n+r.val,0);
     const segs=top.map((r,i)=>({n:r.it.name,v:r.val,c:COLORS[i%COLORS.length]}));
     if(etc>0)segs.push({n:'기타',v:etc,c:'#c9ced6'});
     $('alloc').innerHTML=segs.map(s=>{
       const w=totV>0?s.v/totV*100:0;
       return `<i style="width:${w}%;background:${s.c}" title="${esc(s.n)} ${w.toFixed(1)}%">${w>=9?esc(s.n)+' '+w.toFixed(0)+'%':''}</i>`;
     }).join('');
-    const topOne=sorted[0];
+    const topOne=top[0];
     const krVal=rows.filter(r=>r.it.mkt==='kr').reduce((n,r)=>n+r.val,0);
     $('allocNote').innerHTML=totV>0
       ? `최대 비중은 <b>${esc(topOne.it.name)} ${(topOne.val/totV*100).toFixed(1)}%</b>입니다. 국내 <b>${(krVal/totV*100).toFixed(0)}%</b> · 미국 <b>${(100-krVal/totV*100).toFixed(0)}%</b>로 배분돼 있어요.`
       : '평가금액이 계산되면 비중이 표시됩니다.';
   }
 
-  $('btnRefresh').onclick=()=>{loadFx();refresh();};
+  let refreshing=false;
+  async function refreshAll(){if(refreshing)return;refreshing=true;try{await loadFx();await refresh();}finally{refreshing=false;}}
+  $('btnRefresh').onclick=refreshAll;
   $('btnClear').onclick=()=>{if(!items.length)return;if(confirm('보유 종목을 모두 삭제할까요?')){items=[];save();render();}};
   $('btnExport').onclick=()=>{
     if(!items.length){alert('내보낼 종목이 없어요');return;}
-    const head='종목,시장,코드,평단가,수량,현재가,평가금액(원),손익(원),수익률(%)';
-    const lines=items.map(it=>{
-      const p=prices[keyOf(it)],rate=it.mkt==='us'?(fx||0):1,cur=p?p.price:num(it.avg);
-      const val=cur*num(it.qty)*rate,cost=num(it.avg)*num(it.qty)*rate;
-      return [it.name,it.mkt==='kr'?'국내':'미국',it.code,num(it.avg),num(it.qty),cur,Math.round(val),Math.round(val-cost),cost>0?((val-cost)/cost*100).toFixed(2):''].join(',');
+    const csvCell=(v,protect)=>{let s=String(v==null?'':v);if(protect&&/^[=+\-@]/.test(s))s="'"+s;return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+    const head='종목,시장,코드,평단가,수량,매수환율,현재환율,현재가,평가금액(원),손익(원),수익률(%),데이터상태';
+    const lines=items.map(it=>{const r=rowOf(it);
+      return [csvCell(it.name,true),csvCell(it.mkt==='kr'?'국내':'미국'),csvCell(it.code,true),num(it.avg),num(it.qty),it.mkt==='us'?r.buyFx:'',it.mkt==='us'?(fx||''):'',r.cur||'',r.val==null?'':Math.round(r.val),r.pl==null?'':Math.round(r.pl),r.pct==null?'':r.pct.toFixed(2),csvCell(r.valid?'정상':'시세 확인 불가')].join(',');
     });
     const csv='﻿'+[head,...lines].join('\n');
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
     a.download='richflow-포트폴리오-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(a.href);
   };
-  loadFx().then(refresh);
-  setInterval(()=>{loadFx();refresh();},60000);
+  refreshAll();
+  setInterval(refreshAll,60000);
 </script>
 <script src="tool-nav.js"></script>
 </body>

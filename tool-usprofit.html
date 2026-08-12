@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>미국주식 실수익 계산기 (수수료·환율 반영) · RICHFLOW</title>
 <meta name="description" content="주가는 올랐는데 환율이 빠졌다면? 달러 수익률과 원화 수익률을 분해하고, 매매 수수료·환전 스프레드를 반영한 진짜 실수령액을 계산합니다.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="미국주식 실수익 계산기 · RICHFLOW"><meta property="og:description" content="주가·환율·매매 수수료·환전 스프레드를 분해해 미국주식 실수익을 계산합니다."><meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="tool.css">
 <style>
   .split{display:flex;gap:2px;height:34px;border-radius:9px;overflow:hidden;margin:10px 0 6px}
@@ -125,6 +126,9 @@
     const bp=num($('bp').value), sp=num($('sp').value), q=num($('qty').value);
     const fxb=num($('fxb').value), fxs=num($('fxs').value);
     if(!(bp>0&&sp>0&&q>0&&fxb>0&&fxs>0)){ $('rNet').textContent='—'; $('tipBox').textContent='값을 입력하면 계산됩니다.'; return; }
+    if(bp>1e9||sp>1e9||q>1e9||fxb>1e6||fxs>1e6||feeRate<0||feeRate>=100||spread<0||spread>=100){
+      $('rNet').textContent='—';$('rNetSub').textContent='';$('tipBox').textContent='가격·수량·환율은 입력 범위 안의 양수, 수수료와 스프레드는 0% 이상 100% 미만이어야 합니다.';return;
+    }
     const f=feeRate/100, s=spread/100;
     // 매수: 달러 필요액 = bp*q*(1+수수료), 환전 시 살 때 환율 = fxb*(1+스프레드)
     const buyUsd=bp*q*(1+f);

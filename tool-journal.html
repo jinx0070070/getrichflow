@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>매매일지 · RICHFLOW</title>
 <meta name="description" content="매매 기록과 복기를 한곳에. 손익·승률·평균 수익률이 자동 집계되고, 매매 이유를 남겨 패턴을 찾을 수 있어요.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="매매일지 · RICHFLOW"><meta property="og:description" content="매매 기록과 복기를 저장하고 손익·승률·평균 수익률을 자동 집계합니다."><meta name="twitter:card" content="summary">
 <style>
   :root{
     --bg:#e5e6ea;--bg-2:#dcdee3;--card:#f4f5f7;--card-2:#e9ebef;
@@ -174,8 +175,9 @@
     if(krw.length)plTxt.push((kAmt>=0?'+':'−')+fmtC(kAmt,'KRW'));
     if(usd.length)plTxt.push((uAmt>=0?'+':'−')+fmtC(uAmt,'USD'));
     $('sPl').textContent=plTxt.length?plTxt.join(' · '):'0원';
-    $('sPl').className='v mono '+((kAmt+uAmt)>=0?'up':'down');
-    $('sPlSub').textContent=closed.length?('종료 '+closed.length+'건'):'종료된 매매';
+    const oneCurrency=!(krw.length&&usd.length), signed=krw.length?kAmt:uAmt;
+    $('sPl').className='v mono '+(oneCurrency?(signed>=0?'up':'down'):'');
+    $('sPlSub').textContent=closed.length?('종료 '+closed.length+'건'+(oneCurrency?'':' · 통화별 표시')):'종료된 매매';
     const wins=closed.filter(t=>plOf(t).amt>0).length, loses=closed.length-wins;
     $('sWin').textContent=closed.length?Math.round(wins/closed.length*100)+'%':'—';
     $('sWinSub').textContent=closed.length?(wins+'승 '+loses+'패'):'승 / 패';
@@ -234,8 +236,9 @@
   $('btnExport').onclick=()=>{
     if(!items.length){alert('내보낼 기록이 없어요');return;}
     const head='종목,매수일,매수가,수량,매도일,매도가,통화,손익,수익률,메모';
+    const csvCell=(v,protect)=>{let s=String(v==null?'':v);if(protect&&/^[=+\-@]/.test(s))s="'"+s;return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
     const rows=items.map(t=>{const pl=plOf(t);
-      return [t.nm,t.bd,t.bp,t.q,t.sd||'',t.sp||'',t.cur||'KRW',pl?Math.round(pl.amt):'',pl?pl.pct.toFixed(2)+'%':'',(t.memo||'').replace(/,/g,' ')].join(',');});
+      return [csvCell(t.nm,true),csvCell(t.bd),t.bp,t.q,csvCell(t.sd||''),t.sp||'',csvCell(t.cur||'KRW'),pl?Math.round(pl.amt):'',pl?pl.pct.toFixed(2)+'%':'',csvCell(t.memo||'',true)].join(',');});
     const csv='﻿'+[head,...rows].join('\n');
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
