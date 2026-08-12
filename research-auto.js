@@ -147,6 +147,10 @@
         '기관 순매수 1위는 <b>'+esc(byO[0].name)+' '+won(byO[0].oAmt)+'</b>이다.'
       ],
       tickers:byF.slice(0,3).map(function(x){return {name:x.name,code:x.code,price:Math.round(x.price).toLocaleString('ko-KR')+'원',change:pct(x.pct),direction:x.pct>=0?'up':'down'};}),
+      keyStats:[['외국인 순매수',won(fTot),fTot>=0?'up':'down'],['기관 순매수',won(oTot),oTot>=0?'up':'down'],
+        ['외국인 1위',esc(top.name)+' '+won(top.fAmt),'up'],['외국인 최하위',esc(bot.name)+' '+won(bot.fAmt),'down'],
+        ['집계 종목',rows.length+'종목','']],
+      tags:['수급','외국인','기관','자동집계'],
       sections:[
         {title:'1. 외국인 순매수 상위', body:'<p>'+byF.slice(0,5).map(function(x,i){
           return (i+1)+'. <b>'+esc(x.name)+'</b> '+won(x.fAmt)+' ('+pct(x.pct)+')';}).join('<br>')+'</p>'},
@@ -179,6 +183,12 @@
         '상승 1위 '+esc(up[0].name)+'은 외국인 '+won(up[0].fAmt)+', 기관 '+won(up[0].oAmt)+'을 기록했다.'
       ],
       tickers:up.map(function(x){return {name:x.name,code:x.code,price:Math.round(x.price).toLocaleString('ko-KR')+'원',change:pct(x.pct),direction:x.pct>=0?'up':'down'};}),
+      keyStats:[['상승 종목',m.filter(function(x){return x.pct>0;}).length+'개','up'],
+        ['하락 종목',m.filter(function(x){return x.pct<0;}).length+'개','down'],
+        ['상승 1위',esc(up[0].name)+' '+pct(up[0].pct),'up'],
+        ['하락 1위',esc(dn[0].name)+' '+pct(dn[0].pct),'down'],
+        ['평균 등락',pct(m.reduce(function(n,x){return n+x.pct;},0)/m.length),m.reduce(function(n,x){return n+x.pct;},0)>=0?'up':'down']],
+      tags:['등락','시장동향','자동집계'],
       sections:[
         {title:'1. 오늘의 상승 종목', body:'<p>'+up.map(function(x){
           return '<b>'+esc(x.name)+'</b> '+pct(x.pct)+' · 종가 '+Math.round(x.price).toLocaleString('ko-KR')+'원 · 외국인 '+won(x.fAmt);}).join('<br>')+'</p>'},
@@ -213,6 +223,10 @@
         '가장 많이 신고된 종목은 <b>'+esc(top[0])+' '+top[1]+'건</b>이다.',
         (topFlr?'신고 주체 기준으로는 <b>'+esc(topFlr[0])+'</b>이 '+topFlr[1]+'건으로 가장 많다.':'신고 주체는 분산돼 있다.')
       ],
+      keyStats:[['대량보유 공시',list.length+'건',''],['최신 접수',bd(list[0].rcept_dt),''],
+        ['최다 신고 종목',esc(top[0])+' '+top[1]+'건','up'],
+        ['최다 신고자',topFlr?esc(topFlr[0])+' '+topFlr[1]+'건':'-','']],
+      tags:['공시','5%룰','DART','자동집계'],
       sections:[
         {title:'1. 최근 대량보유 공시', body:'<p>'+list.slice(0,8).map(function(x){
           return bd(x.rcept_dt)+' · <b>'+esc(x.corp_name)+'</b> — 신고자 '+esc(x.flr_nm||'-')+
@@ -245,6 +259,11 @@
         'ARK는 <b>매일 장 마감 후 보유 내역을 공개</b>하는 몇 안 되는 큰손이라, 방향 전환을 가장 빨리 확인할 수 있다.'
       ],
       tickers:buys.slice(0,3).map(function(x){return {name:x.company||x.ticker,code:x.ticker,price:'',change:'순매수',direction:'up'};}),
+      keyStats:[['순매수 종목',buys.length+'개','up'],['순매도 종목',sells.length+'개','down'],
+        ['순매수 1위',buys[0]?esc(buys[0].ticker)+' '+sh(buys[0].shares):'-','up'],
+        ['순매도 1위',sells[0]?esc(sells[0].ticker)+' '+sh(sells[0].shares):'-','down'],
+        ['기준일',dt,'']],
+      tags:['ARK','미장','수급','자동집계'],
       sections:[
         {title:'1. ARK 순매수', body:'<p>'+(buys.length?buys.slice(0,6).map(function(x){
           return '<b>'+esc(x.ticker)+'</b> '+esc(x.company||'')+' — '+sh(x.shares)+' ('+Object.keys(x.funds).join('·')+')';}).join('<br>'):'해당 없음')+'</p>'},
@@ -275,6 +294,12 @@
         '주요 종목 평균 등락률은 <b>'+pct(m.reduce(function(n,x){return n+x.pct;},0)/m.length)+'</b>이다.'
       ],
       tickers:up.map(function(x){return {name:x.name,code:x.sym,price:usd(x.price),change:pct(x.pct),direction:x.pct>=0?'up':'down'};}),
+      keyStats:[['상승 종목',m.filter(function(x){return x.pct>0;}).length+'개','up'],
+        ['하락 종목',m.filter(function(x){return x.pct<0;}).length+'개','down'],
+        ['상승 1위',esc(up[0].name)+' '+pct(up[0].pct),'up'],
+        ['하락 1위',esc(dn[0].name)+' '+pct(dn[0].pct),'down'],
+        ['평균 등락',pct(m.reduce(function(n,x){return n+x.pct;},0)/m.length),m.reduce(function(n,x){return n+x.pct;},0)>=0?'up':'down']],
+      tags:['미장','등락','자동집계'],
       sections:[
         {title:'1. 상승 종목', body:'<p>'+up.map(function(x){return '<b>'+esc(x.name)+' ('+x.sym+')</b> '+usd(x.price)+' '+pct(x.pct);}).join('<br>')+'</p>'},
         {title:'2. 하락 종목', body:'<p>'+dn.map(function(x){return '<b>'+esc(x.name)+' ('+x.sym+')</b> '+usd(x.price)+' '+pct(x.pct);}).join('<br>')+'</p>'}
