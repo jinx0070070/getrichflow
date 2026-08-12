@@ -283,12 +283,28 @@
 </div>
 
 <script src="research-data.js"></script>
+<script src="research-auto.js"></script>
 <script src="community.js"></script>
 <script>
   const params=new URLSearchParams(location.search);
   const market=params.get('m')==='us'?'us':'kr';
-  const articles=market==='us'?(window.RICHFLOW_US_ARTICLES || []):(window.RICHFLOW_ARTICLES || []);
-  const article=articles.find(a=>a.id===params.get('id')) || articles[0];
+  const baseArticles=market==='us'?(window.RICHFLOW_US_ARTICLES || []):(window.RICHFLOW_ARTICLES || []);
+  /* 자동 생성 리서치(research.html에서 만든 것)를 세션 캐시에서 함께 사용 */
+  let autoArticles=[];
+  try{ const c=sessionStorage.getItem('richflow:auto:'+market); if(c)autoArticles=JSON.parse(c)||[]; }catch(e){}
+  const articles=autoArticles.concat(baseArticles);
+  const wantId=params.get('id')||'';
+  let article=articles.find(a=>a.id===wantId) || articles[0];
+  /* 자동 리서치 링크로 바로 들어왔는데 세션 캐시가 없으면 즉시 생성 후 1회 재진입 */
+  if(wantId.indexOf('auto-')===0 && !articles.some(a=>a.id===wantId) && !sessionStorage.getItem('richflow:autoRetry')){
+    sessionStorage.setItem('richflow:autoRetry','1');
+    if(window.RichflowAutoResearch){
+      RichflowAutoResearch.build(market).then(function(list){
+        if(list&&list.length){ try{sessionStorage.setItem('richflow:auto:'+market,JSON.stringify(list));}catch(e){} }
+        location.reload();
+      }).catch(function(){});
+    }
+  } else { sessionStorage.removeItem('richflow:autoRetry'); }
   const layout=document.getElementById('researchLayout');
   const articleUrl=id=>'article.html?m='+market+'&id='+encodeURIComponent(id);
   const researchUrl='research.html'+(market==='us'?'?m=us':'');
