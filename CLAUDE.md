@@ -44,7 +44,9 @@
 - `community.js`, `price-alert.js`, `research-*.js` — 커뮤니티/리서치.
 - `whale.html` — 국장 큰손 수급. **6개 탭 전부 실데이터**(2026-09-07 완료). 종합·외국인=네이버 투자자별 매매, 운용사=네이버 ETF 분석(액티브 ETF 60개 실보유), 국민연금·세력(5%룰)·내부자=DART.
 - `active-etf-data.js` — 국내 주식형 액티브 ETF 89개 목록. `node scripts/build-active-etf.mjs`로 재생성(네이버 ETF 목록 → `data/naver-etf-list.json`).
-- 그 외 `theme*.html`, `screener*.html`, `calendar*.html`, `idea*.html`, `forecast*.html`, `leaders*.html`, `ai*.html`, `whale-us.html`, `whale-coin.html` 등은 대부분 정적 샘플 디자인 시안.
+- `whale-us.html` — 미장 큰손 수급. **5개 탭 전부 실데이터**(2026-09-07 완료). 종합·ARK=arkfunds.io, 내부자=Finnhub(워커 `?fh=insider`), SEC 공시·13F 제출일=data.sec.gov, 13F 보유종목=`f13-holdings-data.js`.
+- `f13-holdings-data.js` — 13F 거물 86곳의 실제 보유 상위 10종목(78곳 해결). `node scripts/build-13f-holdings.mjs`로 분기마다 재생성.
+- 그 외 `theme*.html`, `screener*.html`, `calendar*.html`, `idea*.html`, `forecast*.html`, `leaders*.html`, `ai*.html`, `whale-coin.html` 등은 대부분 정적 샘플 디자인 시안.
 
 ## 현재 작업 인수인계 (2026-09-07)
 
@@ -72,8 +74,22 @@
 돌려주는 정도)에 얹어 로더를 직접 실행하고 렌더 결과 문자열을 눈으로 확인했다. 실제 워커·네이버·
 DART를 그대로 때리므로 값이 진짜인지까지 같이 확인된다. 이 방식이 이 프로젝트에서 제일 확실하다.
 
+### 미장 큰손(whale-us.html)도 실데이터화 완료
+- ARK·SEC 공시·내부자(Finnhub)·13F 제출일은 이전부터 실데이터였다. 가짜는 **거물 디렉토리의
+  보유종목**(시드 난수)과 모달의 "최근 분기 매수/매도"·"집중 섹터"였다.
+- `scripts/build-13f-holdings.mjs`가 SEC 13F 원본 XML을 파싱해 `f13-holdings-data.js`로 굽는다.
+  86곳 중 78곳 해결, 나머지는 13F-NT 제출 등 사유를 화면에 적었다. **분기마다 다시 돌리면 된다.**
+- 여기서 배운 함정 셋:
+  1. **이름 매칭을 느슨하게 하면 조용히 틀린다.** Fidelity가 지방은행에, Capital Group이 같은
+     회사에 붙었다. 손으로 확인한 CIK를 ALIAS에 박고, 후보가 여럿이면 포트폴리오 큰 쪽을 고른다.
+     화면에 EDGAR 등록 법인명을 같이 보여줘 틀리면 눈에 띄게 했다.
+  2. **13F의 value 단위가 제출자마다 다르다**(달러 / 천 달러). 주당 가격 중앙값이 1달러 미만이면
+     천 단위로 판정해 1000배 보정한다. 보정 전 T. Rowe Price가 $1.0B(실제 $999B)로 나왔다.
+  3. **`node -e '...'`는 백슬래시를 먹는다.** 정규식이 든 진단 코드를 `-e`로 돌리면 `\w`가 `w`가
+     되어 전부 빈 값이 나온다. 실제로 멀쩡한 데이터를 "$0.0B"로 오진했다. 진단도 파일로 저장해 돌릴 것.
+
 ### 남은 것
-- `theme*`·`screener*`·`calendar*`·`idea*`·`forecast*`·`leaders*`·`whale-us`·`whale-coin`은 아직 샘플.
+- `theme*`·`screener*`·`calendar*`·`idea*`·`forecast*`·`leaders*`·`whale-coin`은 아직 샘플.
 - 추적 안 되는 임시 파일 `_nb.html`·`_se.html`(경쟁사 저장본)이 작업 폴더에 있다. 커밋 대상 아님.
 
 ## 차트 엔진 (stock.html / stock-us.html 공용 구조, 각 파일에 인라인)
