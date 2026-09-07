@@ -254,13 +254,13 @@
 
   <section class="phead">
     <h1>🐋 큰손 수급</h1>
-    <p>국민연금·운용사·세력·공직자·외국인이 지금 뭘 사고 파는지 — 공시 데이터로 추적합니다. <b style="color:var(--txt-2)">화면을 열 때마다 최신 공시·매매 데이터를 다시 받아옵니다</b></p>
+    <p>국민연금·운용사·세력·내부자·외국인이 지금 뭘 사고 파는지 — 공시 데이터로 추적합니다. <b style="color:var(--txt-2)">화면을 열 때마다 최신 공시·매매 데이터를 다시 받아옵니다</b></p>
     <div class="subtabs" id="subtabs">
       <button class="on" data-p="all">종합</button>
       <button data-p="nps">국민연금</button>
       <button data-p="fund">운용사</button>
       <button data-p="rule5">세력(5%룰)</button>
-      <button data-p="gov">공직자</button>
+      <button data-p="insider">내부자</button>
       <button data-p="foreign">외국인</button>
     </div>
   </section>
@@ -524,47 +524,36 @@
     </div>
   </div>
 
-  <!-- ============ 공직자 ============ -->
-  <div class="panel" data-panel="gov">
-    <div class="panel-intro">🏛️ <b>국회의원·고위공직자 주식 거래</b>는 공직자윤리법에 따라 공개됩니다. 공개 자료 기준이라 <b>실제 거래보다 시차</b>가 있고, 정책·입법과의 연관은 해석의 영역입니다.</div>
-    <div class="warn">⚠️ 개인을 특정하지 않고 <b>종목별 보유 인원으로 집계</b>합니다. 분기 단위 신고라 현재는 이미 변동됐을 수 있고, 보유자는 가족 합산 1인 기준입니다. 아래는 <b>샘플 데이터</b>이며 매수·매도 추천이 아닙니다.</div>
+  <!-- ============ 내부자 ============ -->
+  <div class="panel" data-panel="insider">
+    <div class="panel-intro">🧑‍💼 회사 사정을 가장 잘 아는 <b>임원·주요주주</b>가 자기 회사 주식을 사고팔면 <b>DART에 신고</b>해야 합니다. 신고가 한 회사에 몰리는 때가 있는데, 그때 무슨 일이 있었는지 같이 보면 좋아요.</div>
+    <div class="warn">⚠️ 공시 <b>목록</b> 기준입니다. 샀는지 팔았는지와 수량은 각 보고서 <b>본문</b>에 있어서, 여기서는 <b>신고가 몰린 회사</b>까지만 보여줍니다. 방향이 궁금하면 원문을 열어 보세요. 매수·매도 추천이 아닙니다.</div>
     <div class="statcards">
-      <div class="statcard"><div class="k">공개 대상</div><div class="v">1,804</div><div class="s">명</div></div>
-      <div class="statcard"><div class="k">보유 종목</div><div class="v">2,806</div><div class="s">개</div></div>
-      <div class="statcard"><div class="k">합산 평가액</div><div class="v">933억</div><div class="s">국장 750억·미장 323억</div></div>
-      <div class="statcard"><div class="k">순매수 1위</div><div class="v" style="font-size:18px">엔비디아</div><div class="s up">+173명</div></div>
+      <div class="statcard"><div class="k">신고 건수</div><div class="v" id="insTotal">…</div><div class="s" id="insTotalSub">최근 2주</div></div>
+      <div class="statcard"><div class="k">신고 회사</div><div class="v" id="insCorps">…</div><div class="s">개 기업</div></div>
+      <div class="statcard"><div class="k">신고한 내부자</div><div class="v" id="insPeople">…</div><div class="s">명</div></div>
+      <div class="statcard"><div class="k">신고 최다</div><div class="v" id="insTopCorp" style="font-size:18px">…</div><div class="s up" id="insTopSub">—</div></div>
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <h3>🏅 공직자 보유 지수 TOP <span class="hint">종목별 보유 인원·방향</span></h3>
+      <h3>📋 내부자 신고가 몰린 회사 <span class="hint" id="insHint">불러오는 중…</span></h3>
       <table class="tbl">
-        <thead><tr><th>#</th><th>종목</th><th class="r">보유 인원</th><th class="r">순매수</th><th class="hide r">지수</th></tr></thead>
-        <tbody>
-          <tr><td class="sub">1</td><td class="nm">삼성전자</td><td class="r">500명</td><td class="r down">−83명</td><td class="hide r"><b>80</b></td></tr>
-          <tr><td class="sub">2</td><td class="nm">테슬라 <span class="pill" style="background:var(--card-2);color:var(--txt-3)">미장</span></td><td class="r">403명</td><td class="r up">+122명</td><td class="hide r"><b>83</b></td></tr>
-          <tr><td class="sub">3</td><td class="nm">엔비디아 <span class="pill" style="background:var(--card-2);color:var(--txt-3)">미장</span></td><td class="r">387명</td><td class="r up">+173명</td><td class="hide r"><b>81</b></td></tr>
-          <tr><td class="sub">4</td><td class="nm">카카오</td><td class="r">276명</td><td class="r down">−24명</td><td class="hide r"><b>44</b></td></tr>
-          <tr><td class="sub">5</td><td class="nm">현대차</td><td class="r">170명</td><td class="r up">+14명</td><td class="hide r"><b>47</b></td></tr>
-          <tr><td class="sub">6</td><td class="nm">SK하이닉스</td><td class="r">102명</td><td class="r up">+11명</td><td class="hide r"><b>37</b></td></tr>
-          <tr><td class="sub">7</td><td class="nm">한화오션</td><td class="r">88명</td><td class="r up">+37명</td><td class="hide r"><b>33</b></td></tr>
-        </tbody>
+        <thead><tr><th>#</th><th>회사</th><th>시장</th><th class="r">신고 건수</th><th class="r">내부자 수</th></tr></thead>
+        <tbody id="insTable"><tr><td colspan="5" style="color:var(--txt-3);padding:14px 10px">불러오는 중…</td></tr></tbody>
       </table>
     </div>
 
     <div class="cols">
       <div class="card">
-        <h3>▲ 새로 담는 중 <span class="hint">보유 인원 증가</span></h3>
-        <a class="srow" href="stock.html"><span class="logo-sq">엔</span><div class="info"><div class="n">엔비디아 <span class="badge b-buy">미장</span></div><div class="s">공직자 유입</div></div><div class="r"><div class="pct up">+233명</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">테</span><div class="info"><div class="n">테슬라 <span class="badge b-buy">미장</span></div><div class="s">공직자 유입</div></div><div class="r"><div class="pct up">+201명</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">현</span><div class="info"><div class="n">현대차</div><div class="s">방산·자동차 선호</div></div><div class="r"><div class="pct up">+64명</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">한</span><div class="info"><div class="n">한화오션</div><div class="s">조선 강세</div></div><div class="r"><div class="pct up">+54명</div></div></a>
+        <h3>🕐 최근 신고 <span class="hint">DART 접수 최신순</span></h3>
+        <div id="insFeed"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>▼ 줄이는·던지는 중 <span class="hint">보유 인원 감소</span></h3>
-        <a class="srow" href="stock.html"><span class="logo-sq">삼</span><div class="info"><div class="n">삼성전자</div><div class="s">공직자 이탈</div></div><div class="r"><div class="pct down">−197명</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">카</span><div class="info"><div class="n">카카오</div><div class="s">플랫폼 매도</div></div><div class="r"><div class="pct down">−84명</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">N</span><div class="info"><div class="n">NAVER</div><div class="s">플랫폼 매도</div></div><div class="r"><div class="pct down">−35명</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">한</span><div class="info"><div class="n">한국전력</div><div class="s">유틸 매도</div></div><div class="r"><div class="pct down">−34명</div></div></a>
+        <h3>📊 어디서 나왔나 <span class="hint">시장별 신고 건수</span></h3>
+        <div id="insMarket"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
+        <div style="font-size:12px;color:var(--txt-3);margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+          내부자 신고는 <b>스톡옵션 행사·상속·증여</b> 같은 이유로도 나옵니다. 건수만으로 매수·매도를 단정할 수 없어요.
+        </div>
       </div>
     </div>
   </div>
@@ -603,8 +592,8 @@
   </div>
 
   <div class="disc">
-    데이터 출처: <b style="color:var(--brand)">종합·외국인 탭 = 실시간(네이버 금융 투자자별 매매)</b> — 주요 종목의 외국인·기관 순매수(수량×종가) 집계. 국민연금·운용사·세력(5%룰)·공직자 탭은 DART/공직자윤리위 기반의 <b>예시(디자인 시안)</b>이며 순차 실데이터화 예정.
-    투자자 매매는 장중 변동·정정이 있을 수 있고, 5%룰·공직자 거래는 공시 시점 스냅샷이라 실제 매매보다 후행합니다.
+    데이터 출처: <b style="color:var(--brand)">종합·외국인 = 네이버 금융 투자자별 매매</b>(주요 종목의 외국인·기관 순매수를 수량×종가로 집계) · <b style="color:var(--brand)">운용사 = 네이버 금융 ETF 분석</b>(국내 주식형 액티브 ETF의 보유 상위 10종목·순자산·자금 유출입) · <b style="color:var(--brand)">국민연금·세력(5%룰)·내부자 = DART 전자공시</b>.
+    투자자 매매는 장중 변동·정정이 있을 수 있고, 공시 기반 탭(5%룰·국민연금·내부자)은 신고 시점 스냅샷이라 실제 매매보다 후행합니다. ETF 보유는 각 펀드가 공시하는 상위 10종목까지만 집계됩니다.
     본 페이지의 모든 정보는 정보 제공용이며 매수·매도 권유가 아닙니다. 분석은 RICHFLOW 자체 산출물입니다.
   </div>
 
@@ -758,6 +747,62 @@
     set('npsHint','DART · '+bd(nps[0].rcept_dt)+' 최신 · '+nps.length+'건');
     el.innerHTML=nps.slice(0,12).map(x=>{const ty=r5Type(x.report_nm);return `<div class="tl-item"><div class="t">${bd(x.rcept_dt)}</div><div class="d"><b>${esc(x.corp_name)}</b> 대량보유 ${ty.t} 신고 · <a href="${dartLink(x.rcept_no)}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">원문↗</a></div></div>`;}).join('');
   }
+  /* ===== 내부자: DART 임원·주요주주 특정증권등 소유상황보고서 ===== */
+  const INS_DAYS=14, INS_PAGES=7;
+  const MKT={Y:'코스피',K:'코스닥',N:'코넥스',E:'기타'};
+  async function loadInsider(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const all=[];
+    for(let pg=1;pg<=INS_PAGES;pg++){
+      const d=await dartList('D002',INS_DAYS,pg,100);
+      if(!d||d.status!=='000'||!Array.isArray(d.list)||!d.list.length)break;
+      all.push(...d.list);
+      if((d.total_page||1)<=pg)break;
+    }
+    const rows=all.filter(x=>/소유상황보고/.test(x.report_nm||''));
+    if(!rows.length){
+      const msg='DART 내부자 공시를 불러오지 못했어요 '+retryHtml('insider');
+      html('insFeed',`<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">${msg}</div>`);
+      html('insMarket','');
+      html('insTable',`<tr><td colspan="5" style="color:var(--txt-3);padding:14px 10px">${msg}</td></tr>`);
+      set('insHint','불러오기 실패');return;
+    }
+    const corps=new Map(),people=new Set(),mkt=new Map();
+    rows.forEach(x=>{
+      const key=x.corp_name||'—';
+      const c=corps.get(key)||{code:x.stock_code||'',cls:x.corp_cls||'E',n:0,who:new Set(),last:x.rcept_dt};
+      c.n++;if(x.flr_nm)c.who.add(x.flr_nm);
+      if(String(x.rcept_dt||'')>String(c.last||''))c.last=x.rcept_dt;
+      corps.set(key,c);
+      if(x.flr_nm)people.add(x.corp_name+'/'+x.flr_nm);
+      mkt.set(x.corp_cls||'E',(mkt.get(x.corp_cls||'E')||0)+1);
+    });
+    const byCnt=[...corps.entries()].sort((a,b)=>b[1].n-a[1].n||b[1].who.size-a[1].who.size);
+    set('insTotal',rows.length.toLocaleString('ko-KR')+'건');
+    set('insTotalSub','최근 '+INS_DAYS+'일 · '+bd(rows[rows.length-1].rcept_dt)+'~'+bd(rows[0].rcept_dt));
+    set('insCorps',corps.size.toLocaleString('ko-KR'));
+    set('insPeople',people.size.toLocaleString('ko-KR'));
+    if(byCnt[0]){set('insTopCorp',byCnt[0][0]);
+      const s=document.getElementById('insTopSub');
+      if(s){s.textContent=byCnt[0][1].n+'건 · 내부자 '+byCnt[0][1].who.size+'명';s.className='s up';}}
+    set('insHint','DART · '+bd(rows[0].rcept_dt)+' 최신');
+
+    html('insTable',byCnt.slice(0,10).map((x,i)=>{
+      const [name,c]=x;
+      const nm=c.code?`<a href="stock.html?code=${encodeURIComponent(c.code)}" style="color:inherit">${esc(name)}</a>`:esc(name);
+      return `<tr><td class="sub">${i+1}</td><td class="nm">${nm}</td><td class="sub">${MKT[c.cls]||'기타'}</td><td class="r"><b>${c.n}건</b></td><td class="r sub">${c.who.size}명</td></tr>`;
+    }).join(''));
+
+    html('insFeed',rows.slice(0,14).map(x=>
+      `<a class="sec-item" href="${dartLink(x.rcept_no)}" target="_blank" rel="noopener"><span class="tk">${esc(x.corp_name)}</span><span class="ty">${MKT[x.corp_cls]||'기타'}</span><span class="ds">신고: ${esc(x.flr_nm||'-')}</span><span class="tm">${bd(x.rcept_dt)}</span></a>`).join(''));
+
+    const mList=[...mkt.entries()].sort((a,b)=>b[1]-a[1]);
+    const mMax=mList.length?mList[0][1]:1;
+    html('insMarket',mList.map(([k,v])=>
+      `<div class="maprow"><span class="sec" style="width:56px">${MKT[k]||'기타'}</span><div class="mbar"><i style="width:${Math.max(3,Math.round(v/mMax*100))}%"></i></div><span class="mv"><b>${v}건</b> · ${Math.round(v/rows.length*100)}%</span></div>`).join(''));
+  }
+
   /* ===== 운용사: 국내 주식형 액티브 ETF 실보유 집계 (네이버 etfAnalysis) ===== */
   const FUND_N=60;
   /* "1조 452억" · "4,947억" · "-31.1억" · "-987만" · "-" → 억 단위 숫자 */
@@ -848,7 +893,7 @@
 
   const panelLoads={};
   function loadOnce(key,loader){if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(loader).catch(e=>{delete panelLoads[key];console.warn('[RICHFLOW] '+key+' fail',e);});return panelLoads[key];}
-  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);if(key==='all')return loadOnce('all',loadOverview);if(key==='rule5')return loadOnce('rule5',loadRule5);if(key==='nps')return loadOnce('nps',loadNPS);if(key==='fund')return loadOnce('fund',loadFund);return Promise.resolve();}
+  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);if(key==='all')return loadOnce('all',loadOverview);if(key==='rule5')return loadOnce('rule5',loadRule5);if(key==='nps')return loadOnce('nps',loadNPS);if(key==='fund')return loadOnce('fund',loadFund);if(key==='insider')return loadOnce('insider',loadInsider);return Promise.resolve();}
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-retry]');if(!b)return;const k=b.dataset.retry;delete panelLoads[k];krRows=null;ensurePanelLoaded(k);});
   ensurePanelLoaded('all');
 
