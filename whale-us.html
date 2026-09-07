@@ -228,12 +228,12 @@
 
   <!-- 거물 13F -->
   <div class="panel" data-panel="f13">
-    <div class="panel-intro">🏛️ <b>13F 공시</b> — 운용자산 1억달러 이상 기관은 분기마다 미국 주식 보유를 SEC에 신고합니다(분기말 후 45일). <span class="live-dot"></span> <b>탭을 열 때 SEC에서 최신 제출일을 조회</b>해 "원문보기"로 연결해요. (보유종목 상세는 SEC 원문에서 확인 — 무료 API로는 목록 제공이 제한됨)</div>
+    <div class="panel-intro">🏛️ <b>13F 공시</b> — 운용자산 1억달러 이상 기관은 분기마다 미국 주식 보유를 SEC에 신고합니다(분기말 후 45일). <span class="live-dot"></span> <b>탭을 열 때 SEC에서 최신 제출일을 조회</b>하고, 아래 디렉토리에서 기관을 누르면 <b>그 기관이 실제로 신고한 보유종목</b>을 보여줍니다.</div>
     <div class="statcards">
       <div class="statcard"><div class="k">추적 거물</div><div class="v" id="f13N">18</div><div class="s">유명 투자자</div></div>
       <div class="statcard"><div class="k">최신 13F 제출</div><div class="v" style="font-size:16px" id="f13Latest">…</div><div class="s" id="f13LatestWho"></div></div>
       <div class="statcard"><div class="k">디렉토리</div><div class="v">86</div><div class="s">기관·헤지펀드·연기금</div></div>
-      <div class="statcard"><div class="k">데이터</div><div class="v" style="font-size:15px">SEC EDGAR</div><div class="s">탭 열 때 조회</div></div>
+      <div class="statcard"><div class="k">보유내역 기준</div><div class="v" style="font-size:15px" id="f13Quarter">SEC EDGAR</div><div class="s" id="f13QuarterSub">13F 원본 집계</div></div>
     </div>
     <div class="card" style="margin-bottom:16px">
       <h3>📋 유명 투자자 최신 13F 제출 <span class="live-dot"></span> <span class="hint" id="f13Hint">탭 열 때 조회</span></h3>
@@ -241,10 +241,10 @@
         <thead><tr><th>투자자</th><th class="hide">인물</th><th class="r">최신 13F</th><th class="r">원문</th></tr></thead>
         <tbody id="f13Tbody"><tr><td colspan="4" style="text-align:center;color:var(--txt-3);padding:16px">SEC에서 불러오는 중…</td></tr></tbody>
       </table>
-      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ 13F는 <b>분기별</b> 신고라 실제 매매보다 후행. "원문 ↗"에서 그 기관의 <b>실제 보유종목 전체</b>를 SEC에서 볼 수 있어요. 아래 디렉토리의 보유종목 목록은 예시입니다.</div>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ 13F는 <b>분기별</b> 신고라 실제 매매보다 후행합니다. "원문 ↗"에서 그 기관의 <b>보유종목 전체</b>를 SEC에서 볼 수 있어요.</div>
     </div>
     <div class="card">
-      <h3>🏛️ 기관·거물 디렉토리 <span class="hint">클릭 = 개요 (보유종목은 예시)</span></h3>
+      <h3>🏛️ 기관·거물 디렉토리 <span class="hint" id="f13DirHint">클릭하면 실제 13F 보유종목</span></h3>
       <div class="inst-cats" id="instCats">
         <button class="on" data-cat="all">전체 <span class="c">86</span></button>
         <button data-cat="am">자산운용사 <span class="c">24</span></button>
@@ -293,17 +293,18 @@
     </div>
   </div>
 
-  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 일별 공개 자료·SEC 공시·Finnhub 내부자 신고·13F 제출일</b>. 화면에 표시된 기준일 또는 최신 신고일을 확인하세요. 내부자는 1시간 캐시, 13F는 분기 후행 스냅샷입니다. 13F <b>보유종목 상세</b>는 무료 API 제약으로 SEC 원문 링크로 대체합니다. 분석은 RICHFLOW 자체 산출물이며 매수·매도 권유가 아닙니다.</div>
+  <div class="disc">데이터 출처: <b style="color:var(--brand)">ARK 일별 공개 자료·SEC 공시·Finnhub 내부자 신고·13F 제출일</b>. 화면에 표시된 기준일 또는 최신 신고일을 확인하세요. 내부자는 1시간 캐시입니다. 기관 <b>보유종목</b>은 SEC에 제출된 13F 원본(보유내역 표)을 그대로 집계한 것으로, <b>분기 공시라 제출일 기준 스냅샷</b>이며 그 뒤의 매매는 반영되지 않습니다. 분석은 RICHFLOW 자체 산출물이며 매수·매도 권유가 아닙니다.</div>
 </div>
 
 <!-- 13F modal -->
 <div class="modal-bg" id="modalBg"><div class="modal">
   <div class="mh"><div class="av" id="mAv">B</div><div class="t"><h4 id="mName">투자자</h4><div class="s" id="mSub">헤지펀드</div></div><button class="close" id="mClose">✕</button></div>
-  <div class="mstat"><div><div class="k">보유 종목</div><div class="v" id="mCount">0</div></div><div><div class="k">최근 분기</div><div class="v" id="mTrend">매수</div></div><div><div class="k">집중 섹터</div><div class="v" id="mSector" style="font-size:14px">반도체</div></div></div>
+  <div class="mstat"><div><div class="k">보유 종목</div><div class="v" id="mCount">—</div></div><div><div class="k">13F 제출일</div><div class="v" id="mTrend">—</div></div><div><div class="k">신고 평가액</div><div class="v" id="mSector" style="font-size:14px">—</div></div></div>
   <h5>📌 주요 보유 종목 (13F 기준)</h5><div id="mHoldings"></div>
   <div style="font-size:11px;color:var(--txt-3);margin-top:14px">13F 분기 공시 스냅샷 · 실제 매매보다 후행 · 정보 제공용 · <b style="color:var(--brand)">샘플 데이터</b></div>
 </div></div>
 
+<script src="f13-holdings-data.js?v=1"></script>
 <script>
   // tabs
   const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
@@ -376,20 +377,36 @@
     ['Prudential Financial','보험·운용',740,'bk'],['MetLife IM','메트라이프',520,'bk']
   ];
   const CATL={am:'자산운용사',hf:'헤지펀드',pf:'연기금·국부펀드',bk:'은행·보험'};
-  const STK=[['NVIDIA','NVDA'],['Apple','AAPL'],['Microsoft','MSFT'],['Amazon','AMZN'],['Alphabet','GOOGL'],['Meta','META'],['Tesla','TSLA'],['Palantir','PLTR'],['Broadcom','AVGO'],['Berkshire','BRK.B'],['Coinbase','COIN'],['Eli Lilly','LLY'],['Visa','V'],['JPMorgan','JPM'],['Exxon','XOM'],['Micron','MU']];
-  const SEC=['반도체','빅테크','AI','금융','에너지','헬스케어','소비재','크립토'];
-  function seed(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-  function holdingsOf(inv){const s=seed(inv[0]);const n=Math.min(6,Math.max(4,(inv[2]%4)+4));const out=[];const used=new Set();
-    for(let i=0;i<n;i++){let idx=(s+i*11)%STK.length;while(used.has(idx))idx=(idx+1)%STK.length;used.add(idx);
-      const pct=(6+((s>>>(i*3))%22)+(i===0?8:0));out.push([STK[idx],pct])}
-    return out.sort((a,b)=>b[1]-a[1]);}
+  /* ===== 13F 실보유 (SEC EDGAR — scripts/build-13f-holdings.mjs가 구운 스냅샷) ===== */
+  const F13=(window.RICHFLOW_F13||{data:{}});
+  const f13Of=name=>F13.data[name]||null;
+  const esc13=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const usd=n=>{const a=Math.abs(n);
+    if(a>=1e12)return '$'+(a/1e12).toFixed(1)+'조';
+    if(a>=1e8)return '$'+Math.round(a/1e8).toLocaleString('ko-KR')+'억';
+    if(a>=1e4)return '$'+Math.round(a/1e4).toLocaleString('ko-KR')+'만';
+    return '$'+Math.round(a).toLocaleString('en-US');};
+  const cnt13=name=>{const d=f13Of(name);return d&&d.count?d.count:null;};
+  const secLink=d=>d&&d.cik&&d.acc
+    ? 'https://www.sec.gov/Archives/edgar/data/'+String(d.cik).replace(/[^0-9]/g,'')+'/'+String(d.acc).replace(/-/g,'')+'/'
+    : 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=13F-HR';
+  (function(){
+    const have=Object.values(F13.data||{}).filter(d=>d&&d.top&&d.top.length).length;
+    const q=document.getElementById('f13Quarter'),qs=document.getElementById('f13QuarterSub');
+    if(q&&F13.quarter)q.textContent=F13.quarter+' 제출분';
+    if(qs)qs.textContent=have?have+'곳 보유내역 집계':'13F 원본 집계';
+    const dh=document.getElementById('f13DirHint');
+    if(dh&&have)dh.textContent='클릭하면 실제 13F 보유종목 · '+have+'곳';
+  })();
   const grid=document.getElementById('instGrid');
   let curCat='all',curQ='',limit=24;
   function renderGrid(){
     const filtered=INV.filter(x=>(curCat==='all'||x[3]===curCat)&&(!curQ||x[0].toLowerCase().includes(curQ.toLowerCase())||x[1].includes(curQ)));
-    grid.innerHTML=filtered.slice(0,limit).map(x=>
-      `<div class="inst" data-i="${INV.indexOf(x)}"><span class="av">${x[0][0]}</span><span class="nm"><div class="n">${x[0]}</div><div class="p">${x[1]}</div></span><span class="c">${x[2]>=1000?(x[2]/1000).toFixed(1)+'k':x[2]}</span></div>`
-    ).join('')||`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--txt-3);font-size:13px">검색 결과가 없어요</div>`;
+    grid.innerHTML=filtered.slice(0,limit).map(x=>{
+      const n=cnt13(x[0]);
+      const c=n==null?'—':(n>=1000?(n/1000).toFixed(1)+'k':n);
+      return `<div class="inst" data-i="${INV.indexOf(x)}"><span class="av">${esc13(x[0][0])}</span><span class="nm"><div class="n">${esc13(x[0])}</div><div class="p">${esc13(x[1])}</div></span><span class="c">${c}</span></div>`;
+    }).join('')||`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--txt-3);font-size:13px">검색 결과가 없어요</div>`;
     document.getElementById('instMore').style.display=filtered.length>limit?'inline-block':'none';
     grid.querySelectorAll('.inst').forEach(el=>el.onclick=()=>openModal(INV[+el.dataset.i]));
   }
@@ -401,16 +418,30 @@
   document.getElementById('instMore').onclick=()=>{limit+=24;renderGrid();};
   renderGrid();
   function openModal(inv){
-    document.getElementById('mAv').textContent=inv[0][0];
-    document.getElementById('mName').textContent=inv[0];
-    document.getElementById('mSub').textContent=inv[1]+' · '+CATL[inv[3]]+' · 13F';
-    document.getElementById('mCount').textContent=inv[2]>=1000?(inv[2]/1000).toFixed(1)+'k':inv[2];
-    const s=seed(inv[0]);
-    document.getElementById('mTrend').textContent=(s%2)?'순매수':'순매도';
-    document.getElementById('mTrend').style.color=(s%2)?'var(--up)':'var(--down)';
-    document.getElementById('mSector').textContent=SEC[s%SEC.length];
-    const hs=holdingsOf(inv);const max=hs[0][1];
-    document.getElementById('mHoldings').innerHTML=hs.map(h=>`<div class="mhold"><span class="hn">${h[0][0]} <span style="color:var(--txt-3);font-weight:600;font-size:11px">${h[0][1]}</span></span><div class="hbar"><i style="width:${h[1]/max*100}%"></i></div><span class="hp">${h[1].toFixed(1)}%</span></div>`).join('');
+    const d=f13Of(inv[0]);
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set('mAv',inv[0][0]);
+    set('mName',inv[0]);
+    document.getElementById('mSub').innerHTML=esc13(inv[1])+' · '+esc13(CATL[inv[3]])
+      +(d&&d.edgar?' · <span style="color:var(--txt-3)">EDGAR: '+esc13(d.edgar)+'</span>':'');
+    const has=d&&d.top&&d.top.length;
+    set('mCount',has?(d.count>=1000?(d.count/1000).toFixed(1)+'k':d.count):'—');
+    const tr=document.getElementById('mTrend');
+    if(tr){tr.textContent=has?d.filed.slice(5).replace('-','/'):'—';tr.style.color='';}
+    set('mSector',has?usd(d.total):'—');
+    const box=document.getElementById('mHoldings');
+    if(has){
+      const max=d.top[0][3]||1;
+      box.innerHTML=d.top.map(h=>
+        `<div class="mhold"><span class="hn">${esc13(h[0])}</span><div class="hbar"><i style="width:${Math.max(2,h[3]/max*100)}%"></i></div><span class="hp">${h[3].toFixed(1)}%</span></div>`).join('')
+        +`<div style="font-size:11px;color:var(--txt-3);margin-top:10px;line-height:1.6">${esc13(F13.quarter||'')} 제출분 · 상위 10종목 · 비중은 신고 평가액 기준<br>`
+        +`<a href="${secLink(d)}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">SEC 원문 보기 ↗</a></div>`;
+    }else{
+      box.innerHTML=`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px;line-height:1.7">`
+        +`이 기관의 보유내역은 이번 분기에 받을 수 없었어요.<br>`
+        +`<b style="color:var(--txt-2)">${esc13((d&&d.none)||'EDGAR에서 13F-HR을 찾지 못했습니다')}</b><br>`
+        +`<span style="font-size:11px">13F-NT는 "내 보유분은 다른 운용사가 대신 신고했다"는 통지라 종목 목록이 없습니다.</span></div>`;
+    }
     document.getElementById('modalBg').classList.add('on');
   }
   document.getElementById('mClose').onclick=()=>document.getElementById('modalBg').classList.remove('on');
