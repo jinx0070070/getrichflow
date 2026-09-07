@@ -254,7 +254,7 @@
 
   <section class="phead">
     <h1>🐋 큰손 수급</h1>
-    <p>국민연금·운용사·세력·공직자·외국인이 지금 뭘 사고 파는지 — 공시 데이터로 추적합니다. <b style="color:var(--txt-2)">매일 16:30 갱신 · 마지막 7/23</b></p>
+    <p>국민연금·운용사·세력·공직자·외국인이 지금 뭘 사고 파는지 — 공시 데이터로 추적합니다. <b style="color:var(--txt-2)">화면을 열 때마다 최신 공시·매매 데이터를 다시 받아옵니다</b></p>
     <div class="subtabs" id="subtabs">
       <button class="on" data-p="all">종합</button>
       <button data-p="nps">국민연금</button>
@@ -423,69 +423,47 @@
 
   <!-- ============ 운용사 ============ -->
   <div class="panel" data-panel="fund">
-    <div class="panel-intro">📦 자산운용사의 <b>액티브 ETF 1CU 구성(PDF)</b> 변화로 편입·제외를 추적합니다. 47개 펀드의 담고 판 종목을 집계 — 운용사는 실제 매매보다 공시가 빠른 편이라 선행 신호로 활용됩니다.</div>
+    <div class="panel-intro">📦 국내 주식형 <b>액티브 ETF</b>를 한꺼번에 열어 운용사들이 실제로 무엇을 담고 있는지 봅니다. 각 펀드의 <b>보유 상위 종목·순자산·자금 유출입</b>을 그대로 집계했어요 — 여러 펀드가 겹쳐 담은 종목일수록 운용업계의 공통된 선택입니다.</div>
     <div class="statcards">
-      <div class="statcard"><div class="k">추적 펀드</div><div class="v">47</div><div class="s">액티브 ETF</div></div>
-      <div class="statcard"><div class="k">오늘 편입</div><div class="v up">21</div><div class="s up">▲ 종목</div></div>
-      <div class="statcard"><div class="k">오늘 제외</div><div class="v down">24</div><div class="s down">▼ 종목</div></div>
-      <div class="statcard"><div class="k">최다 편입</div><div class="v" style="font-size:18px">SK하이닉스</div><div class="s">25개 펀드</div></div>
+      <div class="statcard"><div class="k">추적 펀드</div><div class="v" id="fdFunds">…</div><div class="s" id="fdFundsSub">액티브 ETF</div></div>
+      <div class="statcard"><div class="k">통합 순자산</div><div class="v" id="fdNav">…</div><div class="s" id="fdNavSub">펀드 순자산 합계</div></div>
+      <div class="statcard"><div class="k">최다 보유 종목</div><div class="v" id="fdTopName" style="font-size:18px">…</div><div class="s up" id="fdTopSub">—</div></div>
+      <div class="statcard"><div class="k">1주 자금</div><div class="v" id="fdFlow">…</div><div class="s" id="fdFlowSub">추적 펀드 합계</div></div>
     </div>
 
     <div class="cols">
       <div class="card">
-        <h3>▲ 여러 펀드가 담은 종목 <span class="hint">7/22 매매</span></h3>
-        <a class="srow" href="stock.html"><span class="logo-sq">삼</span><div class="info"><div class="n">삼성전기</div><div class="s">AI인프라·반도체소재 등</div></div><div class="r"><div class="pct up">4곳</div><div class="cnt">펀드 매수</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">동</span><div class="info"><div class="n">동진쎄미켐</div><div class="s">반도체 소부장</div></div><div class="r"><div class="pct up">3곳</div><div class="cnt">펀드 매수</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">SK</span><div class="info"><div class="n">SK하이닉스</div><div class="s">HBM 대장주</div></div><div class="r"><div class="pct up">2곳</div><div class="cnt">펀드 매수</div></div></a>
+        <h3>▲ 여러 펀드가 겹쳐 담은 종목 <span class="hint" id="fdHoldHint">불러오는 중…</span></h3>
+        <div id="fdHoldList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>▼ 여러 펀드가 판 종목 <span class="hint">7/22 매매</span></h3>
-        <a class="srow" href="stock.html"><span class="logo-sq">에</span><div class="info"><div class="n">에이피알</div><div class="s">뷰티 디바이스</div></div><div class="r"><div class="pct down">3곳</div><div class="cnt">펀드 매도</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">F</span><div class="info"><div class="n">F&amp;F</div><div class="s">패션</div></div><div class="r"><div class="pct down">2곳</div><div class="cnt">펀드 매도</div></div></a>
-        <a class="srow" href="stock.html"><span class="logo-sq">한</span><div class="info"><div class="n">한미약품</div><div class="s">제약</div></div><div class="r"><div class="pct down">2곳</div><div class="cnt">펀드 매도</div></div></a>
+        <h3>💧 1주간 자금이 몰린 펀드 <span class="hint" id="fdFlowHint">최근 1주 순유입</span></h3>
+        <div id="fdFlowList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
 
     <div class="card">
-      <h3>📋 펀드별 편입·제외 상세 <span class="hint">1CU 구성 변화</span></h3>
+      <h3>📋 펀드별 상세 <span class="hint">순자산 큰 순 · 보유 1위 종목</span></h3>
       <table class="tbl">
-        <thead><tr><th>펀드명</th><th>신규 편입</th><th>제외</th><th class="r">순변화</th></tr></thead>
-        <tbody>
-          <tr><td class="nm">TIGER AI인프라액티브</td><td class="up">삼성전기, 동진쎄미켐</td><td class="down">에이피알</td><td class="r up">+1</td></tr>
-          <tr><td class="nm">KODEX 반도체핵심소재액티브</td><td class="up">삼성전기, 하나머티리얼즈</td><td class="down">원익머트리얼즈</td><td class="r up">+1</td></tr>
-          <tr><td class="nm">ACE 배당성장액티브</td><td class="up">삼성전기</td><td class="down">F&amp;F, 한미약품</td><td class="r down">−1</td></tr>
-          <tr><td class="nm">SOL 미국AI소프트웨어액티브</td><td class="up">SK하이닉스</td><td class="down">에이피알</td><td class="r">0</td></tr>
-          <tr><td class="nm">TIMEFOLIO K바이오액티브</td><td class="up">유한양행</td><td class="down">한미약품, F&amp;F</td><td class="r down">−1</td></tr>
-        </tbody>
+        <thead><tr><th>펀드명</th><th>운용사</th><th>보유 1위</th><th class="r">순자산</th><th class="r">1주 자금</th></tr></thead>
+        <tbody id="fdTable"><tr><td colspan="5" style="color:var(--txt-3);padding:14px 10px">불러오는 중…</td></tr></tbody>
       </table>
     </div>
 
     <div class="cols">
       <div class="card">
-        <h3>🏆 47개 펀드 통합 비중 <span class="hint">순자산 가중</span></h3>
-        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">47개 펀드를 하나로 합쳤을 때 이 종목이 차지하는 비중 — 작은 펀드의 착시가 없어요</div>
+        <h3>🏆 통합 비중 <span class="hint">순자산 가중</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">추적 펀드를 하나로 합쳤을 때 이 종목이 차지하는 비중 — 작은 펀드의 착시가 없어요</div>
         <table class="tbl">
           <thead><tr><th>종목</th><th>보유 펀드</th><th class="r">통합 비중</th></tr></thead>
-          <tbody>
-            <tr><td class="nm">SK하이닉스</td><td class="sub">25개 펀드</td><td class="r"><b>11.58%</b></td></tr>
-            <tr><td class="nm">삼성전자</td><td class="sub">26개 펀드</td><td class="r"><b>10.73%</b></td></tr>
-            <tr><td class="nm">SK스퀘어</td><td class="sub">16개 펀드</td><td class="r"><b>2.39%</b></td></tr>
-            <tr><td class="nm">KB금융</td><td class="sub">14개 펀드</td><td class="r"><b>1.54%</b></td></tr>
-            <tr><td class="nm">현대차</td><td class="sub">19개 펀드</td><td class="r"><b>1.30%</b></td></tr>
-            <tr><td class="nm">알테오젠</td><td class="sub">8개 펀드</td><td class="r"><b>1.10%</b></td></tr>
-          </tbody>
+          <tbody id="fdWeight"><tr><td colspan="3" style="color:var(--txt-3);padding:14px 10px">불러오는 중…</td></tr></tbody>
         </table>
+        <div style="font-size:11px;color:var(--txt-3);margin-top:8px">※ 각 펀드가 공시하는 <b>보유 상위 10종목</b> 기준이라, 11위 아래는 집계에 빠져 있어요</div>
       </div>
       <div class="card">
-        <h3>📡 종목 컨센서스 <span class="hint">25거래일 누적 ▲/▼ 횟수</span></h3>
-        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">여러 펀드가 <b class="up">사는(순+)</b> · <b class="down">파는(순−)</b> 방향으로 얼마나 몰렸나</div>
-        <div class="rot-row"><span class="tn up" style="width:88px">제주반도체</span><div class="rot-bar"><i style="width:80%;background:var(--up)"></i></div><span class="rot-val up">+12회</span></div>
-        <div class="rot-row"><span class="tn up" style="width:88px">파마리서치</span><div class="rot-bar"><i style="width:73%;background:var(--up)"></i></div><span class="rot-val up">+11회</span></div>
-        <div class="rot-row"><span class="tn up" style="width:88px">엘앤에프</span><div class="rot-bar"><i style="width:66%;background:var(--up)"></i></div><span class="rot-val up">+10회</span></div>
-        <div class="rot-row"><span class="tn down" style="width:88px">SK하이닉스</span><div class="rot-bar"><i style="width:100%;background:var(--down)"></i></div><span class="rot-val down">−16회</span></div>
-        <div class="rot-row"><span class="tn down" style="width:88px">SK스퀘어</span><div class="rot-bar"><i style="width:88%;background:var(--down)"></i></div><span class="rot-val down">−14회</span></div>
-        <div class="rot-row"><span class="tn down" style="width:88px">두산테스나</span><div class="rot-bar"><i style="width:81%;background:var(--down)"></i></div><span class="rot-val down">−13회</span></div>
-        <div style="font-size:11px;color:var(--txt-3);margin-top:8px">※ 펀드-일 횟수 (수량 아님) — 하루치보다 기간 누적이 진짜 신호예요</div>
+        <h3>🏢 운용사별 <span class="hint">순자산 · 1주 자금</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">액티브 ETF를 굴리는 운용사별로 <b>얼마나 크고</b>, 돈이 <b class="up">들어오는지</b> <b class="down">빠지는지</b></div>
+        <div id="fdIssuer"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
   </div>
@@ -653,6 +631,7 @@
   </div>
 </div>
 
+<script src="active-etf-data.js?v=1"></script>
 <script>
   const tabs=document.getElementById('subtabs');
   const panels=document.querySelectorAll('.panel');
@@ -779,9 +758,97 @@
     set('npsHint','DART · '+bd(nps[0].rcept_dt)+' 최신 · '+nps.length+'건');
     el.innerHTML=nps.slice(0,12).map(x=>{const ty=r5Type(x.report_nm);return `<div class="tl-item"><div class="t">${bd(x.rcept_dt)}</div><div class="d"><b>${esc(x.corp_name)}</b> 대량보유 ${ty.t} 신고 · <a href="${dartLink(x.rcept_no)}" target="_blank" rel="noopener" style="color:var(--brand-2);font-weight:700">원문↗</a></div></div>`;}).join('');
   }
+  /* ===== 운용사: 국내 주식형 액티브 ETF 실보유 집계 (네이버 etfAnalysis) ===== */
+  const FUND_N=60;
+  /* "1조 452억" · "4,947억" · "-31.1억" · "-987만" · "-" → 억 단위 숫자 */
+  const eok=s=>{s=String(s==null?'':s).trim();if(!s||s==='-')return 0;
+    const neg=/^-/.test(s);s=s.replace(/^-/,'');
+    const jo=s.match(/([\d,.]+)\s*조/),ek=s.match(/([\d,.]+)\s*억/),mn=s.match(/([\d,.]+)\s*만/);
+    let v=0;
+    if(jo)v+=parseFloat(jo[1].replace(/,/g,''))*10000;
+    if(ek)v+=parseFloat(ek[1].replace(/,/g,''));
+    if(!jo&&!ek&&mn)v+=parseFloat(mn[1].replace(/,/g,''))/10000;
+    if(!jo&&!ek&&!mn){const n=parseFloat(s.replace(/[^\d.]/g,''));if(isFinite(n))v=n;}
+    return neg?-v:v;};
+  const fmtEok=(n,signed)=>{const a=Math.abs(n);
+    const s=a>=10000?(a/10000).toFixed(1)+'조':a>=1?Math.round(a).toLocaleString('ko-KR')+'억':(Math.round(a*10)/10)+'억';
+    return (signed?(n>0?'+':n<0?'−':''):(n<0?'−':''))+s;};
+  async function loadFund(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const fail=msg=>{const f=`<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">${msg} ${retryHtml('fund')}</div>`;
+      html('fdHoldList',f);html('fdFlowList','');html('fdIssuer','');
+      html('fdTable',`<tr><td colspan="5" style="color:var(--txt-3);padding:14px 10px">${msg}</td></tr>`);
+      html('fdWeight',`<tr><td colspan="3" style="color:var(--txt-3);padding:14px 10px">${msg}</td></tr>`);
+      set('fdHoldHint','불러오기 실패');};
+    const uni=(window.RICHFLOW_ACTIVE_ETF||{}).list||[];
+    if(!uni.length)return fail('액티브 ETF 목록을 불러오지 못했어요.');
+    const target=uni.slice(0,FUND_N);
+    const res=await pool(target,8,async e=>{
+      const d=await fetchJSON(WK+encodeURIComponent('https://m.stock.naver.com/api/stock/'+e[0]+'/etfAnalysis'),12000);
+      return d&&d.itemName?{e,d}:null;});
+    const ok=res.filter(Boolean);
+    if(!ok.length)return fail('액티브 ETF 구성을 불러오지 못했어요.');
+
+    const holds=new Map(),issuers=new Map(),funds=[];
+    let navSum=0,flowSum=0;
+    ok.forEach(({e,d})=>{
+      const nav=eok(d.totalNav)||e[3]||0;
+      const flow=eok((d.cumulativeNetInflowList||{}).cumulativeNetInflow1w);
+      const issuer=String(d.issuerName||'').replace(/\(ETF\)/g,'').trim()||'기타';
+      const top=d.etfTop10MajorConstituentAssets||[];
+      navSum+=nav;flowSum+=flow;
+      const g=issuers.get(issuer)||{n:0,nav:0,flow:0};
+      g.n++;g.nav+=nav;g.flow+=flow;issuers.set(issuer,g);
+      top.forEach(c=>{
+        const w=pnum(c.etfWeight);if(!c.itemName)return;
+        const h=holds.get(c.itemName)||{code:c.itemCode,funds:0,wnav:0};
+        h.funds++;h.wnav+=nav*w/100;holds.set(c.itemName,h);});
+      funds.push({code:e[0],name:d.itemName||e[1],issuer,nav,flow,
+        top1:top[0]?top[0].itemName:'—',top1w:top[0]?pnum(top[0].etfWeight):0});
+    });
+    const wpct=h=>navSum?h.wnav/navSum*100:0;
+    const byFunds=[...holds.entries()].sort((a,b)=>b[1].funds-a[1].funds||b[1].wnav-a[1].wnav);
+    const byWeight=[...holds.entries()].sort((a,b)=>b[1].wnav-a[1].wnav);
+
+    set('fdFunds',ok.length+'개');set('fdFundsSub','액티브 ETF · 전체 '+uni.length+'개 중');
+    set('fdNav',fmtEok(navSum));set('fdNavSub','추적 펀드 순자산 합계');
+    if(byFunds[0]){set('fdTopName',byFunds[0][0]);
+      const s=document.getElementById('fdTopSub');
+      if(s){s.textContent=byFunds[0][1].funds+'개 펀드가 보유';s.className='s up';}}
+    const fe=document.getElementById('fdFlow');
+    if(fe){fe.textContent=fmtEok(flowSum,true);fe.className='v '+(flowSum>=0?'up':'down');}
+    set('fdFlowSub','최근 1주 · 추적 펀드 합계');
+    set('fdHoldHint',ok.length+'개 펀드 보유 상위10 기준');
+
+    html('fdHoldList',byFunds.slice(0,6).map((x,i)=>{
+      const [name,h]=x;
+      return `<a class="srow" href="stock.html?code=${encodeURIComponent(h.code)}"><span class="rk">${i+1}</span><span class="logo-sq">${esc(name[0])}</span><div class="info"><div class="n">${esc(name)}</div><div class="s">통합 비중 ${wpct(h).toFixed(2)}%</div></div><div class="r"><div class="pct up">${h.funds}곳</div><div class="cnt">펀드 보유</div></div></a>`;
+    }).join('')||'<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">집계된 보유 종목이 없어요</div>');
+
+    const flowed=funds.filter(f=>f.flow!==0).sort((a,b)=>b.flow-a.flow);
+    const inTop=flowed.slice(0,3),outTop=flowed.slice(-3).reverse().filter(f=>f.flow<0);
+    const frow=f=>`<div class="srow"><span class="logo-sq">${esc(f.name.trim()[0]||'F')}</span><div class="info"><div class="n">${esc(f.name)}</div><div class="s">${esc(f.issuer)} · 순자산 ${fmtEok(f.nav)}</div></div><div class="r"><div class="pct ${f.flow>=0?'up':'down'}">${fmtEok(f.flow,true)}</div><div class="cnt">1주 자금</div></div></div>`;
+    html('fdFlowList',(inTop.length||outTop.length)
+      ? inTop.map(frow).join('')+(outTop.length?'<div style="font-size:11px;color:var(--txt-3);font-weight:700;margin:10px 0 2px;padding-left:8px">▼ 빠져나간 펀드</div>'+outTop.map(frow).join(''):'')
+      : '<div style="padding:14px 8px;color:var(--txt-3);font-size:13px">최근 1주 자금 변동이 공시된 펀드가 없어요</div>');
+
+    html('fdTable',funds.slice().sort((a,b)=>b.nav-a.nav).slice(0,15).map(f=>
+      `<tr><td class="nm">${esc(f.name)}</td><td class="sub">${esc(f.issuer)}</td><td class="sub">${esc(f.top1)}${f.top1w?' '+f.top1w.toFixed(1)+'%':''}</td><td class="r">${fmtEok(f.nav)}</td><td class="r ${f.flow>0?'up':f.flow<0?'down':''}">${f.flow?fmtEok(f.flow,true):'—'}</td></tr>`).join(''));
+
+    html('fdWeight',byWeight.slice(0,6).map(([name,h])=>
+      `<tr><td class="nm"><a href="stock.html?code=${encodeURIComponent(h.code)}" style="color:inherit">${esc(name)}</a></td><td class="sub">${h.funds}개 펀드</td><td class="r"><b>${wpct(h).toFixed(2)}%</b></td></tr>`).join(''));
+
+    const isList=[...issuers.entries()].sort((a,b)=>b[1].nav-a[1].nav).slice(0,7);
+    const maxNav=isList.length?isList[0][1].nav:1;
+    html('fdIssuer',isList.map(([name,g])=>
+      `<div class="rot-row"><span class="tn" style="width:104px">${esc(name)}</span><div class="rot-bar"><i style="width:${Math.max(3,Math.round(g.nav/maxNav*100))}%;background:var(--brand-2)"></i></div><span class="rot-val ${g.flow>0?'up':g.flow<0?'down':''}" style="width:70px">${fmtEok(g.nav)}</span></div>`).join('')
+      +`<div style="font-size:11px;color:var(--txt-3);margin-top:8px">막대=순자산 · 색=최근 1주 자금 방향 (<b class="up">유입</b>/<b class="down">유출</b>)</div>`);
+  }
+
   const panelLoads={};
   function loadOnce(key,loader){if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(loader).catch(e=>{delete panelLoads[key];console.warn('[RICHFLOW] '+key+' fail',e);});return panelLoads[key];}
-  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);if(key==='all')return loadOnce('all',loadOverview);if(key==='rule5')return loadOnce('rule5',loadRule5);if(key==='nps')return loadOnce('nps',loadNPS);return Promise.resolve();}
+  function ensurePanelLoaded(key){if(key==='foreign')return loadOnce('foreign',loadForeign);if(key==='all')return loadOnce('all',loadOverview);if(key==='rule5')return loadOnce('rule5',loadRule5);if(key==='nps')return loadOnce('nps',loadNPS);if(key==='fund')return loadOnce('fund',loadFund);return Promise.resolve();}
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-retry]');if(!b)return;const k=b.dataset.retry;delete panelLoads[k];krRows=null;ensurePanelLoaded(k);});
   ensurePanelLoaded('all');
 
