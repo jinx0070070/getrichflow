@@ -42,47 +42,39 @@
 - `watchlist.js` — 관심종목 공용 저장소(localStorage `richflow:watchlist`). 버튼 배선 `RichflowWatch.bindButton`.
 - `stock-logo.js` — 종목 로고(KR: pstatic, US: financialmodelingprep). 캔버스 밝기분석으로 흰 로고 어두운배경 처리(`logo-dark`).
 - `community.js`, `price-alert.js`, `research-*.js` — 커뮤니티/리서치.
-- 그 외 `whale*.html`, `theme*.html`, `screener*.html`, `calendar*.html`, `idea*.html`, `ai*.html` 등은 대부분 정적 샘플 디자인 시안.
+- `whale.html` — 국장 큰손 수급. **6개 탭 전부 실데이터**(2026-09-07 완료). 종합·외국인=네이버 투자자별 매매, 운용사=네이버 ETF 분석(액티브 ETF 60개 실보유), 국민연금·세력(5%룰)·내부자=DART.
+- `active-etf-data.js` — 국내 주식형 액티브 ETF 89개 목록. `node scripts/build-active-etf.mjs`로 재생성(네이버 ETF 목록 → `data/naver-etf-list.json`).
+- 그 외 `theme*.html`, `screener*.html`, `calendar*.html`, `idea*.html`, `forecast*.html`, `leaders*.html`, `ai*.html`, `whale-us.html`, `whale-coin.html` 등은 대부분 정적 샘플 디자인 시안.
 
-## 현재 작업 인수인계 (2026-08-10)
+## 현재 작업 인수인계 (2026-09-07)
 
-작업 폴더는 `C:\GcadAI\prototype`이며 로컬 확인 주소는 `http://127.0.0.1:8765/`이다. 현재 브라우저에서 미장 홈은 `http://127.0.0.1:8765/index.html?m=us`로 확인했다.
+작업 폴더는 `C:\GcadAI\prototype`. 배포는 `git push` 하나로 끝난다(GitHub Pages, 전파 1~2분).
 
-### 오늘 반영한 핵심 기능
-- `index.html` 미장 산업별 히트맵을 16개 산업, 총 100개 종목까지 펼쳐 실제 화면에서 검사했다.
-- 접힌 산업의 로고가 lazy loading을 시작하지 않아 빈칸처럼 보이던 문제를 수정했다.
-- 히트맵 타일과 산업 상세 팝업 모두 로딩 중/실패 시 종목 이니셜을 남기며, 정상 로딩 시 로고로 교체된다.
-- 투명 배경의 흰색 로고는 캔버스 밝기 분석 후 `logo-dark` 배경을 자동 적용한다.
-- 브라우저 검증 결과 미장 히트맵 로고 100개 모두 정상 표시됐고 `pending=0`, `fallback=0`, `blank=0`이었다. 자동차 산업 상세 팝업의 Ford/GM/Stellantis/Toyota 로고도 정상 확인했다.
-- `tool-dividend.html`을 한·미 배당주와 ETF 통합 도구로 확장했다. 탭 구성은 미국 배당주 30, 미국 ETF 30, 월배당 20, 한국 배당주 30, 한국 ETF 24, 포트폴리오다.
-- QQQ, SCHD, VOO, JEPI, JEPQ와 SOL/TIGER/ACE/KODEX 국내 ETF 등을 포함한다. 미국은 USD·환율·간이 원천징수 15%, 한국은 KRW·간이 배당소득세 15.4% 기준 계산이다.
-- 배당 데이터는 미국은 Yahoo dividend events, 한국은 네이버 basic/integration과 Yahoo `.KS`/`.KQ` 분배 이력을 조합한다. 검색은 회사명/ETF명/티커/종목코드를 지원한다.
-- `tool-nav.js`와 홈 도구 카드의 명칭을 `한·미 배당주·ETF`로 맞췄다.
+### 이번에 한 일 — 큰손 수급(whale.html) 실데이터화 완료
+- **운용사 탭**: 샘플이던 "액티브 ETF 1CU 편입·제외"를 실제로 받을 수 있는 데이터로 바꿨다.
+  네이버 `etfAnalysis`로 국내 주식형 액티브 ETF 60개를 열어 보유 상위 10종목·순자산·자금
+  유출입을 집계한다(겹쳐 담은 종목, 순자산 가중 통합 비중, 자금 몰린 펀드, 펀드별 상세, 운용사별).
+- **공직자 탭 → 내부자 탭**: 공직자 재산공개는 관보 PDF뿐이라 무료 API가 없다. 대신 DART
+  임원·주요주주 소유상황보고(D002, 14일 약 700건)로 교체했다.
+- 하단 데이터 출처 문구를 실제 소스대로 고쳤다. **이제 6개 탭 모두 실데이터다.**
 
-### 현재 미커밋 작업
-다음 13개 파일에 작업 내용이 있으므로 기존 변경을 되돌리거나 덮어쓰지 말 것.
+### 여기서 조심할 것
+- **전일 스냅샷이 없다.** 정적 사이트라 "어제와 비교한 신규 편입·제외"는 만들 수 없다.
+  샘플에 있던 "오늘 편입 21 / 제외 24" 같은 카드는 그래서 계산 가능한 지표로 바꾼 것이다.
+  다시 넣고 싶으면 스냅샷을 어딘가에 쌓는 작업이 먼저다.
+- **ETF 보유는 상위 10종목까지만 공시된다.** 통합 비중은 11위 아래가 빠져 있고, 화면에도 적어 뒀다.
+- **DART 목록 API에는 매수·매도 방향과 수량이 없다.** 본문에 있다. 내부자 탭이 "신고가 몰린
+  회사"까지만 보여주는 이유다. 방향까지 가려면 워커에 `elestock` 같은 상세 API를 열어야 하는데,
+  워커는 `?dart=list`만 허용하므로 사용자가 워커를 고쳐 재배포해야 한다.
 
-- `index.html`
-- `tool-avgdown.html`
-- `tool-breakeven.html`
-- `tool-compound.html`
-- `tool-deposit.html`
-- `tool-dividend.html`
-- `tool-fx.html`
-- `tool-journal.html`
-- `tool-market-hours.html`
-- `tool-nav.js`
-- `tool-portfolio.html`
-- `tool-tax.html`
-- `tool-usprofit.html`
+### 검증 방법 (브라우저 스크린샷은 이 환경에서 못 믿는다)
+인라인 `<script>`를 뽑아 `node --check` 한 뒤, 목 DOM(`document.getElementById`가 가짜 엘리먼트를
+돌려주는 정도)에 얹어 로더를 직접 실행하고 렌더 결과 문자열을 눈으로 확인했다. 실제 워커·네이버·
+DART를 그대로 때리므로 값이 진짜인지까지 같이 확인된다. 이 방식이 이 프로젝트에서 제일 확실하다.
 
-`git diff --check`는 통과했으며 Windows 줄바꿈(LF→CRLF) 경고만 있다. 사용자가 명시적으로 요청하기 전에는 이 변경들을 reset/checkout하지 말고, commit/push도 임의로 하지 않는다.
-
-### 바로 이어서 작업할 때
-1. `git status --short`와 `git diff --stat`으로 위 변경이 그대로인지 확인한다.
-2. 로컬 서버가 꺼졌다면 `C:\GcadAI\prototype`을 문서 루트로 정적 서버를 8765 포트에 실행한다.
-3. UI 수정 뒤에는 `index.html?m=kr`, `index.html?m=us`, `tool-dividend.html`을 실제 브라우저에서 확인한다.
-4. 인라인 JS 수정 시 `<script>`를 추출해 Node 문법검사를 하고 `git diff --check`도 실행한다.
+### 남은 것
+- `theme*`·`screener*`·`calendar*`·`idea*`·`forecast*`·`leaders*`·`whale-us`·`whale-coin`은 아직 샘플.
+- 추적 안 되는 임시 파일 `_nb.html`·`_se.html`(경쟁사 저장본)이 작업 폴더에 있다. 커밋 대상 아님.
 
 ## 차트 엔진 (stock.html / stock-us.html 공용 구조, 각 파일에 인라인)
 SVG viewBox(720×320) 기반. 상태객체 `CH`.
