@@ -40,6 +40,7 @@
   .chips{display:flex;gap:5px;flex-wrap:wrap}
   .chip{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-size:12px;font-weight:600;padding:6px 10px;border-radius:9px;cursor:pointer;font-family:inherit}
   .chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:var(--up-bg);color:var(--up)}
   .fbtns{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
   .btn{flex:1;background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);font-weight:700;font-size:12.5px;padding:9px;border-radius:10px;cursor:pointer;font-family:inherit}
   .btn.pri{background:var(--brand);color:#fff;border-color:var(--brand)}
@@ -97,103 +98,335 @@
 
   <div class="presets" id="presets">
     <button class="preset on">전체</button>
-    <button class="preset">🐋 13F 매집</button>
-    <button class="preset">🔥 어닝 서프라이즈</button>
-    <button class="preset">📉 숏스퀴즈 후보</button>
-    <button class="preset">🚀 ARK 보유</button>
-    <button class="preset">💎 매그니피센트 7</button>
-    <button class="preset">📈 52주 신고가</button>
+    <button class="preset" data-preset="hot">🔥 급등주</button>
+    <button class="preset" data-preset="mega">🐋 메가캡</button>
+    <button class="preset" data-preset="ark">🚀 ARK 보유</button>
+    <button class="preset" data-preset="ipo">✨ 최근 상장</button>
+    <button class="preset" data-preset="m7">💎 매그니피센트 7</button>
   </div>
 
   <div class="layout">
     <aside class="filters">
-      <div class="fgroup"><div class="fl">거래소</div><div class="chips"><span class="chip on">전체</span><span class="chip">NASDAQ</span><span class="chip">NYSE</span></div></div>
-      <div class="fgroup"><div class="fl">섹터</div><div class="chips"><span class="chip on">전체</span><span class="chip">반도체</span><span class="chip">빅테크</span><span class="chip">AI SW</span><span class="chip">전기차</span><span class="chip">금융</span><span class="chip">헬스케어</span></div></div>
-      <div class="fgroup"><div class="fl">시가총액</div><div class="chips"><span class="chip on">전체</span><span class="chip">메가($200B+)</span><span class="chip">대형</span><span class="chip">중소형</span></div></div>
-      <div class="fgroup"><div class="fl">등락률</div><div class="chips"><span class="chip on">전체</span><span class="chip">+5%↑</span><span class="chip">상승</span><span class="chip">하락</span></div></div>
-      <div class="fgroup"><div class="fl">P/E</div><div class="chips"><span class="chip on">전체</span><span class="chip">20↓</span><span class="chip">20~40</span><span class="chip">40↑</span></div></div>
-      <div class="fgroup"><div class="fl">공매도율(SI)</div><div class="chips"><span class="chip on">전체</span><span class="chip">10%↑</span><span class="chip">20%↑ (스퀴즈)</span></div></div>
-      <div class="fgroup"><div class="fl">13F·큰손</div><div class="chips"><span class="chip">기관 매집</span><span class="chip">ARK 보유</span><span class="chip">내부자 매수</span><span class="chip">의회 매수</span></div></div>
-      <div class="fgroup"><div class="fl">실적</div><div class="chips"><span class="chip">어닝 서프라이즈</span><span class="chip">가이던스 상향</span></div></div>
-      <div class="fgroup"><div class="fl">기술적</div><div class="chips"><span class="chip">골든크로스</span><span class="chip">52주 신고가</span><span class="chip">거래량 급증</span></div></div>
-      <div class="fbtns"><button class="btn">초기화</button><button class="btn pri">적용</button></div>
+      <div class="fgroup"><div class="fl">거래소</div><div class="chips" data-g="ex">
+        <span class="chip on" data-v="">전체</span><span class="chip" data-v="NASDAQ">NASDAQ</span><span class="chip" data-v="NYSE">NYSE</span><span class="chip" data-v="AMEX">AMEX</span></div></div>
+      <div class="fgroup"><div class="fl">섹터</div>
+        <select id="secSel" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);font:inherit;font-size:12.5px;color:var(--txt)">
+          <option value="">전체 섹터</option></select></div>
+      <div class="fgroup"><div class="fl">산업</div>
+        <select id="indSel" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);font:inherit;font-size:12.5px;color:var(--txt)">
+          <option value="">전체 산업</option></select></div>
+      <div class="fgroup"><div class="fl">시가총액</div><div class="chips" data-g="cap">
+        <span class="chip on" data-v="">전체</span><span class="chip" data-v="mega">$200B↑</span><span class="chip" data-v="large">$10B~200B</span><span class="chip" data-v="mid">$2B~10B</span><span class="chip" data-v="small">$2B 미만</span></div></div>
+      <div class="fgroup"><div class="fl">등락률</div><div class="chips" data-g="chg">
+        <span class="chip on" data-v="">전체</span><span class="chip" data-v="up5">+5%↑</span><span class="chip" data-v="up">상승</span><span class="chip" data-v="down">하락</span><span class="chip" data-v="down5">−5%↓</span></div></div>
+      <div class="fgroup"><div class="fl">거래대금 <span style="font-weight:600;color:var(--txt-3)">주가×거래량</span></div><div class="chips" data-g="amt">
+        <span class="chip on" data-v="">전체</span><span class="chip" data-v="10">$10M↑</span><span class="chip" data-v="100">$100M↑</span><span class="chip" data-v="1000">$1B↑</span></div></div>
+      <div class="fgroup"><div class="fl">본사 국가</div><div class="chips" data-g="country">
+        <span class="chip on" data-v="">전체</span><span class="chip" data-v="United States">미국</span><span class="chip" data-v="China">중국</span><span class="chip" data-v="!United States">미국 외</span></div></div>
+      <div class="fgroup"><div class="fl">상장 시기</div><div class="chips" data-g="ipo">
+        <span class="chip on" data-v="">전체</span><span class="chip" data-v="3">최근 3년</span><span class="chip" data-v="10">최근 10년</span><span class="chip" data-v="old">10년 이상</span></div></div>
+      <div class="fgroup"><div class="fl">큰손 보유</div><div class="chips" data-g="ark">
+        <span class="chip on" data-v="">전체</span><span class="chip" data-v="1">ARK 보유</span></div></div>
+      <div class="fgroup"><div class="fl">티커·이름 검색</div>
+        <input id="qName" placeholder="예: NVDA, Apple" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);font:inherit;font-size:12.5px;color:var(--txt)"></div>
+      <div class="fbtns"><button class="btn" id="btnReset">초기화</button></div>
       <div class="saved">
-        <div class="fl" style="font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:8px">💾 저장된 스크리너</div>
-        <a>⭐ AI 반도체 모멘텀</a>
-        <a>⭐ 숏스퀴즈 워치리스트</a>
-        <a>⭐ 13F+내부자 겹침</a>
+        <div class="fl" style="font-size:11px;font-weight:800;color:var(--txt-3);margin-bottom:8px">ℹ️ 이 화면이 쓰는 데이터</div>
+        <div style="font-size:11px;color:var(--txt-3);line-height:1.7">
+          나스닥 종목 스크리너에서 <b id="uniCnt">—</b>종목을 한 번에 받아 필터링합니다.
+          거래대금은 주가×거래량이라 실제 체결대금과 조금 다를 수 있어요.
+          ARK 보유는 ARK Invest가 공개한 6개 ETF의 보유 목록입니다.
+        </div>
       </div>
     </aside>
 
     <div>
       <div class="summary">
-        <div class="sm"><div class="k">검색된 종목</div><div class="v">18</div></div>
-        <div class="sm"><div class="k">평균 등락률</div><div class="v up">+1.8%</div></div>
-        <div class="sm"><div class="k">평균 P/E</div><div class="v">34.2</div></div>
-        <div class="sm"><div class="k">13F 매집 종목</div><div class="v">9</div></div>
+        <div class="sm"><div class="k">검색된 종목</div><div class="v" id="sumCnt">…</div></div>
+        <div class="sm"><div class="k">평균 등락률</div><div class="v" id="sumChg">…</div></div>
+        <div class="sm"><div class="k">합산 시가총액</div><div class="v" id="sumCap">…</div></div>
+        <div class="sm"><div class="k">ARK 보유 종목</div><div class="v" id="sumArk">…</div></div>
       </div>
-      <div class="rhead"><h2>탐색 결과</h2><span class="cnt">18종목</span><span class="exp">⬇ CSV 내보내기</span></div>
+
+      <div class="rhead">
+        <h2>탐색 결과</h2><span class="cnt" id="cnt">불러오는 중…</span>
+        <span class="exp" id="btnCsv">⬇ CSV 내보내기</span>
+      </div>
       <div class="tblwrap">
         <table class="tbl" id="tbl">
           <thead><tr>
-            <th class="chk"></th><th data-k="1">종목</th><th data-k="3" data-num>현재가</th><th data-k="4" data-num>등락률</th>
-            <th data-k="6" data-num>시총</th><th data-k="7" data-num>P/E</th><th data-k="8" data-num>공매도</th><th>큰손 신호</th>
+            <th class="chk"></th>
+            <th data-s="name">종목</th>
+            <th data-s="price" data-num>현재가</th>
+            <th data-s="chg" data-num>등락률</th>
+            <th data-s="cap" data-num>시총</th>
+            <th data-s="amt" data-num>거래대금</th>
+            <th data-s="vol" data-num>거래량</th>
+            <th data-s="ipo" data-num>상장</th>
+            <th>ARK</th>
           </tr></thead>
-          <tbody id="rows"></tbody>
+          <tbody id="rows"><tr><td colspan="9" style="text-align:center;color:var(--txt-3);padding:24px">나스닥에서 종목 목록을 불러오는 중…</td></tr></tbody>
         </table>
       </div>
-      <div class="disc">데이터 출처: 미국 거래소 시세 · SEC EDGAR(13F·Form 4) · FINRA(공매도) · 자체 산출물. 알고리즘 자동 선별이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+      <div style="text-align:center;margin-top:14px"><button class="btn" id="btnMore" style="display:none">＋ 더 보기</button></div>
+
+      <div class="disc">데이터 출처: <b style="color:var(--brand)">나스닥 종목 스크리너</b>(미국 상장 전 종목의 시세·시가총액·거래량·섹터·산업·본사 국가·상장연도) · <b style="color:var(--brand)">ARK Invest 공개 보유내역</b>(arkfunds.io). 시세는 화면을 열 때 받아오며 미국장 마감 뒤에는 마지막 정규장 종가입니다. 알고리즘 자동 선별이며 특정 종목의 매수·매도 권유가 아닙니다.</div>
     </div>
   </div>
 </div>
 
-<div class="cmpbar" id="cmpbar"><span id="cmpText">0개 선택</span><button onclick="location.href='stock-us.html'">종목 비교하기 →</button></div>
+<div class="cmpbar" id="cmpbar"><span id="cmpText">0개 선택</span><button id="cmpGo">종목 비교하기 →</button></div>
 
 <script>
-  // [logo,name,code,price,chg,up,mcap,pe,shortInt,signal,sigtype]
-  const ROWS=[
-    ['NVDA','NVIDIA','NASDAQ','$182.40','+2.2%',1,'$4.48T','52.4','1.1%','13F 매집','buy'],
-    ['MSFT','Microsoft','NASDAQ','$398.20','-2.1%',0,'$2.96T','32.1','0.6%','의회 매수','buy'],
-    ['AAPL','Apple','NASDAQ','$232.10','+0.6%',1,'$3.54T','29.4','0.7%','','' ],
-    ['AMD','AMD','NASDAQ','$168.00','+3.4%',1,'$272B','42.1','2.4%','13F 매집','buy'],
-    ['PLTR','Palantir','NASDAQ','$142.00','+6.0%',1,'$328B','198','3.1%','ARK 보유','buy'],
-    ['TSLA','Tesla','NASDAQ','$377.00','-4.1%',0,'$1.21T','78.2','3.8%','ARK 보유','buy'],
-    ['AVGO','Broadcom','NASDAQ','$396.00','+1.1%',1,'$1.85T','38.6','1.2%','13F 매집','buy'],
-    ['COIN','Coinbase','NASDAQ','$318.00','+4.2%',1,'$78B','44.0','22.4%','숏스퀴즈','hot'],
-    ['MSTR','MicroStrategy','NASDAQ','$412.00','+7.1%',1,'$96B','흑전','18.9%','내부자 매수','buy'],
-    ['ACHR','Archer Aviation','NYSE','$12.40','+9.2%',1,'$6.8B','적자','14.2%','ARK 신규','hot'],
-    ['META','Meta','NASDAQ','$612.00','-0.9%',0,'$1.55T','27.8','1.0%','','' ],
-    ['GOOGL','Alphabet','NASDAQ','$198.00','+1.8%',1,'$2.42T','24.1','0.8%','','' ],
-    ['LLY','Eli Lilly','NYSE','$842.00','+1.4%',1,'$798B','62.3','0.9%','13F 매집','buy'],
-    ['LMT','Lockheed Martin','NYSE','$512.00','+0.8%',1,'$121B','18.2','1.1%','의회 매수','buy'],
-    ['MU','Micron','NASDAQ','$138.00','-0.8%',0,'$153B','18.6','4.1%','','' ],
-    ['HOOD','Robinhood','NASDAQ','$44.20','-2.4%',0,'$39B','36.0','6.2%','ARK 매도','' ],
-    ['SMCI','Super Micro','NASDAQ','$52.00','+5.8%',1,'$31B','22.4','24.1%','숏스퀴즈','hot'],
-    ['RIVN','Rivian','NASDAQ','$18.20','-2.2%',0,'$18B','적자','19.8%','','' ],
-  ];
-  let sortK=6, sortDir=-1;
-  function num(v){return parseFloat(String(v).replace(/[^0-9.\-]/g,''))||0;}
-  function render(){
-    const rows=[...ROWS].sort((a,b)=>(num(a[sortK])-num(b[sortK]))*sortDir);
-    document.getElementById('rows').innerHTML=rows.map(r=>{
-      const col=r[5]?'up':'down';
-      const sig=r[10]?`<span class="sig ${r[10]}">${r[9]}</span>`:'<span style="color:var(--txt-3)">—</span>';
-      return `<tr>
-        <td class="chk"><input type="checkbox" class="rc"></td>
-        <td><div class="nm" onclick="location.href='stock-us.html'"><span class="lg">${r[0]}</span><div>${r[1]}<div class="code">${r[2]}</div></div></div></td>
-        <td class="mono">${r[3]}</td><td class="mono ${col}">${r[4]}</td>
-        <td class="mono">${r[6]}</td><td>${r[7]}</td><td class="mono">${r[8]}</td><td>${sig}</td></tr>`;
-    }).join('');
-    document.querySelectorAll('.rc').forEach(c=>c.onchange=()=>{const n=document.querySelectorAll('.rc:checked').length;document.getElementById('cmpText').textContent=n+'개 선택';document.getElementById('cmpbar').classList.toggle('on',n>=2);});
+  /* ===== 미장 종목탐색 실데이터 =====
+   * 나스닥 종목 스크리너가 미국 상장 전 종목(약 7,100개)의 시세·시총·거래량·
+   * 섹터·산업·본사 국가·상장연도를 한 번에 준다. 거래소는 따로 요청해야 구분되므로
+   * NASDAQ/NYSE/AMEX를 각각 받아 표시를 붙인다.
+   * ARK 보유 여부는 arkfunds.io 공개 보유내역(티커가 그대로 있어 정확히 맞는다). */
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const ND='https://api.nasdaq.com/api/screener/stocks?tableonly=true&download=true&exchange=';
+  const EXCHANGES=['NASDAQ','NYSE','AMEX'];
+  const ARK_FUNDS=['ARKK','ARKW','ARKG','ARKQ','ARKF','ARKX'];
+  const M7=new Set(['AAPL','MSFT','NVDA','GOOGL','AMZN','META','TSLA']);
+  const PAGE_ROWS=40;
+
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const usd=n=>{const a=Math.abs(n);
+    if(a>=1e12)return '$'+(a/1e12).toFixed(2)+'T';
+    if(a>=1e9)return '$'+(a/1e9).toFixed(1)+'B';
+    if(a>=1e6)return '$'+(a/1e6).toFixed(0)+'M';
+    if(a>=1e3)return '$'+(a/1e3).toFixed(0)+'K';
+    return '$'+Math.round(a);};
+  const pctTxt=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%';
+
+  async function fetchJSON(url,timeout=30000){
+    const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+    catch(e){console.warn('[RICHFLOW] screener-us fetch fail',e&&e.name);return null;}
+    finally{clearTimeout(t);}
   }
-  document.querySelectorAll('#tbl th[data-k]').forEach(th=>th.onclick=()=>{
-    const k=+th.dataset.k;if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=th.hasAttribute('data-num')?-1:1;}
-    document.querySelectorAll('#tbl th .ar').forEach(a=>a.remove());
-    const ar=document.createElement('span');ar.className='ar';ar.textContent=sortDir<0?' ▾':' ▴';th.appendChild(ar);render();
+  async function pool(items,n,fn){const out=[];let i=0;
+    async function w(){while(i<items.length){const k=i++;out[k]=await fn(items[k]);}}
+    await Promise.all(Array.from({length:Math.min(n,items.length)},w));return out;}
+
+  let ROWS=[],SECTORS=[],INDUSTRIES=[],ARK=new Map();
+  async function loadArk(){
+    const res=await pool(ARK_FUNDS,6,f=>fetchJSON('https://arkfunds.io/api/v2/etf/holdings?symbol='+f,15000));
+    const map=new Map();
+    res.forEach((d,i)=>{
+      (d&&Array.isArray(d.holdings)?d.holdings:[]).forEach(h=>{
+        if(!h.ticker)return;
+        const t=String(h.ticker).toUpperCase();
+        const cur=map.get(t)||{funds:new Set(),weight:0};
+        cur.funds.add(ARK_FUNDS[i]);
+        cur.weight=Math.max(cur.weight,num(h.weight));
+        map.set(t,cur);
+      });
+    });
+    return map;
+  }
+  async function loadRows(){
+    const res=await pool(EXCHANGES,3,ex=>fetchJSON(WK+encodeURIComponent(ND+ex)));
+    const out=[];
+    res.forEach((d,i)=>{
+      const rows=(d&&d.data&&Array.isArray(d.data.rows))?d.data.rows:[];
+      rows.forEach(r=>{
+        const price=num(r.lastsale),vol=num(r.volume),cap=num(r.marketCap);
+        if(!r.symbol||!price)return;
+        out.push({
+          sym:String(r.symbol).trim().toUpperCase(),
+          name:String(r.name||'').replace(/\s+Common Stock.*$/i,'').replace(/\s+Class\s+[A-Z].*$/i,'').trim(),
+          ex:EXCHANGES[i],price,chg:num(r.pctchange),cap,vol,
+          amt:price*vol,
+          sector:r.sector||'',industry:r.industry||'',
+          country:r.country||'',ipo:parseInt(r.ipoyear,10)||0
+        });
+      });
+    });
+    return out;
+  }
+
+  /* ---------- 필터 ---------- */
+  const F={ex:'',sector:'',industry:'',cap:'',chg:'',amt:'',country:'',ipo:'',ark:'',q:''};
+  let SORT={key:'cap',dir:-1},shown=PAGE_ROWS;
+  const CAP={mega:c=>c>=2e11,large:c=>c>=1e10&&c<2e11,mid:c=>c>=2e9&&c<1e10,small:c=>c>0&&c<2e9};
+  const CHG={up5:v=>v>=5,up:v=>v>0,down:v=>v<0,down5:v=>v<=-5};
+  function apply(){
+    const year=new Date().getFullYear();
+    let out=ROWS;
+    if(F.ex)out=out.filter(r=>r.ex===F.ex);
+    if(F.sector)out=out.filter(r=>r.sector===F.sector);
+    if(F.industry)out=out.filter(r=>r.industry===F.industry);
+    if(F.cap&&CAP[F.cap])out=out.filter(r=>CAP[F.cap](r.cap));
+    if(F.chg&&CHG[F.chg])out=out.filter(r=>CHG[F.chg](r.chg));
+    if(F.amt)out=out.filter(r=>r.amt>=+F.amt*1e6);
+    if(F.country){
+      if(F.country[0]==='!'){const c=F.country.slice(1);out=out.filter(r=>r.country&&r.country!==c);}
+      else out=out.filter(r=>r.country===F.country);
+    }
+    if(F.ipo==='old')out=out.filter(r=>r.ipo&&year-r.ipo>10);
+    else if(F.ipo)out=out.filter(r=>r.ipo&&year-r.ipo<=+F.ipo);
+    if(F.ark)out=out.filter(r=>ARK.has(r.sym));
+    if(F.q){const q=F.q.toLowerCase();out=out.filter(r=>r.sym.toLowerCase().includes(q)||r.name.toLowerCase().includes(q));}
+    if(F.m7)out=out.filter(r=>M7.has(r.sym));
+    const k=SORT.key,d=SORT.dir;
+    return out.slice().sort((a,b)=>{
+      if(k==='name')return a.sym.localeCompare(b.sym)*d;
+      return ((a[k]||0)-(b[k]||0))*d;
+    });
+  }
+
+  /* ---------- 렌더 ---------- */
+  const el=id=>document.getElementById(id);
+  const sel=new Set();
+  function render(){
+    const out=apply();
+    const body=out.slice(0,shown);
+    el('cnt').textContent=out.length.toLocaleString('en-US')+'종목';
+    el('sumCnt').textContent=out.length.toLocaleString('en-US');
+    const avg=out.length?out.reduce((n,r)=>n+r.chg,0)/out.length:0;
+    const ce=el('sumChg');ce.textContent=out.length?pctTxt(avg):'—';ce.className='v '+(avg>=0?'up':'down');
+    el('sumCap').textContent=out.length?usd(out.reduce((n,r)=>n+r.cap,0)):'—';
+    el('sumArk').textContent=out.filter(r=>ARK.has(r.sym)).length.toLocaleString('en-US');
+    el('rows').innerHTML=body.length?body.map(r=>{
+      const a=ARK.get(r.sym);
+      return `<tr>`
+        +`<td class="chk"><input type="checkbox" data-sym="${esc(r.sym)}"${sel.has(r.sym)?' checked':''}></td>`
+        +`<td><a href="stock-us.html?t=${encodeURIComponent(r.sym)}" style="color:inherit;text-decoration:none">`
+        +`<b>${esc(r.sym)}</b> <span style="font-size:12px;color:var(--txt-2)">${esc(r.name.slice(0,26))}</span>`
+        +`<div style="font-size:11px;color:var(--txt-3)">${esc(r.ex)}${r.sector?' · '+esc(r.sector):''}${r.industry?' · '+esc(r.industry.slice(0,28)):''}</div></a></td>`
+        +`<td class="mono">$${r.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>`
+        +`<td class="mono ${r.chg>=0?'up':'down'}">${pctTxt(r.chg)}</td>`
+        +`<td class="mono">${r.cap?usd(r.cap):'—'}</td>`
+        +`<td class="mono">${r.amt?usd(r.amt):'—'}</td>`
+        +`<td class="mono">${r.vol?r.vol.toLocaleString('en-US'):'—'}</td>`
+        +`<td class="mono">${r.ipo||'—'}</td>`
+        +`<td>${a?`<span class="badge" style="font-size:10px">${a.funds.size}개 펀드</span>`:'<span style="color:var(--txt-3)">—</span>'}</td></tr>`;
+    }).join('')
+      :'<tr><td colspan="9" style="text-align:center;color:var(--txt-3);padding:24px">조건에 맞는 종목이 없어요. 필터를 넓혀 보세요.</td></tr>';
+    el('btnMore').style.display=out.length>shown?'inline-block':'none';
+    el('btnMore').textContent='＋ 더 보기 ('+(out.length-shown).toLocaleString('en-US')+'종목 남음)';
+    document.querySelectorAll('#tbl thead th[data-s]').forEach(th=>{
+      const on=th.dataset.s===SORT.key;
+      th.style.color=on?'var(--brand)':'';
+      th.textContent=th.textContent.replace(/ ?[▲▼]$/,'')+(on?(SORT.dir<0?' ▼':' ▲'):'');
+    });
+  }
+
+  /* ---------- 입력 ---------- */
+  document.querySelectorAll('.chips[data-g]').forEach(box=>{
+    box.querySelectorAll('.chip').forEach(chip=>{
+      chip.onclick=()=>{
+        box.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+        chip.classList.add('on');
+        F[box.dataset.g]=chip.dataset.v||'';
+        shown=PAGE_ROWS;render();
+      };
+    });
   });
-  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
-  document.querySelectorAll('.preset').forEach(p=>p.onclick=()=>{document.querySelectorAll('.preset').forEach(x=>x.classList.remove('on'));p.classList.add('on');});
-  render();
+  el('secSel').onchange=e=>{
+    F.sector=e.target.value;F.industry='';
+    fillIndustries();shown=PAGE_ROWS;render();
+  };
+  el('indSel').onchange=e=>{F.industry=e.target.value;shown=PAGE_ROWS;render();};
+  let qTimer=null;
+  el('qName').oninput=e=>{clearTimeout(qTimer);qTimer=setTimeout(()=>{F.q=e.target.value.trim();shown=PAGE_ROWS;render();},200);};
+  el('btnReset').onclick=()=>{
+    Object.keys(F).forEach(k=>F[k]='');delete F.m7;
+    document.querySelectorAll('.chips[data-g]').forEach(box=>{
+      box.querySelectorAll('.chip').forEach((c,i)=>c.classList.toggle('on',i===0));});
+    el('secSel').value='';el('qName').value='';fillIndustries();
+    document.querySelectorAll('.preset').forEach(b=>b.classList.remove('on'));
+    SORT={key:'cap',dir:-1};shown=PAGE_ROWS;render();
+  };
+  el('btnMore').onclick=()=>{shown+=PAGE_ROWS;render();};
+  document.querySelectorAll('#tbl thead th[data-s]').forEach(th=>{
+    th.style.cursor='pointer';
+    th.onclick=()=>{
+      const k=th.dataset.s;
+      if(SORT.key===k)SORT.dir=-SORT.dir;else SORT={key:k,dir:k==='name'?1:-1};
+      shown=PAGE_ROWS;render();
+    };
+  });
+
+  const PRESETS={
+    hot:{chg:'up5',amt:'10'},
+    mega:{cap:'mega'},
+    ark:{ark:'1'},
+    ipo:{ipo:'3',amt:'10'},
+    m7:{m7:true}
+  };
+  document.querySelectorAll('.preset').forEach(btn=>{
+    btn.onclick=()=>{
+      const isAll=btn.dataset.preset==='all';
+      const on=!isAll&&btn.classList.contains('on');
+      document.querySelectorAll('.preset').forEach(b=>b.classList.remove('on'));
+      Object.keys(F).forEach(k=>F[k]='');delete F.m7;
+      document.querySelectorAll('.chips[data-g]').forEach(box=>{
+        box.querySelectorAll('.chip').forEach((c,i)=>c.classList.toggle('on',i===0));});
+      el('secSel').value='';el('qName').value='';fillIndustries();
+      if(!on){
+        btn.classList.add('on');
+        const p=PRESETS[btn.dataset.preset]||{};
+        Object.assign(F,p);
+        Object.keys(p).forEach(g=>{
+          const box=document.querySelector('.chips[data-g="'+g+'"]');
+          if(!box)return;
+          box.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',(c.dataset.v||'')===p[g]));
+        });
+      }
+      shown=PAGE_ROWS;render();
+    };
+  });
+
+  document.getElementById('rows').addEventListener('change',e=>{
+    const cb=e.target.closest&&e.target.closest('input[type=checkbox]');
+    if(!cb)return;
+    if(cb.checked)sel.add(cb.dataset.sym);else sel.delete(cb.dataset.sym);
+    el('cmpText').textContent=sel.size+'개 선택';
+    el('cmpbar').classList.toggle('on',sel.size>0);
+  });
+  el('cmpGo').onclick=()=>{const f=[...sel][0];if(f)location.href='stock-us.html?t='+encodeURIComponent(f);};
+
+  el('btnCsv').style.cursor='pointer';
+  el('btnCsv').onclick=()=>{
+    const out=apply();if(!out.length)return;
+    const head=['Ticker','Name','Exchange','Sector','Industry','Country','IPO','Price','Change(%)','MarketCap','Volume','DollarVolume','ARK'];
+    const body=out.map(r=>[r.sym,r.name,r.ex,r.sector,r.industry,r.country,r.ipo||'',
+      r.price.toFixed(2),r.chg.toFixed(2),Math.round(r.cap),r.vol,Math.round(r.amt),
+      ARK.has(r.sym)?[...ARK.get(r.sym).funds].join(' '):'']);
+    const csv=[head,...body].map(row=>row.map(v=>{
+      const s=String(v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(',')).join('\r\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='richflow-us-screener-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+  };
+
+  function fillIndustries(){
+    const s=el('indSel');
+    const pool=F.sector?ROWS.filter(r=>r.sector===F.sector):ROWS;
+    const set=[...new Set(pool.map(r=>r.industry).filter(Boolean))].sort();
+    s.innerHTML='<option value="">전체 산업</option>'+set.map(i=>`<option value="${esc(i)}">${esc(i)}</option>`).join('');
+    s.value=F.industry||'';
+  }
+
+  (async function start(){
+    const [rows,ark]=await Promise.all([loadRows(),loadArk()]);
+    ROWS=rows;ARK=ark;
+    if(!ROWS.length){
+      el('rows').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--txt-3);padding:24px">종목 목록을 불러오지 못했어요. 새로고침해 주세요.</td></tr>';
+      el('cnt').textContent='불러오기 실패';return;
+    }
+    el('uniCnt').textContent=ROWS.length.toLocaleString('en-US');
+    SECTORS=[...new Set(ROWS.map(r=>r.sector).filter(Boolean))].sort();
+    el('secSel').innerHTML='<option value="">전체 섹터</option>'+SECTORS.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+    fillIndustries();
+    render();
+  })();
 </script>
 </body>
 </html>
