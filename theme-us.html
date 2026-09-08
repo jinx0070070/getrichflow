@@ -76,6 +76,7 @@
   .disc-card .ic{width:38px;height:38px;border-radius:11px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
   .disc-card .nm{flex:1}.disc-card .nm .n{font-weight:800;font-size:14px}.disc-card .nm .s{font-size:11px;color:var(--txt-3)}
   .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:var(--up-bg);color:var(--up)}
+  .retry-btn{margin-left:8px;border:1px solid var(--line-2);background:var(--card);color:var(--brand);border-radius:8px;padding:5px 9px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
   .disc{font-size:11px;color:var(--txt-3);line-height:1.6;padding:18px 2px 44px}
   @media(max-width:900px){.band,.cols{grid-template-columns:1fr}nav.menu,.search{display:none}.strength .nm{width:90px}}
 </style>
@@ -112,30 +113,28 @@
   <div class="panel" data-panel="today">
     <div class="band">
       <div class="card">
-        <h3>💧 자금 유입 섹터 <span class="hint">ETF 순유입</span></h3>
-        <div class="flow-row"><span class="tn up">반도체</span><div class="flow-bar"><span class="flow-mid"></span><i class="up" style="left:50%;width:46%;background:var(--up)"></i></div><span class="flow-val up">+$8.2B</span></div>
-        <div class="flow-row"><span class="tn up">AI SW</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:20%;background:var(--up)"></i></div><span class="flow-val up">+$3.1B</span></div>
-        <div class="flow-row"><span class="tn up">금융</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:10%;background:var(--up)"></i></div><span class="flow-val up">+$1.4B</span></div>
+        <h3>🔥 오늘 강한 테마 <span class="hint" id="hotHint">불러오는 중…</span></h3>
+        <div id="hotList"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>🩸 자금 유출 섹터 <span class="hint">ETF 순유출</span></h3>
-        <div class="flow-row"><span class="tn down">전기차</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:14%;background:var(--down)"></i></div><span class="flow-val down">−$2.1B</span></div>
-        <div class="flow-row"><span class="tn down">소비재</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:6%;background:var(--down)"></i></div><span class="flow-val down">−$0.9B</span></div>
-        <div class="flow-row"><span class="tn down">리츠</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:5%;background:var(--down)"></i></div><span class="flow-val down">−$0.6B</span></div>
+        <h3>🩸 오늘 약한 테마 <span class="hint" id="coldHint">테마 ETF 하락순</span></h3>
+        <div id="coldList"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <h3>🏆 테마 강도 랭킹 <span class="hint">등락·자금 종합 · 클릭 = 종목</span></h3>
-      <div id="strengthList"></div>
+      <h3>🏆 테마 강도 랭킹 <span class="hint">등락률 · 거래대금 · 클릭 = 종목 페이지</span></h3>
+      <div id="strengthList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ 미국은 테마마다 <b>대표 ETF</b>가 상장돼 있어, 그 ETF의 등락을 테마 등락으로 봅니다. 거래대금은 그 ETF의 당일 거래대금입니다.</div>
     </div>
-    <div class="card" style="margin-bottom:16px"><h3>🃏 테마 카드 <span class="hint">대표종목·추세</span></h3></div>
+
+    <div class="card" style="margin-bottom:16px"><h3>🃏 테마 카드 <span class="hint" id="cardHint">대표 ETF · 거래대금</span></h3></div>
     <div class="theme-grid" id="themeGrid"></div>
 
     <div class="card ai-note" style="margin-top:16px">
       <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 테마 해설</h3>
       <div style="display:flex;gap:12px"><svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
-        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">돈은 <b style="color:var(--txt)">AI 반도체·소프트웨어</b>로 계속 몰려요. 엔비디아·팔란티어가 주도. 반면 <b style="color:var(--txt)">전기차</b>는 캐즘 우려로 자금 이탈 지속. ARK는 로봇(ACHR)·유전자로 로테이션 중입니다.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
+        <div id="themeAi" style="font-size:13.5px;color:var(--txt-2);line-height:1.65">테마 ETF 등락을 불러와 정리하고 있어요.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
       </div>
     </div>
   </div>
@@ -143,34 +142,18 @@
   <!-- 매그니피센트 7 -->
   <div class="panel" data-panel="mag7" style="display:none">
     <div class="card" style="margin:20px 0">
-      <h3>💎 매그니피센트 7 <span class="hint">미장 시총 최상위 7종목</span></h3>
-      <div class="mag7">
-        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">NVIDIA</div><div class="c up">+2.2%</div><div class="s">$4.48T · AI 반도체</div></div>
-        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Apple</div><div class="c up">+0.6%</div><div class="s">$3.54T · 하드웨어</div></div>
-        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Microsoft</div><div class="c down">−2.1%</div><div class="s">$2.96T · 클라우드</div></div>
-        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Alphabet</div><div class="c up">+1.8%</div><div class="s">$2.42T · 검색·AI</div></div>
-        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Amazon</div><div class="c up">+1.2%</div><div class="s">$2.28T · 이커머스</div></div>
-        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Meta</div><div class="c down">−0.9%</div><div class="s">$1.55T · 광고·AI</div></div>
-        <div class="m7" onclick="location.href='stock-us.html'"><div class="n">Tesla</div><div class="c down">−4.1%</div><div class="s">$1.21T · 전기차</div></div>
-      </div>
-      <div style="font-size:12px;color:var(--txt-3);margin-top:14px">매그니피센트 7이 S&P500 시총의 <b>약 33%</b>를 차지 — 지수 방향을 사실상 좌우합니다.</div>
+      <h3>💎 매그니피센트 7 <span class="hint" id="m7Hint">불러오는 중…</span></h3>
+      <div class="mag7" id="m7Grid"><div style="color:var(--txt-3);font-size:13px;padding:8px">불러오는 중…</div></div>
+      <div style="font-size:12px;color:var(--txt-3);margin-top:14px" id="m7Note">7종목 시가총액을 더해 계산합니다.</div>
     </div>
     <div class="cols">
-      <div class="card"><h3>📊 M7 오늘 기여도 <span class="hint">지수 포인트</span></h3>
-        <div class="rot-row"><span class="tn up">NVIDIA</span><div class="rot-bar"><i style="width:100%;background:var(--up)"></i></div><span class="rot-val up">+18p</span></div>
-        <div class="rot-row"><span class="tn up">Alphabet</span><div class="rot-bar"><i style="width:40%;background:var(--up)"></i></div><span class="rot-val up">+7p</span></div>
-        <div class="rot-row"><span class="tn up">Amazon</span><div class="rot-bar"><i style="width:30%;background:var(--up)"></i></div><span class="rot-val up">+5p</span></div>
-        <div class="rot-row"><span class="tn down">Microsoft</span><div class="rot-bar"><i style="width:60%;background:var(--down)"></i></div><span class="rot-val down">−11p</span></div>
-        <div class="rot-row"><span class="tn down">Tesla</span><div class="rot-bar"><i style="width:45%;background:var(--down)"></i></div><span class="rot-val down">−8p</span></div>
+      <div class="card"><h3>📊 M7 안에서의 기여도 <span class="hint">시총 가중</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">7종목을 하나로 묶었을 때 오늘 등락을 <b>누가 얼마나 끌었는지</b>입니다. 시총이 클수록 같은 % 움직임이 더 크게 반영돼요.</div>
+        <div id="m7Contrib"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
-      <div class="card"><h3>⚖️ M7 vs 나머지 493 <span class="hint">YTD 수익률</span></h3>
-        <div style="text-align:center;padding:14px 0">
-          <div style="display:flex;justify-content:space-around;align-items:flex-end;height:120px">
-            <div style="text-align:center"><div style="width:60px;height:110px;background:var(--brand);border-radius:8px 8px 0 0;margin:0 auto"></div><div style="font-weight:800;margin-top:6px;color:var(--up)">+34%</div><div style="font-size:11px;color:var(--txt-3)">M7</div></div>
-            <div style="text-align:center"><div style="width:60px;height:38px;background:var(--line-2);border-radius:8px 8px 0 0;margin:0 auto"></div><div style="font-weight:800;margin-top:6px">+9%</div><div style="font-size:11px;color:var(--txt-3)">나머지 493</div></div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--txt-3);text-align:center">소수 대형주 <b>쏠림</b>이 심화된 장세예요.</div>
+      <div class="card"><h3>⚖️ 쏠림 정도 <span class="hint">시총가중 vs 동일가중</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:10px">같은 500종목을 <b>시총대로</b> 담은 SPY와 <b>똑같이 나눠</b> 담은 RSP를 견줍니다. SPY가 앞서면 대형주 몇 개가 지수를 끌고 있다는 뜻이에요.</div>
+        <div id="m7Tilt"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
   </div>
@@ -178,22 +161,14 @@
   <!-- 섹터 로테이션 -->
   <div class="panel" data-panel="rot" style="display:none">
     <div class="card" style="margin:20px 0">
-      <h3>🔄 GICS 11개 섹터 등락 <span class="hint">전일 · S&P500 기준</span></h3>
-      <div class="rot-row"><span class="tn up">기술(IT)</span><div class="rot-bar"><i style="width:100%;background:var(--up)"></i></div><span class="rot-val up">+2.1%</span></div>
-      <div class="rot-row"><span class="tn up">통신서비스</span><div class="rot-bar"><i style="width:62%;background:var(--up)"></i></div><span class="rot-val up">+1.3%</span></div>
-      <div class="rot-row"><span class="tn up">금융</span><div class="rot-bar"><i style="width:43%;background:var(--up)"></i></div><span class="rot-val up">+0.9%</span></div>
-      <div class="rot-row"><span class="tn up">에너지</span><div class="rot-bar"><i style="width:38%;background:var(--up)"></i></div><span class="rot-val up">+0.8%</span></div>
-      <div class="rot-row"><span class="tn up">헬스케어</span><div class="rot-bar"><i style="width:15%;background:var(--up)"></i></div><span class="rot-val up">+0.3%</span></div>
-      <div class="rot-row"><span class="tn down">임의소비재</span><div class="rot-bar"><i style="width:52%;background:var(--down)"></i></div><span class="rot-val down">−1.1%</span></div>
-      <div class="rot-row"><span class="tn down">유틸리티</span><div class="rot-bar"><i style="width:30%;background:var(--down)"></i></div><span class="rot-val down">−0.6%</span></div>
+      <h3>🔄 GICS 11개 섹터 <span class="hint" id="rotHint">불러오는 중…</span></h3>
+      <div style="font-size:12px;color:var(--txt-3);margin-bottom:10px">S&amp;P500을 11개 섹터로 나눈 <b>SPDR 섹터 ETF</b>의 오늘 등락입니다.</div>
+      <div id="rotList"></div>
     </div>
     <div class="card">
-      <h3>🔗 연계 테마 <span class="hint">함께 움직이는 테마</span></h3>
-      <div class="conn">
-        <div class="conn-row"><div class="hub">🤖 AI 인프라</div><div class="links"><span class="lk">AI 반도체(NVDA)</span><span class="arrow">→</span><span class="lk">데이터센터</span><span class="arrow">→</span><span class="lk">전력·유틸</span><span class="arrow">→</span><span class="lk">냉각·네트워킹</span></div></div>
-        <div class="conn-row"><div class="hub">💊 비만치료제(GLP-1)</div><div class="links"><span class="lk">일라이릴리</span><span class="arrow">→</span><span class="lk">노보노디스크</span><span class="arrow">→</span><span class="lk">CDMO</span></div></div>
-        <div class="conn-row"><div class="hub">₿ 크립토 인프라</div><div class="links"><span class="lk">Coinbase</span><span class="arrow">→</span><span class="lk">MicroStrategy</span><span class="arrow">→</span><span class="lk">채굴주</span></div></div>
-      </div>
+      <h3>🔗 섹터 vs 테마 <span class="hint" id="connHint">섹터를 이긴 테마</span></h3>
+      <div style="font-size:12px;color:var(--txt-3);margin-bottom:10px">테마를 <b>소속 섹터와 견준</b> 것입니다. 반도체가 기술 섹터를 크게 앞섰다면, 오늘 기술주 상승은 반도체가 끌었다는 뜻이에요.</div>
+      <div class="conn" id="connList"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
     </div>
   </div>
 
@@ -201,59 +176,311 @@
   <div class="panel" data-panel="find" style="display:none">
     <div class="cols" style="margin-top:20px">
       <div class="card">
-        <h3>✨ 신규·급부상 테마 <span class="hint">ARK·큰손 주목</span></h3>
-        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">🚁</div><div class="nm"><div class="n">eVTOL·도심항공 <span class="badge">NEW</span></div><div class="s">ARK 신규 매집(ACHR) · +18%</div></div></div>
-        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">⚛️</div><div class="nm"><div class="n">양자컴퓨팅 <span class="badge">급부상</span></div><div class="s">IONQ·RGTI 급등 · +22%</div></div></div>
-        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">🔋</div><div class="nm"><div class="n">전력·원자력</div><div class="s">AI 전력수요 · +12%</div></div></div>
-        <div class="disc-card" onclick="location.href='stock-us.html'"><div class="ic">🛰️</div><div class="nm"><div class="n">우주·위성</div><div class="s">SpaceX 상장 기대 · +9%</div></div></div>
+        <h3>🚀 ARK가 어제 담은 종목 <span class="hint" id="arkHint">불러오는 중…</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">ARK Invest는 <b>매일 장 마감 후 매매 내역을 공개</b>합니다. 새로 담은 종목에서 다음 테마가 나오기도 해요.</div>
+        <div id="arkList"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>🔥 오늘의 급등 테마 <span class="hint">테마 지수</span></h3>
-        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">1</span><span class="nm" style="width:auto;flex:1">양자컴퓨팅</span><span class="chg up">+22.1%</span></div>
-        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">2</span><span class="nm" style="width:auto;flex:1">eVTOL</span><span class="chg up">+9.2%</span></div>
-        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">3</span><span class="nm" style="width:auto;flex:1">AI 소프트웨어</span><span class="chg up">+4.1%</span></div>
-        <div class="strength" onclick="location.href='stock-us.html'"><span class="rk">4</span><span class="nm" style="width:auto;flex:1">크립토 인프라</span><span class="chg up">+3.8%</span></div>
+        <h3>🔥 오늘의 급등 테마 <span class="hint">테마 ETF 등락률</span></h3>
+        <div id="findHot"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
     <div class="card">
-      <h3>📰 테마 관련 뉴스 <span class="hint">촉발 이벤트</span></h3>
-      <div style="font-size:12.5px;color:var(--txt-2);padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="location.href='article.html'"><b style="color:var(--brand)">[AI 반도체]</b> 엔비디아 블랙웰 공급 완판… 4분기 가시성 확보</div>
-      <div style="font-size:12.5px;color:var(--txt-2);padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="location.href='article.html'"><b style="color:var(--brand)">[eVTOL]</b> ARK, 아처 에비에이션 6거래일 연속 매집</div>
-      <div style="font-size:12.5px;color:var(--txt-2);padding:8px 0;cursor:pointer" onclick="location.href='article.html'"><b style="color:var(--brand)">[양자]</b> 구글 양자칩 발표에 IONQ·RGTI 동반 급등</div>
+      <h3>🧊 오늘의 급락 테마 <span class="hint">테마 ETF 등락률 하위</span></h3>
+      <div id="findCold"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
     </div>
   </div>
 
-  <div class="disc">데이터 출처: 미국 거래소 · ETF 순유입(ETF.com) · ARK 공개 · 자체 산출물. 정보 제공용이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+  <div class="disc">데이터 출처: <b style="color:var(--brand)">네이버 금융 해외주식</b>(섹터·테마 대표 ETF와 매그니피센트 7의 시세·시가총액·거래대금, 화면을 열 때 조회) · <b style="color:var(--brand)">ARK Invest 공개 매매내역</b>(arkfunds.io). 테마 등락은 그 테마의 대표 ETF 등락으로 갈음한 값이며, ETF 구성은 운용사 기준입니다. 미국장 마감 뒤에는 마지막 정규장 종가가 표시됩니다. 정보 제공용이며 매수·매도 권유가 아닙니다.</div>
 </div>
 
 <script>
+  /* ===== 미장 테마·흐름 실데이터 =====
+   * 미국은 테마마다 대표 ETF가 상장돼 있어, 그 ETF 시세를 테마 등락으로 쓴다.
+   * 시세·시가총액·거래대금은 네이버 해외주식 API(지연 0), ARK 매매는 arkfunds.io.
+   * 과거 추이를 주는 API가 없으므로 "YTD 수익률" 같은 기간 수치는 만들지 않는다. */
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const NVU='https://api.stock.naver.com/stock/';
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const pct=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%';
+  const col=v=>v>=0?'var(--up)':'var(--down)';
+  const usd=n=>{const a=Math.abs(n);
+    if(a>=1e12)return '$'+(a/1e12).toFixed(2)+'T';
+    if(a>=1e9)return '$'+(a/1e9).toFixed(1)+'B';
+    if(a>=1e6)return '$'+(a/1e6).toFixed(0)+'M';
+    return '$'+Math.round(a).toLocaleString('en-US');};
+  const retryHtml=(key,label='다시 시도')=>`<button class="retry-btn" type="button" data-retry="${key}">${label}</button>`;
+
+  async function fetchJSON(url,timeout=11000){
+    const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+    catch(e){console.warn('[RICHFLOW] theme-us fetch fail',url,e&&e.name);return null;}
+    finally{clearTimeout(t);}
+  }
+  async function pool(items,n,fn){const out=[];let i=0;
+    async function w(){while(i<items.length){const k=i++;out[k]=await fn(items[k]);}}
+    await Promise.all(Array.from({length:Math.min(n,items.length)},w));return out;}
+
+  /* 네이버 해외 코드: NYSE·NYSE Arca는 티커 그대로, 나스닥은 티커+".O".
+   * 어느 쪽인지 확실치 않은 종목이 있어 그대로 먼저 넣어 보고 실패하면 .O로 재시도한다. */
+  /* 네이버 해외 종목코드(reutersCode)는 거래소마다 접미어가 다르다.
+   * 접미어 없음=NYSE / .O=나스닥 / .K=아멕스.
+   * 아래 값은 ac.stock.naver.com 검색으로 하나씩 확인한 것이다(추측 아님). */
+  const RC={XLRE:'XLRE.K',SMH:'SMH.O',SOXX:'SOXX.O',SKYY:'SKYY.O',CIBR:'CIBR.O',BOTZ:'BOTZ.O',
+    FINX:'FINX.O',IBB:'IBB.O',ICLN:'ICLN.O',JETS:'JETS.K',DRIV:'DRIV.O',KWEB:'KWEB.K',
+    NVDA:'NVDA.O',AAPL:'AAPL.O',MSFT:'MSFT.O',GOOGL:'GOOGL.O',AMZN:'AMZN.O',META:'META.O',TSLA:'TSLA.O'};
+  const quoteCache=new Map();
+  async function usQuote(sym){
+    if(quoteCache.has(sym))return quoteCache.get(sym);
+    const p=(async()=>{
+    let d=await fetchJSON(WK+encodeURIComponent(NVU+(RC[sym]||sym)+'/basic'));
+    if(!d||!d.closePrice)d=await fetchJSON(WK+encodeURIComponent(NVU+sym+'.O/basic'));
+    if(!d||!d.closePrice)d=await fetchJSON(WK+encodeURIComponent(NVU+sym+'.K/basic'));
+    const out=(d&&d.closePrice)?{
+      sym,name:d.stockName||sym,price:num(d.closePriceRaw||d.closePrice),
+      chg:num(d.fluctuationsRatioRaw||d.fluctuationsRatio),
+      value:num(d.accumulatedTradingValueRaw),cap:num(d.marketValueFullRaw),
+      status:d.marketStatus||''}:null;
+    return out;
+    })();
+    quoteCache.set(sym,p);   /* 진행 중인 요청도 캐시에 넣어 같은 종목을 두 번 부르지 않는다 */
+    return p;
+  }
+
+  /* GICS 11개 섹터 — SPDR 섹터 ETF */
+  const SECTORS=[['XLK','기술'],['XLC','커뮤니케이션'],['XLY','임의소비재'],['XLP','필수소비재'],
+    ['XLE','에너지'],['XLF','금융'],['XLV','헬스케어'],['XLI','산업재'],['XLB','소재'],
+    ['XLRE','부동산'],['XLU','유틸리티']];
+  /* 테마 대표 ETF — [티커, 테마명, 소속 섹터 ETF] */
   const THEMES=[
-    ['AI 반도체','+3.4%',1,'자금 최다 유입 · HBM/GPU',[['NVIDIA','+2.2%'],['AMD','+3.4%'],['Broadcom','+1.1%'],['Micron','-0.8%']]],
-    ['AI 소프트웨어','+4.1%',1,'팔란티어 주도',[['Palantir','+6.0%'],['Snowflake','+2.1%'],['C3.ai','+4.2%']]],
-    ['크립토 인프라','+3.8%',1,'클래리티 액트 기대',[['Coinbase','+4.2%'],['MicroStrategy','+7.1%']]],
-    ['eVTOL·항공','+9.2%',1,'ARK 신규 매집',[['Archer','+9.2%'],['Joby','+6.1%']]],
-    ['비만치료제','+1.2%',1,'GLP-1 성장',[['Eli Lilly','+1.4%'],['Novo','+0.8%']]],
-    ['방산','+0.9%',1,'지정학 리스크',[['Lockheed','+0.8%'],['RTX','+1.1%']]],
-    ['빅테크','+0.1%',1,'실적 대기',[['Apple','+0.6%'],['Microsoft','-2.1%'],['Meta','-0.9%'],['Alphabet','+1.8%']]],
-    ['전기차','-2.6%',0,'수요 캐즘',[['Tesla','-4.1%'],['Rivian','-2.2%'],['Lucid','-1.5%']]]
+    ['SMH','반도체','XLK'],['SOXX','반도체 장비','XLK'],['IGV','소프트웨어','XLK'],
+    ['SKYY','클라우드','XLK'],['CIBR','사이버보안','XLK'],['BOTZ','로봇·AI','XLK'],
+    ['FINX','핀테크','XLF'],['KRE','지역은행','XLF'],
+    ['XBI','바이오텍','XLV'],['IBB','바이오','XLV'],
+    ['TAN','태양광','XLE'],['ICLN','청정에너지','XLE'],['URA','우라늄·원자력','XLE'],['XOP','석유·가스 탐사','XLE'],
+    ['ITA','방산','XLI'],['XAR','항공우주','XLI'],['JETS','항공','XLI'],['IYT','운송','XLI'],
+    ['LIT','2차전지','XLB'],['GDX','금광','XLB'],
+    ['DRIV','자율주행·전기차','XLY'],['XHB','주택건설','XLY'],['KWEB','중국 인터넷','XLC']
   ];
-  const sList=document.getElementById('strengthList');
-  [...THEMES].sort((a,b)=>parseFloat(b[1])-parseFloat(a[1])).forEach((t,i)=>{
-    const up=t[2];const col=up?'var(--up)':'var(--down)';const w=Math.min(100,Math.abs(parseFloat(t[1]))/10*100);
-    const el=document.createElement('div');el.className='strength';
-    el.innerHTML=`<span class="rk">${i+1}</span><span class="nm">${t[0]}</span><div class="gauge"><i style="width:${w}%;background:${col}"></i></div><span class="chg" style="color:${col}">${t[1]}</span>`;
-    el.onclick=()=>location.href='stock-us.html';sList.appendChild(el);
+  const M7=[['NVDA','엔비디아'],['AAPL','애플'],['MSFT','마이크로소프트'],['GOOGL','알파벳'],
+    ['AMZN','아마존'],['META','메타'],['TSLA','테슬라']];
+
+  let themeRows=null,sectorRows=null;
+  async function loadThemeRows(){
+    if(themeRows)return themeRows;
+    const res=await pool(THEMES,6,async t=>{const q=await usQuote(t[0]);return q?{...q,label:t[1],sector:t[2]}:null;});
+    themeRows=res.filter(Boolean);
+    return themeRows;
+  }
+  async function loadSectorRows(){
+    if(sectorRows)return sectorRows;
+    const res=await pool(SECTORS,6,async s=>{const q=await usQuote(s[0]);return q?{...q,label:s[1]}:null;});
+    sectorRows=res.filter(Boolean);
+    return sectorRows;
+  }
+
+  const flowRow=(r,max)=>{
+    const w=max?Math.min(48,Math.abs(r.chg)/max*48):0;
+    const u=r.chg>=0;
+    return `<div class="flow-row" data-go="${esc(r.sym)}" style="cursor:pointer">`
+      +`<span class="tn ${u?'up':'down'}">${esc(r.label)}</span>`
+      +`<div class="flow-bar"><span class="flow-mid"></span>`
+      +`<i style="${u?'left:50%':'right:50%;left:auto'};width:${w}%;background:${col(r.chg)}"></i></div>`
+      +`<span class="flow-val" style="color:${col(r.chg)}">${pct(r.chg)}</span></div>`;
+  };
+
+  /* ---------- 오늘의 테마 ---------- */
+  async function loadToday(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const rows=await loadThemeRows();
+    if(!rows.length){
+      const f=`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">테마 ETF 시세를 불러오지 못했어요 ${retryHtml('today')}</div>`;
+      html('hotList',f);html('coldList','');html('strengthList',f);set('hotHint','불러오기 실패');return;
+    }
+    const by=[...rows].sort((a,b)=>b.chg-a.chg);
+    const max=Math.max(Math.abs(by[0].chg),Math.abs(by[by.length-1].chg),1);
+    set('hotHint','테마 '+rows.length+'개 중 상위');
+    set('coldHint','테마 '+rows.length+'개 중 하위');
+    html('hotList',by.slice(0,6).map(r=>flowRow(r,max)).join(''));
+    html('coldList',by.slice(-6).reverse().map(r=>flowRow(r,max)).join(''));
+
+    const smax=Math.max(...by.map(r=>Math.abs(r.chg)),1);
+    html('strengthList',by.slice(0,12).map((r,i)=>
+      `<div class="strength" data-go="${esc(r.sym)}"><span class="rk">${i+1}</span>`
+      +`<span class="nm">${esc(r.label)}</span>`
+      +`<div class="gauge"><i style="width:${Math.max(3,Math.abs(r.chg)/smax*100)}%;background:${col(r.chg)}"></i></div>`
+      +`<span class="flow">${usd(r.value)}</span>`
+      +`<span class="chg" style="color:${col(r.chg)}">${pct(r.chg)}</span></div>`).join(''));
+
+    const cards=by.slice(0,8);
+    set('cardHint','상위 '+cards.length+'개 테마');
+    html('themeGrid',cards.map(r=>
+      `<div class="tcard" data-go="${esc(r.sym)}">`
+      +`<div class="th"><span class="tname">${esc(r.label)}</span><span class="tchg" style="color:${col(r.chg)}">${pct(r.chg)}</span></div>`
+      +`<div class="sub">${esc(r.sym)} · $${r.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} · 거래대금 ${usd(r.value)}</div>`
+      +`<div class="stocks"><span class="stk">${esc(r.name)}</span></div></div>`).join(''));
+
+    const secs=await loadSectorRows();
+    const ai=[];
+    const up=by[0],dn=by[by.length-1];
+    ai.push(`테마 ${rows.length}개 중 <b style="color:var(--txt)">${rows.filter(r=>r.chg>0).length}개</b>가 올랐어요.`);
+    ai.push(`가장 강한 쪽은 <b style="color:var(--txt)">${esc(up.label)} ${pct(up.chg)}</b>, 약한 쪽은 <b style="color:var(--txt)">${esc(dn.label)} ${pct(dn.chg)}</b>입니다.`);
+    if(secs.length){
+      const bs=[...secs].sort((a,b)=>b.chg-a.chg);
+      ai.push(`섹터로는 <b style="color:var(--txt)">${esc(bs[0].label)} ${pct(bs[0].chg)}</b>가 앞서고 <b style="color:var(--txt)">${esc(bs[bs.length-1].label)} ${pct(bs[bs.length-1].chg)}</b>가 뒤집니다.`);
+    }
+    if(rows[0]&&rows[0].status==='CLOSE')ai.push('지금은 미국장 마감 상태라 마지막 정규장 종가 기준입니다.');
+    html('themeAi',ai.join(' ')+'<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>');
+  }
+
+  /* ---------- 매그니피센트 7 ---------- */
+  async function loadMag7(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const res=await pool(M7,7,async m=>{const q=await usQuote(m[0]);return q?{...q,label:m[1]}:null;});
+    const rows=res.filter(Boolean);
+    if(!rows.length){
+      html('m7Grid',`<div style="color:var(--txt-3);font-size:13px;padding:8px">시세를 불러오지 못했어요 ${retryHtml('mag7')}</div>`);
+      set('m7Hint','불러오기 실패');return;
+    }
+    const capSum=rows.reduce((n,r)=>n+r.cap,0);
+    set('m7Hint','시총 합계 '+usd(capSum));
+    html('m7Grid',rows.slice().sort((a,b)=>b.cap-a.cap).map(r=>
+      `<div class="m7" data-go="${esc(r.sym)}"><div class="n">${esc(r.label)}</div>`
+      +`<div class="c" style="color:${col(r.chg)}">${pct(r.chg)}</div>`
+      +`<div class="s">${usd(r.cap)} · $${r.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>`).join(''));
+
+    /* 시총 가중 기여도 — 7종목을 하나로 묶었을 때 오늘 등락을 누가 끌었나 */
+    const contrib=rows.map(r=>({...r,c:capSum?r.chg*r.cap/capSum:0})).sort((a,b)=>b.c-a.c);
+    const total=contrib.reduce((n,r)=>n+r.c,0);
+    const mx=Math.max(...contrib.map(r=>Math.abs(r.c)),0.001);
+    set('m7Note','7종목 시총 합계 '+usd(capSum)+' · 시총가중 등락 '+pct(total));
+    html('m7Contrib',contrib.map(r=>
+      `<div class="rot-row" data-go="${esc(r.sym)}" style="cursor:pointer"><span class="tn" style="width:104px">${esc(r.label)}</span>`
+      +`<div class="rot-bar"><i style="width:${Math.max(2,Math.abs(r.c)/mx*100)}%;background:${col(r.c)}"></i></div>`
+      +`<span class="rot-val" style="color:${col(r.c)}">${(r.c>=0?'+':'−')+Math.abs(r.c).toFixed(2)}%p</span></div>`).join('')
+      +`<div style="font-size:11px;color:var(--txt-3);margin-top:8px">합계 <b style="color:${col(total)}">${pct(total)}</b> — 7종목을 시총대로 담았을 때 오늘 등락입니다.</div>`);
+
+    /* 쏠림 — 시총가중(SPY) vs 동일가중(RSP) */
+    const [spy,rsp]=await Promise.all([usQuote('SPY'),usQuote('RSP')]);
+    if(!spy||!rsp){html('m7Tilt','<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">SPY·RSP 시세를 불러오지 못했어요</div>');return;}
+    const gap=spy.chg-rsp.chg;
+    const bar=(lab,v,sub)=>{
+      const h=Math.min(110,Math.max(6,Math.abs(v)/Math.max(Math.abs(spy.chg),Math.abs(rsp.chg),0.2)*110));
+      return `<div style="text-align:center"><div style="display:flex;align-items:flex-end;height:114px">`
+        +`<div style="width:60px;height:${h}px;background:${col(v)};border-radius:8px 8px 0 0;margin:0 auto"></div></div>`
+        +`<div style="font-weight:800;margin-top:6px;color:${col(v)}">${pct(v)}</div>`
+        +`<div style="font-size:11px;color:var(--txt-3)">${lab}</div>`
+        +`<div style="font-size:10px;color:var(--txt-3)">${sub}</div></div>`;
+    };
+    html('m7Tilt',`<div style="display:flex;justify-content:space-around;align-items:flex-end;padding:6px 0">`
+      +bar('시총가중 (SPY)',spy.chg,'대형주 비중 큼')+bar('동일가중 (RSP)',rsp.chg,'500종목 균등')+`</div>`
+      +`<div style="font-size:12px;color:var(--txt-2);text-align:center;margin-top:10px">`
+      +(Math.abs(gap)<0.05?'오늘은 두 방식의 차이가 거의 없어요. 지수가 <b>고르게</b> 움직였습니다.'
+        :gap>0?`시총가중이 <b style="color:var(--up)">${Math.abs(gap).toFixed(2)}%p</b> 앞섭니다 — <b>대형주 몇 개가 지수를 끌었다</b>는 뜻이에요.`
+              :`동일가중이 <b style="color:var(--up)">${Math.abs(gap).toFixed(2)}%p</b> 앞섭니다 — <b>대형주보다 중소형주가 고르게 올랐다</b>는 뜻이에요.`)
+      +`</div>`);
+  }
+
+  /* ---------- 섹터 로테이션 ---------- */
+  async function loadRot(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const secs=await loadSectorRows();
+    if(!secs.length){
+      html('rotList',`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">섹터 ETF를 불러오지 못했어요 ${retryHtml('rot')}</div>`);
+      set('rotHint','불러오기 실패');return;
+    }
+    const by=[...secs].sort((a,b)=>b.chg-a.chg);
+    const mx=Math.max(...by.map(s=>Math.abs(s.chg)),0.2);
+    set('rotHint','섹터 '+secs.length+'개 · 등락순');
+    html('rotList',by.map(s=>
+      `<div class="rot-row" data-go="${esc(s.sym)}" style="cursor:pointer"><span class="tn" style="width:110px">${esc(s.label)}</span>`
+      +`<div class="rot-bar"><i style="width:${Math.max(3,Math.abs(s.chg)/mx*100)}%;background:${col(s.chg)}"></i></div>`
+      +`<span class="rot-val" style="color:${col(s.chg)}">${pct(s.chg)}</span></div>`).join(''));
+
+    const rows=await loadThemeRows();
+    const secMap={};secs.forEach(s=>secMap[s.sym]=s);
+    const cmp=rows.map(r=>{const s=secMap[r.sector];return s?{r,s,gap:r.chg-s.chg}:null;})
+      .filter(Boolean).sort((a,b)=>b.gap-a.gap);
+    set('connHint',cmp.length?'테마 '+cmp.length+'개 비교':'비교할 테마 없음');
+    html('connList',cmp.length?cmp.slice(0,5).concat(cmp.slice(-3).reverse()).map(x=>
+      `<div class="conn-row"><div class="hub">${esc(x.r.label)} <span style="color:${col(x.r.chg)}">${pct(x.r.chg)}</span></div>`
+      +`<div class="links"><span class="arrow">vs</span>`
+      +`<span class="lk" data-go="${esc(x.s.sym)}" style="cursor:pointer">${esc(x.s.label)} ${pct(x.s.chg)}</span>`
+      +`<span class="arrow">→</span>`
+      +`<span style="font-size:11.5px;font-weight:800;color:${col(x.gap)}">${(x.gap>=0?'+':'−')+Math.abs(x.gap).toFixed(2)}%p ${x.gap>=0?'섹터보다 강함':'섹터보다 약함'}</span></div></div>`).join('')
+      :'<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">비교할 데이터가 없어요</div>');
+  }
+
+  /* ---------- 테마 발굴 ---------- */
+  async function loadFind(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const rows=await loadThemeRows();
+    if(rows.length){
+      const by=[...rows].sort((a,b)=>b.chg-a.chg);
+      const row=(r,i)=>`<div class="strength" data-go="${esc(r.sym)}"><span class="rk">${i+1}</span>`
+        +`<span class="nm" style="width:auto;flex:1">${esc(r.label)} <span style="font-size:11px;color:var(--txt-3);font-weight:600">${esc(r.sym)}</span></span>`
+        +`<span class="flow">${usd(r.value)}</span>`
+        +`<span class="chg" style="color:${col(r.chg)}">${pct(r.chg)}</span></div>`;
+      html('findHot',by.slice(0,6).map(row).join(''));
+      html('findCold',by.slice(-6).reverse().map(row).join(''));
+    }else{
+      html('findHot',`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오지 못했어요 ${retryHtml('find')}</div>`);
+      html('findCold','');
+    }
+
+    /* ARK 공개 매매 — CORS가 열려 있어 브라우저에서 직접 부른다 */
+    const funds=['ARKK','ARKW','ARKG','ARKQ','ARKF','ARKX'];
+    const res=await pool(funds,6,f=>fetchJSON('https://arkfunds.io/api/v2/etf/trades?symbol='+f,12000));
+    const map=new Map();let date='';
+    res.forEach(d=>{
+      if(!d||!Array.isArray(d.trades))return;
+      if((d.date_from||'')>date)date=d.date_from||'';
+      d.trades.forEach(t=>{
+        if(!t.ticker)return;
+        const cur=map.get(t.ticker)||{ticker:t.ticker,company:t.company,shares:0,funds:new Set()};
+        cur.shares+=(t.direction==='Buy'?1:-1)*(t.shares||0);
+        cur.funds.add(t.fund);
+        map.set(t.ticker,cur);
+      });
+    });
+    const buys=[...map.values()].filter(x=>x.shares>0).sort((a,b)=>b.shares-a.shares).slice(0,6);
+    set('arkHint',date?date+' 공개분':'공개 내역 없음');
+    html('arkList',buys.length?buys.map(x=>
+      `<a class="disc-card" href="stock-us.html?t=${encodeURIComponent(x.ticker)}" style="text-decoration:none;color:inherit">`
+      +`<div class="ic">${esc(x.ticker[0])}</div>`
+      +`<div class="nm"><div class="n">${esc(x.company||x.ticker)} <span class="badge">${esc(x.ticker)}</span></div>`
+      +`<div class="s">${x.shares.toLocaleString('en-US')}주 순매수 · ${x.funds.size}개 펀드</div></div></a>`).join('')
+      :'<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">최근 공개된 순매수 내역이 없어요</div>');
+  }
+
+  /* ---------- 이동 / 탭 ---------- */
+  document.addEventListener('click',e=>{
+    const go=e.target.closest&&e.target.closest('[data-go]');
+    if(go){location.href='stock-us.html?t='+encodeURIComponent(go.dataset.go);return;}
+    const rt=e.target.closest&&e.target.closest('[data-retry]');
+    if(rt){const k=rt.dataset.retry;themeRows=null;sectorRows=null;quoteCache.clear();delete panelLoads[k];ensurePanel(k);}
   });
-  const grid=document.getElementById('themeGrid');
-  THEMES.forEach(t=>{
-    const up=t[2];const col=up?'var(--up)':'var(--down)';
-    const pts=up?'0,30 30,26 60,28 90,18 120,20 150,10 180,6':'0,8 30,10 60,14 90,12 120,20 150,24 180,30';
-    const el=document.createElement('div');el.className='tcard';el.onclick=()=>location.href='stock-us.html';
-    el.innerHTML=`<div class="th"><span class="tname">${t[0]}</span><span class="tchg" style="color:${col}">${t[1]}</span></div><div class="sub">${t[3]}</div><svg class="tspark" viewBox="0 0 180 34" preserveAspectRatio="none"><polyline fill="none" stroke="${col}" stroke-width="2" points="${pts}"/></svg><div class="stocks">${t[4].map(s=>`<span class="stk">${s[0]}</span>`).join('')}</div>`;
-    grid.appendChild(el);
-  });
+  const panelLoads={};
+  const LOADERS={today:loadToday,mag7:loadMag7,rot:loadRot,find:loadFind};
+  function ensurePanel(key){
+    const fn=LOADERS[key];if(!fn)return Promise.resolve();
+    if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(fn).catch(err=>{
+      delete panelLoads[key];console.warn('[RICHFLOW] theme-us '+key+' fail',err);});
+    return panelLoads[key];
+  }
   const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
-  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');panels.forEach(p=>p.style.display=p.dataset.panel===b.dataset.p?'block':'none');});
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    panels.forEach(p=>p.style.display=p.dataset.panel===b.dataset.p?'block':'none');
+    ensurePanel(b.dataset.p);
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  ensurePanel('today');
 </script>
 </body>
 </html>
