@@ -80,6 +80,7 @@
   .dflow{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;align-items:end;height:120px;margin-top:6px}
   .dflow .bar{border-radius:2px 2px 0 0;width:100%;position:relative}
   .dflow-x{display:flex;justify-content:space-between;font-size:10px;color:var(--txt-3);font-weight:600;margin-top:6px}
+  .retry-btn{margin-left:8px;border:1px solid var(--line-2);background:var(--card);color:var(--brand);border-radius:8px;padding:5px 9px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
   /* etf table */
   .tbl{width:100%;border-collapse:collapse;font-size:13px}
   .tbl th{text-align:right;font-size:11px;color:var(--txt-3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
@@ -157,32 +158,29 @@
   <div class="panel" data-panel="today">
     <div class="band">
       <div class="card">
-        <h3>💧 오늘 돈이 몰린 곳 <span class="hint">ETF 설정·환매 실측</span></h3>
-        <div class="flow-row"><span class="tn up">반도체</span><div class="flow-bar"><span class="flow-mid"></span><i class="up" style="left:50%;width:46%;background:var(--up)"></i></div><span class="flow-val up">+2,021억</span></div>
-        <div class="flow-row"><span class="tn up">금융</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:11%;background:var(--up)"></i></div><span class="flow-val up">+485억</span></div>
-        <div class="flow-row"><span class="tn up">조선</span><div class="flow-bar"><span class="flow-mid"></span><i style="left:50%;width:8%;background:var(--up)"></i></div><span class="flow-val up">+326억</span></div>
+        <h3>🔥 오늘 강한 테마 <span class="hint" id="hotHint">불러오는 중…</span></h3>
+        <div id="hotList"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>🩸 오늘 돈이 빠진 곳 <span class="hint">ETF 환매</span></h3>
-        <div class="flow-row"><span class="tn down">방산</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:5%;background:var(--down)"></i></div><span class="flow-val down">−227억</span></div>
-        <div class="flow-row"><span class="tn down">2차전지</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:5%;background:var(--down)"></i></div><span class="flow-val down">−206억</span></div>
-        <div class="flow-row"><span class="tn down">AI</span><div class="flow-bar"><span class="flow-mid"></span><i style="right:50%;width:4%;background:var(--down)"></i></div><span class="flow-val down">−167억</span></div>
+        <h3>🩸 오늘 약한 테마 <span class="hint" id="coldHint">테마 지수 하락순</span></h3>
+        <div id="coldList"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <h3>🏆 테마 강도 랭킹 <span class="hint">등락·자금·거래대금 종합 · 클릭 = 상세</span></h3>
-      <div id="strengthList"></div>
+      <h3>🏆 테마 강도 랭킹 <span class="hint">등락률 + 오른 종목 비율 · 클릭 = 구성종목</span></h3>
+      <div id="strengthList"><div style="padding:14px 8px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:10px">※ 강도 = 테마 등락률에 <b>구성종목 중 오른 비율</b>을 반영한 값입니다. 한두 종목만 급등한 테마와, 전 종목이 고르게 오른 테마를 갈라 보기 위한 자체 산출값이에요.</div>
     </div>
 
-    <div class="card" style="margin-bottom:16px"><h3>🃏 테마 카드 <span class="hint">대표종목·추세</span></h3></div>
+    <div class="card" style="margin-bottom:16px"><h3>🃏 테마 카드 <span class="hint" id="cardHint">구성종목·상승 비율</span></h3></div>
     <div class="theme-grid" id="themeGrid"></div>
 
     <div class="card ai-note" style="margin-top:16px">
       <h3><span class="ai-chip"><svg class="bot"><use href="#mascot"/></svg>AI</span> 오늘의 테마 해설</h3>
       <div style="display:flex;gap:12px">
-        <svg class="bot" style="width:40px;height:40px;flex-shrink:0"><use href="#mascot"/></svg>
-        <div style="font-size:13.5px;color:var(--txt-2);line-height:1.65">오늘은 <b style="color:var(--txt)">반도체·전력기기</b>로 돈이 강하게 몰렸어요. HBM 기대와 AI 데이터센터 전력 수요가 동시에 자극한 결과예요. 반면 <b style="color:var(--txt)">2차전지·방산</b>에서는 자금이 빠지며 로테이션이 진행 중입니다.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
+        <svg class="bot" style="width:40px;height:40px;flex-shrink:0"></svg>
+        <div id="themeAi" style="font-size:13.5px;color:var(--txt-2);line-height:1.65">테마·업종 등락을 불러와 정리하고 있어요.<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div></div>
       </div>
     </div>
   </div>
@@ -190,32 +188,23 @@
   <!-- 자금 흐름 -->
   <div class="panel" data-panel="flow" style="display:none">
     <div class="card" style="margin:20px 0">
-      <h3>📈 일별 섹터 자금 흐름 <span class="hint">최근 20거래일 · 순유입(억)</span></h3>
-      <div class="timeline-play"><button class="play-btn" id="playBtn">▶</button><div><div style="font-weight:800;font-size:14px" id="playLabel">반도체 테마 자금</div><div style="font-size:12px;color:var(--txt-3)">재생하면 섹터가 순환하며 흐름을 보여줘요</div></div></div>
+      <h3>💰 오늘 거래대금이 몰린 테마 <span class="hint" id="flowHint">불러오는 중…</span></h3>
+      <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">테마별로 <b>구성종목의 오늘 거래대금을 모두 더한</b> 값입니다. 막대가 높을수록 그 테마에서 돈이 많이 오갔어요.</div>
       <div class="dflow" id="dflow"></div>
-      <div class="dflow-x"><span>6/26</span><span>7/3</span><span>7/10</span><span>7/17</span><span>7/22</span></div>
+      <div class="dflow-x" id="dflowX"></div>
     </div>
     <div class="cols">
       <div class="card">
-        <h3>📊 섹터별 누적 순유입 <span class="hint">최근 24거래일</span></h3>
-        <div class="rot-row"><span class="tn up">금융</span><div class="rot-bar"><i style="width:100%;background:var(--up)"></i></div><span class="rot-val up">+568</span></div>
-        <div class="rot-row"><span class="tn up">반도체</span><div class="rot-bar"><i style="width:79%;background:var(--up)"></i></div><span class="rot-val up">+447</span></div>
-        <div class="rot-row"><span class="tn up">소비재</span><div class="rot-bar"><i style="width:58%;background:var(--up)"></i></div><span class="rot-val up">+331</span></div>
-        <div class="rot-row"><span class="tn up">식음료</span><div class="rot-bar"><i style="width:37%;background:var(--up)"></i></div><span class="rot-val up">+213</span></div>
-        <div class="rot-row"><span class="tn up">화장품</span><div class="rot-bar"><i style="width:27%;background:var(--up)"></i></div><span class="rot-val up">+153</span></div>
-        <div class="rot-row"><span class="tn down">바이오</span><div class="rot-bar"><i style="width:24%;background:var(--down)"></i></div><span class="rot-val down">−134</span></div>
+        <h3>🏭 업종별 오늘 등락 <span class="hint" id="indHint">한국거래소 업종</span></h3>
+        <div id="indFlow"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>💰 ETF 자금 상세 <span class="hint">순유입 상위</span></h3>
+        <h3>📦 ETF 자금 유출입 <span class="hint">최근 1주 · 국내 주식형 액티브</span></h3>
         <table class="tbl">
-          <thead><tr><th>ETF</th><th>설정</th><th>환매</th><th>순유입</th></tr></thead>
-          <tbody>
-            <tr><td>TIGER 반도체TOP10</td><td class="up">+920억</td><td class="down">−210억</td><td class="up mono">+710억</td></tr>
-            <tr><td>KODEX 은행</td><td class="up">+480억</td><td class="down">−95억</td><td class="up mono">+385억</td></tr>
-            <tr><td>ACE 조선</td><td class="up">+310억</td><td class="down">−40억</td><td class="up mono">+270억</td></tr>
-            <tr><td>TIGER 2차전지</td><td class="up">+120억</td><td class="down">−326억</td><td class="down mono">−206억</td></tr>
-          </tbody>
+          <thead><tr><th>ETF</th><th>운용사</th><th class="r">순자산</th><th class="r">1주 자금</th></tr></thead>
+          <tbody id="etfFlow"><tr><td colspan="4" style="color:var(--txt-3);padding:14px 10px">불러오는 중…</td></tr></tbody>
         </table>
+        <div style="font-size:11px;color:var(--txt-3);margin-top:8px">※ 각 ETF가 공시하는 최근 1주 순유입액입니다. 돈이 들어오면 그 펀드가 담는 종목을 사게 돼요.</div>
       </div>
     </div>
   </div>
@@ -223,41 +212,24 @@
   <!-- 섹터 로테이션 -->
   <div class="panel" data-panel="rot" style="display:none">
     <div class="card" style="margin:20px 0">
-      <h3>🔄 3개월 테마 로테이션 <span class="hint">누적 자금 흐름 추이</span></h3>
-      <div class="linechart">
-        <svg viewBox="0 0 700 220">
-          <line x1="0" y1="55" x2="700" y2="55" stroke="#d3d6dd"/><line x1="0" y1="110" x2="700" y2="110" stroke="#d3d6dd"/><line x1="0" y1="165" x2="700" y2="165" stroke="#d3d6dd"/>
-          <polyline fill="none" stroke="#1f9d57" stroke-width="2.5" points="0,150 140,130 280,100 420,70 560,45 700,30"/>
-          <polyline fill="none" stroke="#434955" stroke-width="2.5" points="0,80 140,90 280,85 420,110 560,140 700,170"/>
-          <polyline fill="none" stroke="#c07f24" stroke-width="2.5" points="0,120 140,110 280,125 420,105 560,95 700,88"/>
-          <g font-size="11" fill="#5c6470" font-weight="700" text-anchor="middle"><text x="0" y="205">4월</text><text x="280" y="205">5월</text><text x="560" y="205">6월</text><text x="700" y="205">7월</text></g>
-        </svg>
-      </div>
-      <div class="lc-legend"><span><i style="background:#1f9d57"></i>전력·에너지(담기는중)</span><span><i style="background:#434955"></i>반도체(비워지는중)</span><span><i style="background:#c07f24"></i>조선(유지)</span></div>
+      <h3>🔄 오늘의 업종 지도 <span class="hint" id="rotHint">불러오는 중…</span></h3>
+      <div style="font-size:12px;color:var(--txt-3);margin-bottom:10px">업종을 등락순으로 세운 것입니다. 막대는 그 업종에서 <b>오른 종목의 비율</b>이라, 등락률이 같아도 업종 전체가 움직였는지 몇 종목만 튄 건지 갈립니다.</div>
+      <div id="rotMap"></div>
     </div>
     <div class="cols">
       <div class="card">
-        <h3>▲ 담기는 테마 <span class="hint">큰손 3개월 지분율 변화</span></h3>
-        <div class="rot-row"><span class="tn up">리츠</span><div class="rot-bar"><i style="width:90%;background:var(--up)"></i></div><span class="rot-val up">+9.0</span></div>
-        <div class="rot-row"><span class="tn up">2차전지</span><div class="rot-bar"><i style="width:70%;background:var(--up)"></i></div><span class="rot-val up">+7.0</span></div>
-        <div class="rot-row"><span class="tn up">디스플레이</span><div class="rot-bar"><i style="width:69%;background:var(--up)"></i></div><span class="rot-val up">+6.9</span></div>
-        <div class="rot-row"><span class="tn up">전력기기</span><div class="rot-bar"><i style="width:51%;background:var(--up)"></i></div><span class="rot-val up">+5.1</span></div>
+        <h3>▲ 오늘 강한 업종 <span class="hint">등락률 상위</span></h3>
+        <div id="rotUp"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>▼ 비워지는 테마 <span class="hint">최근 3개월</span></h3>
-        <div class="rot-row"><span class="tn down">반도체</span><div class="rot-bar"><i style="width:100%;background:var(--down)"></i></div><span class="rot-val down">−10.5</span></div>
-        <div class="rot-row"><span class="tn down">패션</span><div class="rot-bar"><i style="width:15%;background:var(--down)"></i></div><span class="rot-val down">−1.5</span></div>
-        <div class="rot-row"><span class="tn down">바이오</span><div class="rot-bar"><i style="width:14%;background:var(--down)"></i></div><span class="rot-val down">−1.4</span></div>
-        <div class="rot-row"><span class="tn down">원전</span><div class="rot-bar"><i style="width:11%;background:var(--down)"></i></div><span class="rot-val down">−1.1</span></div>
+        <h3>▼ 오늘 약한 업종 <span class="hint">등락률 하위</span></h3>
+        <div id="rotDown"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
     <div class="card">
-      <h3>🔗 연계 테마 <span class="hint">함께 움직이는 테마</span></h3>
-      <div class="conn">
-        <div class="conn-row"><div class="hub">🤖 AI 데이터센터</div><div class="links"><span class="lk">반도체(HBM)</span><span class="arrow">→</span><span class="lk">전력기기</span><span class="arrow">→</span><span class="lk">원전</span><span class="arrow">→</span><span class="lk">냉각·소재</span></div></div>
-        <div class="conn-row"><div class="hub">🚢 조선 슈퍼사이클</div><div class="links"><span class="lk">조선</span><span class="arrow">→</span><span class="lk">기자재</span><span class="arrow">→</span><span class="lk">철강</span><span class="arrow">→</span><span class="lk">방산(함정)</span></div></div>
-        <div class="conn-row"><div class="hub">💄 K-뷰티 수출</div><div class="links"><span class="lk">화장품</span><span class="arrow">→</span><span class="lk">ODM</span><span class="arrow">→</span><span class="lk">용기·부자재</span></div></div>
-      </div>
+      <h3>🔗 함께 묶이는 테마 <span class="hint" id="connHint">같은 종목을 공유하는 테마</span></h3>
+      <div style="font-size:12px;color:var(--txt-3);margin-bottom:10px">오늘 강한 테마끼리 <b>구성종목이 실제로 겹치는지</b> 비교했습니다. 겹치는 종목이 많을수록 같은 재료로 함께 움직이는 테마예요.</div>
+      <div class="conn" id="connMap"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
     </div>
   </div>
 
@@ -265,108 +237,359 @@
   <div class="panel" data-panel="find" style="display:none">
     <div class="cols" style="margin-top:20px">
       <div class="card">
-        <h3>✨ 신규·급부상 테마 <span class="hint">최근 부상</span></h3>
-        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">🤖</div><div class="nm"><div class="n">휴머노이드 로봇 <span class="badge">NEW</span></div><div class="s">정책·큰손 매집 · 5거래일 +18%</div></div></div>
-        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">⚡</div><div class="nm"><div class="n">AI 전력기기 <span class="badge">급부상</span></div><div class="s">데이터센터 전력 수요 · +14%</div></div></div>
-        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">🩻</div><div class="nm"><div class="n">의료 AI</div><div class="s">FDA 승인 기대 · +9%</div></div></div>
-        <div class="disc-card" onclick="location.href='stock.html'"><div class="ic">🛰️</div><div class="nm"><div class="n">우주·위성</div><div class="s">스페이스X 상장 기대 · +7%</div></div></div>
+        <h3>✨ 전 종목이 오른 테마 <span class="hint" id="findAllHint">구성종목 전부 상승</span></h3>
+        <div style="font-size:12px;color:var(--txt-3);margin-bottom:8px">테마 안의 <b>모든 종목이 오른</b> 곳입니다. 한 종목만 튄 게 아니라 재료가 테마 전체에 걸쳐 있다는 뜻이에요.</div>
+        <div id="findAll"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
       <div class="card">
-        <h3>🔥 오늘의 급등 테마 <span class="hint">테마 지수 등락</span></h3>
-        <div class="strength" onclick="location.href='stock.html'"><span class="rk">1</span><span class="nm" style="width:auto;flex:1">초전도체</span><span class="chg up">+12.4%</span></div>
-        <div class="strength" onclick="location.href='stock.html'"><span class="rk">2</span><span class="nm" style="width:auto;flex:1">전력·에너지</span><span class="chg up">+4.2%</span></div>
-        <div class="strength" onclick="location.href='stock.html'"><span class="rk">3</span><span class="nm" style="width:auto;flex:1">조선</span><span class="chg up">+3.9%</span></div>
-        <div class="strength" onclick="location.href='stock.html'"><span class="rk">4</span><span class="nm" style="width:auto;flex:1">로봇·휴머노이드</span><span class="chg up">+2.8%</span></div>
+        <h3>🔥 오늘의 급등 테마 <span class="hint">테마 등락률 상위</span></h3>
+        <div id="findHot"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
       </div>
     </div>
     <div class="card">
-      <h3>📰 테마 관련 뉴스 <span class="hint">테마 촉발 이벤트</span></h3>
-      <div class="mnews" onclick="location.href='article.html'" style="cursor:pointer"><b style="color:var(--brand)">[전력기기]</b> AI 데이터센터 전력 수요 급증… 변압기 3사 수주잔고 사상 최대</div>
-      <div class="mnews" onclick="location.href='article.html'" style="cursor:pointer"><b style="color:var(--brand)">[조선]</b> 카타르發 LNG선 발주 재개, 국내 조선 3사 수혜 전망</div>
-      <div class="mnews" onclick="location.href='article.html'" style="cursor:pointer"><b style="color:var(--brand)">[로봇]</b> 정부, 휴머노이드 로봇 국가전략기술 지정 검토</div>
+      <h3>🧊 오늘의 급락 테마 <span class="hint">테마 등락률 하위 · 클릭 = 구성종목</span></h3>
+      <div id="findCold"><div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오는 중…</div></div>
     </div>
   </div>
 
-  <div class="disc">데이터 출처: 한국거래소 · ETF 설정·환매(금융투자협회) · DART · 뉴스 API · 자체 산출물. 정보 제공용이며 매수·매도 권유가 아닙니다. · 이 화면은 <b style="color:var(--brand)">샘플 데이터로 만든 디자인 시안</b>입니다.</div>
+  <div class="disc">데이터 출처: <b style="color:var(--brand)">네이버 금융 테마·업종</b>(테마 266개·업종 79개의 등락률과 구성종목 시세, 화면을 열 때 조회) · <b style="color:var(--brand)">네이버 금융 ETF 분석</b>(국내 주식형 액티브 ETF의 순자산·자금 유출입). 테마 분류와 소속 종목은 네이버 금융 기준입니다. 거래대금은 구성종목의 당일 누적 거래대금 합이며, 장중에는 계속 변합니다. 정보 제공용이며 매수·매도 권유가 아닙니다.</div>
 </div>
 
 <!-- theme modal -->
 <div class="modal-bg" id="modalBg"><div class="modal">
   <div class="mh"><div class="t"><h4 id="mName">테마</h4><div class="s" id="mSub">구성 종목</div></div><span class="chg" id="mChg"></span><button class="close" id="mClose" style="margin-left:12px">✕</button></div>
-  <div class="mstat"><div><div class="k">오늘 자금</div><div class="v" id="mFlow"></div></div><div><div class="k">구성 종목</div><div class="v" id="mCnt"></div></div><div><div class="k">대장주</div><div class="v" id="mLead" style="font-size:13px"></div></div></div>
-  <h5>📈 구성 종목</h5><div id="mStocks"></div>
-  <h5>📰 관련 뉴스</h5><div id="mNews"></div>
-  <div style="font-size:11px;color:var(--txt-3);margin-top:12px">정보 제공용 · 투자권유 아님 · <b style="color:var(--brand)">샘플 데이터</b></div>
+  <div class="mstat"><div><div class="k">오늘 거래대금</div><div class="v" id="mFlow">—</div></div><div><div class="k">구성 종목</div><div class="v" id="mCnt">—</div></div><div><div class="k">오늘 대장주</div><div class="v" id="mLead" style="font-size:13px">—</div></div></div>
+  <h5>📈 구성 종목 <span style="font-size:11px;color:var(--txt-3);font-weight:600">등락순 · 클릭하면 종목 페이지</span></h5><div id="mStocks"></div>
+  <div style="font-size:11px;color:var(--txt-3);margin-top:12px">네이버 금융 테마 분류 · 정보 제공용 · 투자권유 아님</div>
 </div></div>
 
+<script src="active-etf-data.js?v=1"></script>
 <script>
-  const THEMES=[
-    ['전력·에너지','+4.2%',1,'ETF 유입 3위 · AI 전력수요','+1,240억',[['두산에너빌리티','+5.2%'],['HD현대일렉','+6.1%'],['LS ELECTRIC','+4.0%'],['제룡전기','+2.8%']],['AI 데이터센터 전력 수요 급증, 변압기 수주 사상 최대','한전 요금 인상 기대감']],
-    ['조선','+3.9%',1,'수주 슈퍼사이클','+326억',[['한화오션','+8.1%'],['HD한국조선','+4.1%'],['삼성중공업','+2.2%']],['카타르 LNG선 발주 재개','조선 3사 수주잔고 3년치 확보']],
-    ['반도체','+3.4%',1,'HBM4 기대 · 자금 최다 유입','+2,021억',[['삼성전자','+2.8%'],['SK하이닉스','+3.7%'],['삼성전기','+7.6%'],['한미반도체','+5.1%']],['SK하이닉스 HBM4 엔비디아 퀄 임박','삼성 파운드리 2나노 수율 개선']],
-    ['로봇·휴머노이드','+2.8%',1,'정책·큰손 매집','+180억',[['레인보우로보틱스','+4.1%'],['두산로보틱스','+3.2%']],['정부 휴머노이드 국가전략기술 지정 검토','테슬라 옵티머스 양산 로드맵']],
-    ['인터넷·플랫폼','+2.4%',1,'반등 시도','+95억',[['NAVER','+2.4%'],['카카오','+1.5%'],['크래프톤','+3.2%']],['네이버 AI 검색 트래픽 회복','카카오 커머스 성장']],
-    ['화장품','+1.8%',1,'수출 회복','+153억',[['아모레퍼시픽','+2.1%'],['한국콜마','+3.0%'],['코스맥스','+2.4%']],['K-뷰티 미국 수출 사상 최대','인디 브랜드 ODM 수혜']],
-    ['방산','+1.1%',0,'차익실현 유입 감소','−227억',[['LIG넥스원','+2.4%'],['현대로템','+3.1%'],['한화에어로','−0.7%']],['폴란드 2차 계약 협상 지연']],
-    ['2차전지','-1.9%',0,'자금 이탈','−206억',[['LG에너지솔루션','−2.1%'],['삼성SDI','−1.4%'],['에코프로비엠','−2.4%']],['전기차 캐즘 지속, 유럽 수요 부진']]
-  ];
-  // strength ranking (sorted by chg)
-  const sList=document.getElementById('strengthList');
-  [...THEMES].sort((a,b)=>parseFloat(b[1])-parseFloat(a[1])).forEach((t,i)=>{
-    const up=t[2];const col=up?'var(--up)':'var(--down)';const w=Math.min(100,Math.abs(parseFloat(t[1]))/12*100);
-    const el=document.createElement('div');el.className='strength';
-    el.innerHTML=`<span class="rk">${i+1}</span><span class="nm">${t[0]}</span><div class="gauge"><i style="width:${w}%;background:${col}"></i></div><span class="flow">${t[4]}</span><span class="chg" style="color:${col}">${t[1]}</span>`;
-    el.onclick=()=>openTheme(t);sList.appendChild(el);
-  });
-  // theme cards
-  const grid=document.getElementById('themeGrid');
-  THEMES.forEach(t=>{
-    const up=t[2];const col=up?'var(--up)':'var(--down)';
-    const pts=up?'0,30 30,26 60,28 90,18 120,20 150,10 180,6':'0,8 30,10 60,14 90,12 120,20 150,24 180,30';
-    const el=document.createElement('div');el.className='tcard';
-    el.innerHTML=`<div class="th"><span class="tname">${t[0]}</span><span class="tchg" style="color:${col}">${t[1]}</span></div>
-      <div class="sub">${t[3]}</div>
-      <svg class="tspark" viewBox="0 0 180 34" preserveAspectRatio="none"><polyline fill="none" stroke="${col}" stroke-width="2" points="${pts}"/></svg>
-      <div class="stocks">${t[5].map(s=>`<span class="stk">${s[0]}</span>`).join('')}</div>`;
-    el.onclick=()=>openTheme(t);grid.appendChild(el);
-  });
-  function openTheme(t){
-    const up=t[2];const col=up?'var(--up)':'var(--down)';
-    mName.textContent=t[0];mSub.textContent=t[3];mChg.textContent=t[1];mChg.style.color=col;
-    mFlow.textContent=t[4];mFlow.style.color=t[4].startsWith('−')?'var(--down)':'var(--up)';
-    mCnt.textContent=t[5].length+'개';mLead.textContent=t[5][0][0];
-    mStocks.innerHTML=t[5].map(s=>{const su=!s[1].startsWith('-')&&!s[1].startsWith('−');return `<div class="mstk"><span class="lg">${s[0][0]}</span><span class="nm">${s[0]}</span><span class="pc" style="color:${su?'var(--up)':'var(--down)'}">${s[1]}</span></div>`}).join('');
-    mNews.innerHTML=t[6].map(n=>`<div class="mnews">${n}</div>`).join('');
-    modalBg.classList.add('on');
-  }
-  mClose.onclick=()=>modalBg.classList.remove('on');
-  modalBg.onclick=e=>{if(e.target.id==='modalBg')modalBg.classList.remove('on')};
+  /* ===== 테마·흐름 실데이터 (네이버 금융 테마/업종 → Cloudflare 워커 경유) =====
+   * 테마 266개·업종 79개의 등락률과 구성종목 시세를 그대로 집계한다.
+   * 히스토리를 주는 API가 없으므로 "최근 20거래일 자금 흐름" 같은 과거 추이는
+   * 만들지 않는다. 대신 오늘 실제로 계산되는 값(등락률·오른 종목 비율·거래대금)만 쓴다. */
+  const WK='https://frosty-sea-d3c9.joyoonseo6299.workers.dev/?url=';
+  const NV='https://m.stock.naver.com/api/stocks/';
+  const esc=v=>String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const num=s=>{const v=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(v)?v:0;};
+  const pct=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%';
+  const won=n=>{const a=Math.abs(n);
+    if(a>=1e12)return (a/1e12).toFixed(1)+'조';
+    if(a>=1e8)return Math.round(a/1e8).toLocaleString('ko-KR')+'억';
+    if(a>=1e4)return Math.round(a/1e4).toLocaleString('ko-KR')+'만';
+    return Math.round(a).toLocaleString('ko-KR');};
+  const col=v=>v>=0?'var(--up)':'var(--down)';
+  const retryHtml=(key,label='다시 시도')=>`<button class="retry-btn" type="button" data-retry="${key}">${label}</button>`;
 
-  // daily flow chart
-  const flowData={'반도체':[ -30,20,-10,40,30,-20,50,60,-15,45,55,-25,70,80,40,90,60,-10,110,120]};
-  function renderFlow(key){
-    const d=flowData[key]||flowData['반도체'];const max=Math.max(...d.map(Math.abs));
-    document.getElementById('dflow').innerHTML=d.map(v=>{
-      const h=Math.abs(v)/max*100;const col=v>=0?(v>max*0.6?'#148f4f':'#1fa15c'):'#c46b74';
-      return `<div class="bar" style="height:${h}%;background:${col}"></div>`;
-    }).join('');
+  async function fetchJSON(url,timeout=11000){
+    const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);
+    try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+    catch(e){console.warn('[RICHFLOW] theme fetch fail',url,e&&e.name);return null;}
+    finally{clearTimeout(t);}
   }
-  renderFlow('반도체');
-  const cyc=['반도체','금융','조선','2차전지'];let ci=0;let timer=null;
-  flowData['금융']=[10,15,-5,20,25,30,-10,15,20,35,40,20,-15,25,30,45,50,20,-10,40];
-  flowData['조선']=[-5,10,20,15,30,25,40,35,-10,45,50,30,60,55,-20,70,65,40,80,90];
-  flowData['2차전지']=[40,30,-20,25,-15,10,-30,-25,-40,-10,-35,-50,-20,-15,-45,-30,-25,-40,-50,-60];
-  document.getElementById('playBtn').onclick=function(){
-    if(timer){clearInterval(timer);timer=null;this.textContent='▶';return;}
-    this.textContent='⏸';
-    timer=setInterval(()=>{ci=(ci+1)%cyc.length;renderFlow(cyc[ci]);document.getElementById('playLabel').textContent=cyc[ci]+' 테마 자금';},1200);
+  async function pool(items,n,fn){const out=[];let i=0;
+    async function w(){while(i<items.length){const k=i++;out[k]=await fn(items[k]);}}
+    await Promise.all(Array.from({length:Math.min(n,items.length)},w));return out;}
+  const nv=path=>fetchJSON(WK+encodeURIComponent(NV+path));
+
+  /* ---------- 그룹(테마·업종) 목록 ---------- */
+  let THEME=null,IND=null;
+  async function loadThemes(){
+    if(THEME)return THEME;
+    const pages=await pool([1,2,3],3,p=>nv('theme?page='+p+'&pageSize=100'));
+    const all=[];
+    pages.forEach(d=>{if(d&&Array.isArray(d.groups))all.push(...d.groups);});
+    THEME=all.filter(g=>g&&g.name).map(g=>({
+      kind:'theme',no:g.no,name:g.name,n:g.totalCount||0,
+      chg:num(g.changeRate),up:g.riseCount||0,down:g.fallCount||0,flat:g.steadyCount||0}));
+    return THEME;
+  }
+  async function loadInds(){
+    if(IND)return IND;
+    const d=await nv('industry?page=1&pageSize=100');
+    IND=(d&&Array.isArray(d.groups)?d.groups:[]).filter(g=>g&&g.name).map(g=>({
+      kind:'industry',no:g.no,name:g.name,n:g.totalCount||0,
+      chg:num(g.changeRate),up:g.riseCount||0,down:g.fallCount||0,flat:g.steadyCount||0}));
+    return IND;
+  }
+  /* 오른 종목 비율 — 한두 종목만 튄 테마와 전체가 오른 테마를 가르는 값 */
+  const upRatio=g=>{const t=g.up+g.down+g.flat;return t?g.up/t:0;};
+  /* 강도 = 등락률 × (0.5 + 오른 종목 비율 절반). 자체 산출값이라 화면에 산출식을 적어 둔다. */
+  const strengthOf=g=>g.chg*(0.5+upRatio(g)*0.5);
+
+  const detailCache=new Map();
+  async function groupDetail(g,size){
+    const key=g.kind+'/'+g.no;
+    if(detailCache.has(key))return detailCache.get(key);
+    const d=await nv(g.kind+'/'+g.no+'?page=1&pageSize='+(size||60));
+    const stocks=(d&&Array.isArray(d.stocks)?d.stocks:[]).map(s=>({
+      code:s.itemCode,name:s.stockName,price:num(s.closePrice),chg:num(s.fluctuationsRatio),
+      value:num(s.accumulatedTradingValueRaw),cap:num(s.marketValueRaw)}));
+    const out={stocks,desc:(d&&d.themeDescription)||'',
+      value:stocks.reduce((n,s)=>n+s.value,0)};
+    detailCache.set(key,out);
+    return out;
+  }
+
+  /* ---------- 오늘의 테마 ---------- */
+  const flowRow=(g,max)=>{
+    const w=max?Math.min(48,Math.abs(g.chg)/max*48):0;
+    const u=g.chg>=0;
+    return `<div class="flow-row" data-go="${g.kind}:${g.no}" style="cursor:pointer">`
+      +`<span class="tn ${u?'up':'down'}">${esc(g.name)}</span>`
+      +`<div class="flow-bar"><span class="flow-mid"></span>`
+      +`<i style="${u?'left:50%':'right:50%;left:auto'};width:${w}%;background:${col(g.chg)}"></i></div>`
+      +`<span class="flow-val" style="color:${col(g.chg)}">${pct(g.chg)}</span></div>`;
   };
+  async function loadToday(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const list=await loadThemes();
+    if(!list||!list.length){
+      const f=`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">테마 목록을 불러오지 못했어요 ${retryHtml('today')}</div>`;
+      html('hotList',f);html('coldList','');html('strengthList',f);set('hotHint','불러오기 실패');return;
+    }
+    const byChg=[...list].sort((a,b)=>b.chg-a.chg);
+    const hot=byChg.slice(0,6),cold=byChg.slice(-6).reverse();
+    const max=Math.max(Math.abs(byChg[0].chg),Math.abs(byChg[byChg.length-1].chg),1);
+    set('hotHint','테마 '+list.length+'개 중 상위');
+    set('coldHint','테마 '+list.length+'개 중 하위');
+    html('hotList',hot.map(g=>flowRow(g,max)).join(''));
+    html('coldList',cold.map(g=>flowRow(g,max)).join(''));
 
+    const byStrength=[...list].sort((a,b)=>strengthOf(b)-strengthOf(a)).slice(0,12);
+    const smax=Math.max(...byStrength.map(g=>Math.abs(strengthOf(g))),1);
+    html('strengthList',byStrength.map((g,i)=>
+      `<div class="strength" data-go="${g.kind}:${g.no}"><span class="rk">${i+1}</span>`
+      +`<span class="nm">${esc(g.name)}</span>`
+      +`<div class="gauge"><i style="width:${Math.max(3,Math.abs(strengthOf(g))/smax*100)}%;background:${col(g.chg)}"></i></div>`
+      +`<span class="flow">${g.n}종목 ${g.up}↑</span>`
+      +`<span class="chg" style="color:${col(g.chg)}">${pct(g.chg)}</span></div>`).join(''));
+
+    /* 카드는 대표 종목을 보여줘야 해서 상위 8개만 구성종목을 받아 온다 */
+    const cards=byChg.slice(0,8);
+    const details=await pool(cards,4,g=>groupDetail(g,12));
+    set('cardHint','상위 '+cards.length+'개 테마 · 대표 종목');
+    html('themeGrid',cards.map((g,i)=>{
+      const d=details[i]||{stocks:[]};
+      const top=d.stocks.slice().sort((a,b)=>b.chg-a.chg).slice(0,4);
+      const ratio=Math.round(upRatio(g)*100);
+      return `<div class="tcard" data-go="${g.kind}:${g.no}">`
+        +`<div class="th"><span class="tname">${esc(g.name)}</span><span class="tchg" style="color:${col(g.chg)}">${pct(g.chg)}</span></div>`
+        +`<div class="sub">구성 ${g.n}종목 · 오른 종목 ${g.up}개(${ratio}%)${d.value?' · 거래대금 '+won(d.value):''}</div>`
+        +`<div class="flow-bar" style="height:8px;margin-bottom:10px"><i style="left:0;width:${ratio}%;background:${col(g.chg)}"></i></div>`
+        +`<div class="stocks">${top.map(s=>`<span class="stk">${esc(s.name)} ${pct(s.chg)}</span>`).join('')}</div></div>`;
+    }).join(''));
+
+    const inds=await loadInds();
+    const ai=[];
+    const up1=byChg[0],dn1=byChg[byChg.length-1];
+    const rising=list.filter(g=>g.chg>0).length;
+    ai.push(`테마 ${list.length}개 가운데 <b style="color:var(--txt)">${rising}개</b>가 올랐어요.`);
+    ai.push(`가장 강한 테마는 <b style="color:var(--txt)">${esc(up1.name)} ${pct(up1.chg)}</b>(구성 ${up1.n}종목 중 ${up1.up}개 상승), 가장 약한 쪽은 <b style="color:var(--txt)">${esc(dn1.name)} ${pct(dn1.chg)}</b>입니다.`);
+    if(inds&&inds.length){
+      const bi=[...inds].sort((a,b)=>b.chg-a.chg);
+      ai.push(`업종으로 보면 <b style="color:var(--txt)">${esc(bi[0].name)} ${pct(bi[0].chg)}</b>가 앞서고 <b style="color:var(--txt)">${esc(bi[bi.length-1].name)} ${pct(bi[bi.length-1].chg)}</b>가 뒤집니다.`);
+    }
+    ai.push('네이버 금융 테마·업종 분류를 그대로 집계한 값이며, 장중에는 계속 바뀝니다.');
+    html('themeAi',ai.join(' ')+'<div style="color:var(--txt-3);margin-top:8px;font-size:11px">(정보 제공용 · 투자권유 아님)</div>');
+  }
+
+  /* ---------- 자금 흐름 ---------- */
+  async function loadFlow(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const list=await loadThemes();
+    if(!list||!list.length){
+      html('dflow','');set('flowHint','불러오기 실패');
+      html('indFlow',`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">불러오지 못했어요 ${retryHtml('flow')}</div>`);
+      return;
+    }
+    /* 거래대금은 구성종목을 받아야 알 수 있어 상위 20개만 조회한다 */
+    const cand=[...list].sort((a,b)=>Math.abs(b.chg)-Math.abs(a.chg)).slice(0,20);
+    const det=await pool(cand,5,g=>groupDetail(g,60));
+    const rows=cand.map((g,i)=>({g,value:(det[i]||{}).value||0}))
+      .filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
+    if(rows.length){
+      const mx=rows[0].value;
+      set('flowHint','오늘 등락 큰 테마 '+rows.length+'개 · 거래대금순');
+      html('dflow',rows.map(r=>
+        `<div class="bar" data-go="${r.g.kind}:${r.g.no}" title="${esc(r.g.name)} ${won(r.value)}" style="height:${Math.max(4,r.value/mx*100)}%;background:${col(r.g.chg)};cursor:pointer"></div>`).join(''));
+      html('dflowX',rows.slice(0,5).map(r=>`<span>${esc(r.g.name)}</span>`).join(''));
+    }else{
+      set('flowHint','거래대금 없음');
+      html('dflow','');
+    }
+
+    const inds=await loadInds();
+    if(inds&&inds.length){
+      const bi=[...inds].sort((a,b)=>b.chg-a.chg).slice(0,8);
+      const mx=Math.max(...bi.map(g=>Math.abs(g.chg)),1);
+      set('indHint','업종 '+inds.length+'개 중 상위 8');
+      html('indFlow',bi.map(g=>
+        `<div class="rot-row" data-go="${g.kind}:${g.no}" style="cursor:pointer"><span class="tn" style="width:104px">${esc(g.name)}</span>`
+        +`<div class="rot-bar"><i style="width:${Math.max(3,Math.abs(g.chg)/mx*100)}%;background:${col(g.chg)}"></i></div>`
+        +`<span class="rot-val" style="color:${col(g.chg)}">${pct(g.chg)}</span></div>`).join(''));
+    }
+
+    /* ETF 자금 — whale.html 운용사 탭과 같은 소스(네이버 etfAnalysis) */
+    const uni=(window.RICHFLOW_ACTIVE_ETF||{}).list||[];
+    if(!uni.length){html('etfFlow','<tr><td colspan="4" style="color:var(--txt-3);padding:14px 10px">ETF 목록을 불러오지 못했어요</td></tr>');return;}
+    const eok=s=>{s=String(s==null?'':s).trim();if(!s||s==='-')return 0;
+      const neg=/^-/.test(s);s=s.replace(/^-/,'');
+      const jo=s.match(/([\d,.]+)\s*조/),ek=s.match(/([\d,.]+)\s*억/),mn=s.match(/([\d,.]+)\s*만/);
+      let v=0;
+      if(jo)v+=parseFloat(jo[1].replace(/,/g,''))*10000;
+      if(ek)v+=parseFloat(ek[1].replace(/,/g,''));
+      if(!jo&&!ek&&mn)v+=parseFloat(mn[1].replace(/,/g,''))/10000;
+      if(!jo&&!ek&&!mn){const n=parseFloat(s.replace(/[^\d.]/g,''));if(isFinite(n))v=n;}
+      return neg?-v:v;};
+    const fe=n=>{const a=Math.abs(n);return (n>0?'+':n<0?'−':'')+(a>=10000?(a/10000).toFixed(1)+'조':Math.round(a).toLocaleString('ko-KR')+'억');};
+    const target=uni.slice(0,30);
+    const res=await pool(target,6,async e=>{
+      const d=await fetchJSON(WK+encodeURIComponent('https://m.stock.naver.com/api/stock/'+e[0]+'/etfAnalysis'),12000);
+      if(!d||!d.itemName)return null;
+      return {name:d.itemName,issuer:String(d.issuerName||'').replace(/\(ETF\)/g,'').trim(),
+        nav:eok(d.totalNav)||e[3]||0,flow:eok((d.cumulativeNetInflowList||{}).cumulativeNetInflow1w)};
+    });
+    const etfs=res.filter(Boolean).filter(x=>x.flow!==0).sort((a,b)=>b.flow-a.flow);
+    const show=etfs.slice(0,4).concat(etfs.slice(-3).reverse().filter(x=>x.flow<0));
+    html('etfFlow',show.length?show.map(x=>
+      `<tr><td class="nm">${esc(x.name)}</td><td class="sub">${esc(x.issuer)}</td>`
+      +`<td class="r">${won(x.nav*1e8)}</td><td class="r ${x.flow>0?'up':'down'} mono">${fe(x.flow)}</td></tr>`).join('')
+      :'<tr><td colspan="4" style="color:var(--txt-3);padding:14px 10px">최근 1주 자금 변동이 공시된 ETF가 없어요</td></tr>');
+  }
+
+  /* ---------- 업종 지도 / 연계 테마 ---------- */
+  async function loadRot(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const inds=await loadInds();
+    if(!inds||!inds.length){
+      html('rotMap',`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">업종을 불러오지 못했어요 ${retryHtml('rot')}</div>`);
+      set('rotHint','불러오기 실패');return;
+    }
+    const by=[...inds].sort((a,b)=>b.chg-a.chg);
+    set('rotHint','업종 '+inds.length+'개 · 등락순');
+    html('rotMap',by.map(g=>{
+      const r=Math.round(upRatio(g)*100);
+      return `<div class="rot-row" data-go="${g.kind}:${g.no}" style="cursor:pointer">`
+        +`<span class="tn" style="width:124px">${esc(g.name)}</span>`
+        +`<div class="rot-bar"><i style="width:${Math.max(2,r)}%;background:${col(g.chg)}"></i></div>`
+        +`<span class="rot-val" style="width:96px;color:${col(g.chg)}">${pct(g.chg)} <span style="color:var(--txt-3);font-weight:600">${r}%</span></span></div>`;
+    }).join(''));
+    const rowsOf=arr=>arr.map(g=>
+      `<div class="rot-row" data-go="${g.kind}:${g.no}" style="cursor:pointer"><span class="tn" style="width:110px">${esc(g.name)}</span>`
+      +`<div class="rot-bar"><i style="width:${Math.max(3,Math.abs(g.chg)/Math.max(Math.abs(by[0].chg),Math.abs(by[by.length-1].chg),1)*100)}%;background:${col(g.chg)}"></i></div>`
+      +`<span class="rot-val" style="color:${col(g.chg)}">${pct(g.chg)}</span></div>`).join('');
+    html('rotUp',rowsOf(by.slice(0,6)));
+    html('rotDown',rowsOf(by.slice(-6).reverse()));
+
+    /* 연계 테마 — 상위 테마들의 구성종목이 실제로 겹치는지 센다 */
+    const themes=await loadThemes();
+    const top=[...themes].sort((a,b)=>b.chg-a.chg).slice(0,10);
+    const det=await pool(top,5,g=>groupDetail(g,60));
+    const sets=top.map((g,i)=>({g,codes:new Set(((det[i]||{}).stocks||[]).map(s=>s.code))}));
+    const pairs=[];
+    for(let i=0;i<sets.length;i++)for(let j=i+1;j<sets.length;j++){
+      let n=0;const shared=[];
+      sets[i].codes.forEach(c=>{if(sets[j].codes.has(c)){n++;if(shared.length<4){
+        const st=((det[i]||{}).stocks||[]).find(s=>s.code===c);if(st)shared.push(st.name);}}});
+      if(n>0)pairs.push({a:sets[i].g,b:sets[j].g,n,shared});
+    }
+    pairs.sort((x,y)=>y.n-x.n);
+    set('connHint',pairs.length?'겹치는 테마 '+pairs.length+'쌍':'겹치는 테마 없음');
+    html('connMap',pairs.length?pairs.slice(0,6).map(p=>
+      `<div class="conn-row"><div class="hub">${esc(p.a.name)} <span style="color:${col(p.a.chg)}">${pct(p.a.chg)}</span></div>`
+      +`<div class="links"><span class="arrow">↔</span><span class="lk" data-go="${p.b.kind}:${p.b.no}" style="cursor:pointer">${esc(p.b.name)} ${pct(p.b.chg)}</span>`
+      +`<span class="arrow">·</span><span style="font-size:11px;color:var(--txt-3)">공유 ${p.n}종목${p.shared.length?' ('+p.shared.map(esc).join(', ')+')':''}</span></div></div>`).join('')
+      :'<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">오늘 강한 테마끼리 겹치는 종목이 없어요</div>');
+  }
+
+  /* ---------- 테마 발굴 ---------- */
+  async function loadFind(){
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const html=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+    const list=await loadThemes();
+    if(!list||!list.length){
+      html('findAll',`<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">테마를 불러오지 못했어요 ${retryHtml('find')}</div>`);
+      html('findHot','');html('findCold','');return;
+    }
+    const allUp=list.filter(g=>g.n>=3&&g.down===0&&g.up===g.n).sort((a,b)=>b.chg-a.chg).slice(0,6);
+    set('findAllHint',allUp.length?allUp.length+'개 테마':'해당 테마 없음');
+    html('findAll',allUp.length?allUp.map(g=>
+      `<div class="disc-card" data-go="${g.kind}:${g.no}"><div class="ic">${g.chg>=5?'🚀':'✨'}</div>`
+      +`<div class="nm"><div class="n">${esc(g.name)} <span class="badge">${g.n}종목 전부 상승</span></div>`
+      +`<div class="s">테마 등락 ${pct(g.chg)}</div></div></div>`).join('')
+      :'<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">오늘은 전 종목이 오른 테마가 없어요</div>');
+
+    const by=[...list].sort((a,b)=>b.chg-a.chg);
+    const strengthRow=(g,i)=>`<div class="strength" data-go="${g.kind}:${g.no}"><span class="rk">${i+1}</span>`
+      +`<span class="nm" style="width:auto;flex:1">${esc(g.name)}</span>`
+      +`<span class="flow">${g.up}↑ ${g.down}↓</span>`
+      +`<span class="chg" style="color:${col(g.chg)}">${pct(g.chg)}</span></div>`;
+    html('findHot',by.slice(0,6).map(strengthRow).join(''));
+    html('findCold',by.slice(-8).reverse().map(strengthRow).join(''));
+  }
+
+  /* ---------- 테마 상세 모달 ---------- */
+  const groupByKey=key=>{
+    const [kind,no]=String(key).split(':');
+    const src=kind==='theme'?(THEME||[]):(IND||[]);
+    return src.find(g=>String(g.no)===String(no))||null;
+  };
+  async function openGroup(key){
+    const g=groupByKey(key);if(!g)return;
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set('mName',g.name);
+    set('mSub',(g.kind==='theme'?'테마':'업종')+' · 구성 '+g.n+'종목 · '+g.up+'개 상승 '+g.down+'개 하락');
+    const chg=document.getElementById('mChg');
+    if(chg){chg.textContent=pct(g.chg);chg.style.color=col(g.chg);}
+    set('mCnt',g.n+'개');set('mFlow','…');set('mLead','…');
+    document.getElementById('mStocks').innerHTML='<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">구성 종목 불러오는 중…</div>';
+    document.getElementById('modalBg').classList.add('on');
+    const d=await groupDetail(g,60);
+    if(!d.stocks.length){
+      set('mFlow','—');set('mLead','—');
+      document.getElementById('mStocks').innerHTML='<div style="padding:14px 4px;color:var(--txt-3);font-size:13px">구성 종목을 불러오지 못했어요</div>';
+      return;
+    }
+    const sorted=d.stocks.slice().sort((a,b)=>b.chg-a.chg);
+    set('mFlow',won(d.value));
+    set('mLead',sorted[0].name+' '+pct(sorted[0].chg));
+    if(d.desc)set('mSub',d.desc.length>90?d.desc.slice(0,90)+'…':d.desc);
+    document.getElementById('mStocks').innerHTML=sorted.map(s=>
+      `<a class="mstk" href="stock.html?code=${encodeURIComponent(s.code)}" style="text-decoration:none;color:inherit">`
+      +`<span class="lg">${esc(s.name[0])}</span><span class="nm">${esc(s.name)}</span>`
+      +`<span class="pc" style="color:${col(s.chg)}">${pct(s.chg)}</span></a>`).join('');
+  }
+  document.addEventListener('click',e=>{
+    const go=e.target.closest&&e.target.closest('[data-go]');
+    if(go){openGroup(go.dataset.go);return;}
+    const rt=e.target.closest&&e.target.closest('[data-retry]');
+    if(rt){const k=rt.dataset.retry;THEME=null;IND=null;detailCache.clear();delete panelLoads[k];ensurePanel(k);}
+  });
+  document.getElementById('mClose').onclick=()=>document.getElementById('modalBg').classList.remove('on');
+  document.getElementById('modalBg').onclick=e=>{if(e.target.id==='modalBg')document.getElementById('modalBg').classList.remove('on')};
+
+  /* ---------- 탭 ---------- */
+  const panelLoads={};
+  const LOADERS={today:loadToday,flow:loadFlow,rot:loadRot,find:loadFind};
+  function ensurePanel(key){
+    const fn=LOADERS[key];if(!fn)return Promise.resolve();
+    if(!panelLoads[key])panelLoads[key]=Promise.resolve().then(fn).catch(err=>{
+      delete panelLoads[key];console.warn('[RICHFLOW] theme '+key+' fail',err);});
+    return panelLoads[key];
+  }
   const tabs=document.getElementById('subtabs');const panels=document.querySelectorAll('.panel');
   tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{
     tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
     panels.forEach(p=>p.style.display=p.dataset.panel===b.dataset.p?'block':'none');
+    ensurePanel(b.dataset.p);
+    window.scrollTo({top:0,behavior:'smooth'});
   });
+  ensurePanel('today');
 </script>
 </body>
 </html>
