@@ -48,7 +48,10 @@
 - `f13-holdings-data.js` — 13F 거물 86곳의 실제 보유 상위 10종목(78곳 해결). `node scripts/build-13f-holdings.mjs`로 분기마다 재생성.
 - `theme.html` — 국장 테마·흐름. **4개 탭 전부 실데이터**(2026-09-08). 네이버 테마 266개·업종 79개 + 구성종목 시세·거래대금 + 액티브 ETF 자금.
 - `theme-us.html` — 미장 테마·흐름. **4개 탭 전부 실데이터**(2026-09-08). 섹터 ETF 11 + 테마 ETF 23 + M7 시총 + ARK 공개 매매.
-- 그 외 `screener*.html`, `calendar*.html`, `idea*.html`, `forecast*.html`, `leaders*.html`, `ai*.html`, `whale-coin.html` 등은 대부분 정적 샘플 디자인 시안.
+- `screener.html` — 국장 종목탐색. **실데이터**(2026-09-08). `kr-screener-data.js`(EPS·BPS·주당배당금) + 네이버 시가총액 순위 목록 실시간 시세.
+- `kr-screener-data.js` — 국장 2,637종목 지표. `node scripts/build-kr-screener.mjs`로 재생성(분기 실적 나올 때마다).
+- `screener-us.html` — 미장 종목탐색. **실데이터**(2026-09-08). 나스닥 종목 스크리너 7,132종목 + ARK 보유.
+- 그 외 `calendar*.html`, `idea*.html`, `forecast*.html`, `leaders*.html`, `ai*.html`, `whale-coin.html` 등은 대부분 정적 샘플 디자인 시안.
 
 ## 현재 작업 인수인계 (2026-09-07)
 
@@ -103,11 +106,24 @@ DART를 그대로 때리므로 값이 진짜인지까지 같이 확인된다. �
   조용히 목록에서 빠졌다. `ac.stock.naver.com/ac?q=<티커>&target=stock`으로 하나씩 확인해
   `RC` 표에 박아 뒀다. 티커를 추가할 때도 같은 방법으로 확인할 것.
 
+### 종목탐색(screener.html / screener-us.html)도 실데이터화 완료 (2026-09-08)
+- **국장**: 지표(PER·PBR·배당수익률)는 종목마다 따로 조회해야 해서 화면에서 2,700종목을 매번
+  부를 수 없다. 그래서 **분기마다 바뀌는 값(EPS·BPS·주당배당금)만 구워 두고**, 화면에서는
+  실시간 주가와 나눠 그때그때 계산한다. 값을 통째로 구우면 주가가 움직일 때마다 틀어진다.
+  ROE는 EPS÷BPS라 주가와 무관. 계산한 배당수익률이 네이버 자체 표기와 정확히 일치함을 대조했다.
+  실시간 시세는 `stocks/marketValue/{KOSPI|KOSDAQ}?page=N&pageSize=100`(각 13페이지, 약 2초).
+- **미장**: `api.nasdaq.com/api/screener/stocks?tableonly=true&download=true&exchange=NASDAQ|NYSE|AMEX`가
+  한 번에 전 종목(7,132)의 시세·시총·거래량·섹터·산업·본사 국가·상장연도를 준다.
+  `exchange`를 지정해야 거래소가 구분되므로 3번 나눠 받는다. ARK 보유는
+  `arkfunds.io/api/v2/etf/holdings?symbol=ARKK`(티커가 그대로 있어 정확).
+- **넣지 않은 필터와 이유**: 국장 "큰손 신호·기술적 신호", 미장 "P/E·공매도율·어닝 서프라이즈".
+  종목별 시계열이나 유료 데이터가 필요하다. 미장 13F 매집도 뺐는데, 13F 원본은 종목을
+  CUSIP·발행사명으로만 적어 티커로 잇다가 조용히 틀릴 수 있어서다(13F 빌더에서 겪은 함정).
+
 ### 남은 것
-- `screener*`·`calendar*`·`idea*`·`forecast*`·`leaders*`·`whale-coin`은 아직 샘플.
-- 다음 후보(데이터 확인됨): **종목탐색** — 나스닥 스크리너 API(워커 경유)가 전체 미국 종목의
-  시세·시총·등락을, 네이버 정렬 API가 국장 종목을 준다. **미장 캘린더** — 나스닥 실적 캘린더에
-  EPS 컨센서스가, IPO 캘린더도 나온다(국장 실적 일정은 무료 소스가 없어 반쪽).
+- `calendar*`·`idea*`·`forecast*`·`leaders*`·`whale-coin`은 아직 샘플.
+- 다음 후보: **미장 캘린더** — `api.nasdaq.com/api/calendar/earnings?date=YYYY-MM-DD`에 EPS 컨센서스,
+  `api/ipo/calendar?date=YYYY-MM`에 IPO가 나온다(국장 실적 일정은 무료 소스가 없어 반쪽).
   **대표주**는 옵션 데이터가 전부 유료라 불가, **커넥션**은 뉴스+AI가 필요해 백엔드 없이는 어렵다.
 - 추적 안 되는 임시 파일 `_nb.html`·`_se.html`(경쟁사 저장본)이 작업 폴더에 있다. 커밋 대상 아님.
 
