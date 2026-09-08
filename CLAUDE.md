@@ -46,7 +46,9 @@
 - `active-etf-data.js` — 국내 주식형 액티브 ETF 89개 목록. `node scripts/build-active-etf.mjs`로 재생성(네이버 ETF 목록 → `data/naver-etf-list.json`).
 - `whale-us.html` — 미장 큰손 수급. **5개 탭 전부 실데이터**(2026-09-07 완료). 종합·ARK=arkfunds.io, 내부자=Finnhub(워커 `?fh=insider`), SEC 공시·13F 제출일=data.sec.gov, 13F 보유종목=`f13-holdings-data.js`.
 - `f13-holdings-data.js` — 13F 거물 86곳의 실제 보유 상위 10종목(78곳 해결). `node scripts/build-13f-holdings.mjs`로 분기마다 재생성.
-- 그 외 `theme*.html`, `screener*.html`, `calendar*.html`, `idea*.html`, `forecast*.html`, `leaders*.html`, `ai*.html`, `whale-coin.html` 등은 대부분 정적 샘플 디자인 시안.
+- `theme.html` — 국장 테마·흐름. **4개 탭 전부 실데이터**(2026-09-08). 네이버 테마 266개·업종 79개 + 구성종목 시세·거래대금 + 액티브 ETF 자금.
+- `theme-us.html` — 미장 테마·흐름. **4개 탭 전부 실데이터**(2026-09-08). 섹터 ETF 11 + 테마 ETF 23 + M7 시총 + ARK 공개 매매.
+- 그 외 `screener*.html`, `calendar*.html`, `idea*.html`, `forecast*.html`, `leaders*.html`, `ai*.html`, `whale-coin.html` 등은 대부분 정적 샘플 디자인 시안.
 
 ## 현재 작업 인수인계 (2026-09-07)
 
@@ -88,8 +90,25 @@ DART를 그대로 때리므로 값이 진짜인지까지 같이 확인된다. �
   3. **`node -e '...'`는 백슬래시를 먹는다.** 정규식이 든 진단 코드를 `-e`로 돌리면 `\w`가 `w`가
      되어 전부 빈 값이 나온다. 실제로 멀쩡한 데이터를 "$0.0B"로 오진했다. 진단도 파일로 저장해 돌릴 것.
 
+### 테마·흐름(theme.html / theme-us.html)도 실데이터화 완료 (2026-09-08)
+- 국장: 네이버 `stocks/theme`(266개)·`stocks/industry`(79개)가 등락률·상승/하락 종목수를 주고,
+  `stocks/theme/{no}`로 구성종목 시세와 거래대금까지 드릴다운된다. 응답에 `themeDescription`도 있다.
+- 미장: 테마마다 대표 ETF가 있어 그 ETF 시세를 테마 등락으로 쓴다. 네이버 해외 `basic`이
+  시세·시가총액(`marketValueFullRaw`)·거래대금(`accumulatedTradingValueRaw`)을 한 번에 준다.
+- **못 만든 것과 그 이유**: 히스토리를 주는 API가 없어 "최근 20거래일 자금 흐름", "3개월 로테이션",
+  "YTD 수익률"은 만들 수 없다. 지수 포인트 기여도도 지수 제수가 없어 불가. 지어내는 대신
+  계산이 성립하는 값(오늘 등락·오른 종목 비율·거래대금·시총가중 기여도)으로 바꿔 이름도 그렇게 붙였다.
+- **미장 종목코드 함정**: 네이버 해외 reutersCode는 거래소마다 접미어가 다르다
+  (없음=NYSE / `.O`=나스닥 / **`.K`=아멕스**). `.O`만 예비로 두었더니 XLRE·JETS·KWEB·BOTZ가
+  조용히 목록에서 빠졌다. `ac.stock.naver.com/ac?q=<티커>&target=stock`으로 하나씩 확인해
+  `RC` 표에 박아 뒀다. 티커를 추가할 때도 같은 방법으로 확인할 것.
+
 ### 남은 것
-- `theme*`·`screener*`·`calendar*`·`idea*`·`forecast*`·`leaders*`·`whale-coin`은 아직 샘플.
+- `screener*`·`calendar*`·`idea*`·`forecast*`·`leaders*`·`whale-coin`은 아직 샘플.
+- 다음 후보(데이터 확인됨): **종목탐색** — 나스닥 스크리너 API(워커 경유)가 전체 미국 종목의
+  시세·시총·등락을, 네이버 정렬 API가 국장 종목을 준다. **미장 캘린더** — 나스닥 실적 캘린더에
+  EPS 컨센서스가, IPO 캘린더도 나온다(국장 실적 일정은 무료 소스가 없어 반쪽).
+  **대표주**는 옵션 데이터가 전부 유료라 불가, **커넥션**은 뉴스+AI가 필요해 백엔드 없이는 어렵다.
 - 추적 안 되는 임시 파일 `_nb.html`·`_se.html`(경쟁사 저장본)이 작업 폴더에 있다. 커밋 대상 아님.
 
 ## 차트 엔진 (stock.html / stock-us.html 공용 구조, 각 파일에 인라인)
